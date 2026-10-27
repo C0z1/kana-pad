@@ -21,14 +21,30 @@ export function grade(stored, ok, ms = 0, now = new Date()) {
   return serialize(scheduler.next(card, now, ratingFor(ok, ms)).card);
 }
 
-// Due cards first (most overdue first), then unseen items up to `newLeft`.
+export const LEARN_AHEAD_MS = 20 * 60 * 1000; // like Anki: cards failed minutes ago come back this session
+
+// Small seeded PRNG so a day's new cards keep the same shuffled order between calls.
+export function seededRng(seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
+// Overdue cards (most overdue first), then today's new cards shuffled (so kana can't be
+// guessed from あいうえお order), then cards due within LEARN_AHEAD_MS (just-failed ones).
 // `entries` are { key, ... } in curriculum order.
-export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY) {
-  const due = entries
-    .filter(e => cards[e.key] && Date.parse(cards[e.key].due) <= now.getTime())
-    .sort((a, b) => Date.parse(cards[a.key].due) - Date.parse(cards[b.key].due));
-  const fresh = entries.filter(e => !cards[e.key]).slice(0, Math.max(0, newLeft));
-  return [...due, ...fresh];
+export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY, seed = "") {
+  const t = now.getTime(), dueAt = e => Date.parse(cards[e.key].due);
+  const seen = entries.filter(e => cards[e.key]).sort((a, b) => dueAt(a) - dueAt(b));
+  const due = seen.filter(e => dueAt(e) <= t);
+  const soon = seen.filter(e => dueAt(e) > t && dueAt(e) <= t + LEARN_AHEAD_MS);
+  const rng = seededRng(seed);
+  const fresh = entries.filter(e => !cards[e.key]).slice(0, Math.max(0, newLeft))
+    .map(e => [rng(), e]).sort((a, b) => a[0] - b[0]).map(([, e]) => e);
+  return [...due, ...fresh, ...soon];
 }
 
 // Merges lists by taking weights[i] items from list i per turn, so new cards mix

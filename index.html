@@ -7,7 +7,7 @@
 <meta name="description" content="Practica hiragana, katakana, gramática, vocabulario y kanji N5 con un mando Xbox.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Anton&family=Barlow+Condensed:wght@500;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Anton&family=Barlow+Condensed:wght@500;600;800&family=Noto+Sans+JP:wght@500;700&display=swap">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -30,6 +30,7 @@
 
   <main class="stage" id="stage">
     <section class="prompt">
+      <span class="tag-new" id="tagnew" hidden>NUEVA</span>
       <div class="glyph" id="q"></div>
       <p class="hint" id="hint"></p>
       <p class="reading" id="reading"></p>
@@ -56,7 +57,7 @@
 
   <footer class="bottom">
     <span class="pad"><span class="dot" id="dot"></span><span id="padtxt">Sin mando</span></span>
-    <span class="help">LB/RB mazo · View voz · Menú pausa · Teclado: flechas, Q/E, O, I, S</span>
+    <span class="help">Cruceta: ↑Y ←X →B ↓A · LB/RB mazo · View voz · Menú pausa · Teclado: flechas, Q/E, O, I, S</span>
   </footer>
 </div>
 
@@ -83,7 +84,7 @@
       <ul>
         <li>Orden de trazos: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, © Ulrich Apel, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Los archivos derivados en <code>content/kanjivg</code> se comparten con la misma licencia.</li>
         <li>Calendario de repasos: <a href="https://github.com/open-spaced-repetition/ts-fsrs" target="_blank" rel="noopener">ts-fsrs</a> (FSRS v6), licencia MIT.</li>
-        <li>Tipografías: Dela Gothic One, Anton y Barlow Condensed, de Google Fonts (SIL Open Font License).</li>
+        <li>Tipografías: Dela Gothic One, Anton, Barlow Condensed y Noto Sans JP, de Google Fonts (SIL Open Font License).</li>
         <li>Kanji N5 (lecturas y significados): <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noopener">KANJIDIC2</a>, del <a href="https://www.edrdg.org/edrdg/license.html" target="_blank" rel="noopener">Electronic Dictionary Research and Development Group</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. El paquete <code>js/content/kanji-n5.js</code> se comparte con la misma licencia.</li>
         <li>Las lecturas del vocabulario se verifican con <a href="https://www.edrdg.org/jmdict/j_jmdict.html" target="_blank" rel="noopener">JMdict</a> (EDRDG, CC BY-SA 4.0), vía <a href="https://github.com/scriptin/jmdict-simplified" target="_blank" rel="noopener">jmdict-simplified</a>.</li>
         <li>Lista de vocabulario, significados en español, frases de gramática y explicaciones: contenido propio de Kana Pad.</li>

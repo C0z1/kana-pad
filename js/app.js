@@ -29,21 +29,24 @@ let ready = false; // starting before cards load would overwrite the saved sched
 
 let screen = "start"; // start | play | pause | summary
 let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
+let teaching = false; // a new card is shown with its answer before it is ever asked
+let jaVoice = false;  // ear mode is impossible without a Japanese voice
 let round = { results: [], missed: [] };
 
 const mode = () => MODES[prefs.deck];
 const isReview = () => mode() === REVIEW;
 const keyOf = (deck, item) => deck.id + ":" + item.q;
-const earOn = deck => prefs.ear && deck.kind !== "grammar";
+const earOn = deck => prefs.ear && prefs.voice && jaVoice && deck.kind !== "grammar";
 // Ear mode always asks forward; grammar always asks for the missing piece.
 const answerField = deck => (prefs.reverse && !earOn(deck) && deck.kind !== "grammar" ? "q" : "a");
 const savePrefs = () => store.setSync("kp-prefs", prefs);
-const pending = () => queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh).length;
+const reviewQueue = () => queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh, day.d);
+const pending = () => reviewQueue().length;
 
 // ---------- rendering ----------
 function renderTop() {
   const m = mode();
-  $("decktag").textContent = isReview() ? `${m.name.toUpperCase()} · ${pending()}` : m.name.toUpperCase();
+  $("decktag").textContent = m.name.toUpperCase();
   if (isReview()) {
     $("acc").textContent = `${pending()} pendientes`;
   } else {
@@ -53,8 +56,12 @@ function renderTop() {
   }
   $("streak").textContent = "×" + streak;
   $("today").textContent = day.n;
+  const grammar = (cur?.deck ?? m).kind === "grammar";
   $("ear").setAttribute("aria-pressed", prefs.ear);
   $("reverse").setAttribute("aria-pressed", prefs.reverse);
+  $("ear").disabled = grammar || !jaVoice;
+  $("ear").title = !jaVoice ? "Instala una voz japonesa: Configuración → Hora e idioma → Voz" : grammar ? "No aplica en gramática" : "";
+  $("reverse").disabled = grammar;
   $("voice").checked = prefs.voice;
 }
 
@@ -95,7 +102,7 @@ function hintFor(deck) {
 
 function nextCard() {
   if (isReview()) {
-    const q = queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh);
+    const q = reviewQueue();
     const e = q.find(x => x.key !== lastKey) ?? q[0];
     return e ? { item: e.item, deck: e.deck } : null;
   }
@@ -112,12 +119,14 @@ function next() {
   const { item, deck } = cur;
   lastKey = keyOf(deck, item);
   opts = options(deck.items, item, answerField(deck));
-  showPrompt(false);
-  $("hint").textContent = hintFor(deck);
-  $("reading").textContent = "";
+  teaching = isReview() && !cards[lastKey];
+  showPrompt(teaching);
+  $("hint").textContent = teaching ? "Carta nueva: pulsa la respuesta marcada" : hintFor(deck);
+  $("reading").textContent = teaching && deck.kind !== "grammar" ? (item.r ?? "") : "";
   $("verdict").textContent = ""; $("verdict").className = "verdict";
-  $("note").textContent = "";
+  $("note").textContent = teaching && deck.kind === "grammar" ? item.n : "";
   $("stage").querySelector(".prompt").className = "prompt";
+  $("tagnew").hidden = !teaching;
   $("opts").replaceChildren(...KEYS.map((k, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "bar"; b.dataset.k = k;
@@ -128,12 +137,16 @@ function next() {
     label.textContent = opts[i];
     b.append(badge, label);
     b.addEventListener("click", () => answer(k));
+    if (teaching) b.classList.add(opts[i] === item[answerField(deck)] ? "right" : "dim");
     return b;
   }));
   renderPips(); renderTop();
   locked = false;
   shownAt = performance.now();
-  if (answerField(deck) === "a" && deck.kind !== "grammar") speak(item.r || item.q);
+  if (teaching) {
+    speak(item.r || item.q);
+    if (deck.kind === "kanji") showStrokes(item.q);
+  } else if (answerField(deck) === "a" && deck.kind !== "grammar") speak(item.r || item.q);
 }
 
 async function showStrokes(ch) {
@@ -146,11 +159,23 @@ async function showStrokes(ch) {
 
 function answer(k) {
   if (screen !== "play" || locked || !cur) return;
-  locked = true;
   const { item, deck } = cur;
   const key = keyOf(deck, item);
   const field = answerField(deck);
   const chosen = opts[KEYS.indexOf(k)];
+  if (teaching) {
+    // Only the highlighted answer moves on; it is graded as a first, unhurried success.
+    if (chosen !== item[field]) return;
+    locked = true;
+    day.fresh++; day.n++;
+    cards[key] = grade(undefined, true, 0);
+    store.set("kp-cards", cards); store.setSync("kp-day", day);
+    round.results.push(true);
+    renderTop(); renderPips();
+    timer = setTimeout(next, 300);
+    return;
+  }
+  locked = true;
   const ok = chosen === item[field];
   const ms = performance.now() - shownAt;
 
@@ -205,7 +230,7 @@ function answer(k) {
 
   let wait = ok ? 800 : 2200;
   if (deck.kind === "grammar") wait = ok ? 2200 : 3500;
-  if (deck.kind === "kanji") {
+  if (deck.kind === "kanji" && field === "a") {
     showStrokes(item.q).then(n => {
       if (!n || screen !== "play") return;
       clearTimeout(timer);
@@ -260,6 +285,11 @@ function setDeck(i) {
   if (screen === "play" || screen === "summary") newRound();
 }
 function toggle(name) {
+  if (name === "ear" && !jaVoice) {
+    $("note").textContent = "El modo oído necesita una voz japonesa. En Windows: Configuración → Hora e idioma → Voz → Agregar voces → Japonés.";
+    return;
+  }
+  if ((name === "ear" || name === "reverse") && (cur?.deck ?? mode()).kind === "grammar") return;
   prefs[name] = !prefs[name];
   savePrefs(); renderTop();
   if (name === "voice" && !prefs.voice) speechSynthesis?.cancel();
@@ -269,10 +299,10 @@ function setPaused(p) {
   if (p && screen === "play") {
     screen = "pause"; clearTimeout(timer);
     $("starttxt").textContent = "Continuar";
-    $("overlay").hidden = false; $("start").focus();
+    $("overlay").hidden = false; document.querySelector(".app").inert = true; $("start").focus();
   } else if (!p && ready && (screen === "pause" || screen === "start")) {
     const fresh = screen === "start";
-    screen = "play"; $("overlay").hidden = true;
+    screen = "play"; $("overlay").hidden = true; document.querySelector(".app").inert = false;
     keepAwake();
     if (fresh) newRound(); else if (locked) next();
   }
@@ -372,7 +402,13 @@ setInterval(() => {
 }, 500);
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-speechSynthesis?.getVoices();
+function checkVoices() {
+  jaVoice = !!window.speechSynthesis?.getVoices().some(v => v.lang.startsWith("ja"));
+  renderTop();
+}
+window.speechSynthesis?.addEventListener?.("voiceschanged", checkVoices);
+checkVoices();
+document.querySelector(".app").inert = true;
 $("start").disabled = true;
 store.get("kp-cards", {}).then(c => {
   cards = validCards(c) ? c : {};
