@@ -15,10 +15,32 @@ export function ratingFor(ok, ms) {
   return ms > SLOW_MS ? Rating.Hard : Rating.Good;
 }
 
+// A stored card must carry every FSRS field, or ts-fsrs throws and the session freezes.
+const isNum = v => typeof v === "number" && Number.isFinite(v) && v >= 0;
+export function validCard(c) {
+  return !!c && typeof c === "object" &&
+    typeof c.due === "string" && !Number.isNaN(Date.parse(c.due)) &&
+    [c.stability, c.difficulty, c.elapsed_days, c.scheduled_days, c.reps, c.lapses, c.learning_steps].every(isNum) &&
+    [0, 1, 2, 3].includes(c.state) &&
+    (c.last_review === undefined || (typeof c.last_review === "string" && !Number.isNaN(Date.parse(c.last_review))));
+}
+
+// Drops invalid cards (they come back as new) instead of letting one bad entry break the queue.
+export function sanitizeCards(cards) {
+  const out = {};
+  if (cards && typeof cards === "object") for (const [k, c] of Object.entries(cards)) if (validCard(c)) out[k] = c;
+  return out;
+}
+
 // Returns the next stored card after answering. `stored` is undefined for a new item.
 export function grade(stored, ok, ms = 0, now = new Date()) {
-  const card = stored ? revive(stored) : createEmptyCard(now);
-  return serialize(scheduler.next(card, now, ratingFor(ok, ms)).card);
+  const rating = ratingFor(ok, ms);
+  try {
+    const card = stored ? revive(stored) : createEmptyCard(now);
+    return serialize(scheduler.next(card, now, rating).card);
+  } catch {
+    return serialize(scheduler.next(createEmptyCard(now), now, rating).card);
+  }
 }
 
 export const LEARN_AHEAD_MS = 20 * 60 * 1000; // like Anki: cards failed minutes ago come back this session

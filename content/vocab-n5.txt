@@ -68,16 +68,16 @@
 
 # números y contadores
 零|れい|cero
-一|いち|uno
-二|に|dos
-三|さん|tres
-四|よん|cuatro
-五|ご|cinco
-六|ろく|seis
-七|なな|siete
-八|はち|ocho
-九|きゅう|nueve
-十|じゅう|diez
+一|いち|uno (número)
+二|に|dos (número)
+三|さん|tres (número)
+四|よん|cuatro (número)
+五|ご|cinco (número)
+六|ろく|seis (número)
+七|なな|siete (número)
+八|はち|ocho (número)
+九|きゅう|nueve (número)
+十|じゅう|diez (número)
 百|ひゃく|cien
 千|せん|mil
 万|まん|diez mil
@@ -110,7 +110,7 @@
 毎晩|まいばん|todas las noches
 朝|あさ|mañana (parte del día)
 昼|ひる|mediodía
-晩|ばん|noche
+晩|ばん|la noche (hora de cenar)
 夜|よる|noche
 夕方|ゆうがた|atardecer
 午前|ごぜん|a. m.
@@ -165,7 +165,7 @@
 家|いえ|casa
 部屋|へや|cuarto, habitación
 台所|だいどころ|cocina
-お手洗い|おてあらい|baño
+お手洗い|おてあらい|baño (formal)
 トイレ|トイレ|baño
 玄関|げんかん|entrada de la casa
 庭|にわ|jardín
@@ -221,7 +221,7 @@
 後ろ|うしろ|detrás
 横|よこ|al lado
 隣|となり|al lado (contiguo)
-近く|ちかく|cerca
+近く|ちかく|cercanías, cerca de
 向こう|むこう|al otro lado
 東|ひがし|este
 西|にし|oeste
@@ -233,7 +233,7 @@
 朝ご飯|あさごはん|desayuno
 昼ご飯|ひるごはん|almuerzo
 晩ご飯|ばんごはん|cena
-料理|りょうり|cocina, plato
+料理|りょうり|platillo, guiso
 食べ物|たべもの|comida
 飲み物|のみもの|bebida
 水|みず|agua
@@ -300,7 +300,7 @@
 葉書|はがき|tarjeta postal
 荷物|にもつ|equipaje, paquete
 箱|はこ|caja
-お風呂|おふろ|baño (tina)
+お風呂|おふろ|tina, baño de inmersión
 シャワー|シャワー|ducha
 冷蔵庫|れいぞうこ|refrigerador
 石鹸|せっけん|jabón
@@ -334,7 +334,7 @@
 旅行|りょこう|viaje
 
 # naturaleza y clima
-天気|てんき|clima, tiempo
+天気|てんき|clima
 雨|あめ|lluvia
 雪|ゆき|nieve
 風|かぜ|viento
@@ -352,7 +352,7 @@
 授業|じゅぎょう|clase
 試験|しけん|examen
 テスト|テスト|prueba
-問題|もんだい|problema, pregunta
+問題|もんだい|problema, ejercicio
 質問|しつもん|pregunta
 答え|こたえ|respuesta
 意味|いみ|significado
@@ -384,11 +384,11 @@
 
 # colores
 色|いろ|color
-赤|あか|rojo
-青|あお|azul
-白|しろ|blanco
-黒|くろ|negro
-黄色|きいろ|amarillo
+赤|あか|rojo (sustantivo)
+青|あお|azul (sustantivo)
+白|しろ|blanco (sustantivo)
+黒|くろ|negro (sustantivo)
+黄色|きいろ|amarillo (sustantivo)
 茶色|ちゃいろ|café (color)
 緑|みどり|verde
 
@@ -450,9 +450,9 @@
 着く|つく|llegar
 作る|つくる|hacer, fabricar
 勤める|つとめる|trabajar (para)
-出かける|でかける|salir
+出かける|でかける|salir (de paseo)
 出来る|できる|poder, estar listo
-出る|でる|salir
+出る|でる|salir (de un lugar)
 飛ぶ|とぶ|volar
 止まる|とまる|detenerse
 取る|とる|tomar, agarrar
@@ -482,7 +482,7 @@
 見る|みる|ver
 持つ|もつ|tener, sostener
 休む|やすむ|descansar, faltar
-やる|やる|hacer
+やる|やる|hacer (informal)
 呼ぶ|よぶ|llamar
 読む|よむ|leer
 分かる|わかる|entender
@@ -492,8 +492,8 @@
 結婚|けっこん|matrimonio
 
 # adjetivos い
-青い|あおい|azul
-赤い|あかい|rojo
+青い|あおい|azul (adjetivo)
+赤い|あかい|rojo (adjetivo)
 明るい|あかるい|luminoso, alegre
 暖かい|あたたかい|cálido
 新しい|あたらしい|nuevo
@@ -509,23 +509,23 @@
 美味しい|おいしい|rico, sabroso
 多い|おおい|muchos
 大きい|おおきい|grande
-遅い|おそい|lento, tarde
+遅い|おそい|lento, tardío
 重い|おもい|pesado
-面白い|おもしろい|divertido, interesante
+面白い|おもしろい|interesante, gracioso
 辛い|からい|picante
 軽い|かるい|ligero
 可愛い|かわいい|lindo
-黄色い|きいろい|amarillo
+黄色い|きいろい|amarillo (adjetivo)
 汚い|きたない|sucio
 暗い|くらい|oscuro
-黒い|くろい|negro
+黒い|くろい|negro (adjetivo)
 寒い|さむい|frío (clima)
-白い|しろい|blanco
+白い|しろい|blanco (adjetivo)
 狭い|せまい|estrecho
 高い|たかい|alto, caro
-楽しい|たのしい|divertido
+楽しい|たのしい|divertido (lo pasas bien)
 小さい|ちいさい|pequeño
-近い|ちかい|cerca
+近い|ちかい|cercano
 つまらない|つまらない|aburrido
 冷たい|つめたい|frío (al tacto)
 強い|つよい|fuerte
@@ -544,7 +544,7 @@
 短い|みじかい|corto
 難しい|むずかしい|difícil
 易しい|やさしい|fácil
-優しい|やさしい|amable
+優しい|やさしい|amable, tierno
 安い|やすい|barato
 弱い|よわい|débil
 悪い|わるい|malo
@@ -558,7 +558,7 @@
 賑やか|にぎやか|animado, concurrido
 元気|げんき|sano, con energía
 有名|ゆうめい|famoso
-親切|しんせつ|amable
+親切|しんせつ|atento, servicial
 便利|べんり|práctico
 不便|ふべん|poco práctico
 大丈夫|だいじょうぶ|bien, sin problema

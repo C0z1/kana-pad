@@ -1,0 +1,106 @@
+# Kanji N5 de Kana Pad: kanji|lecturas comunes|significado (contenido propio).
+# Las lecturas se validan contra KANJIDIC2 con `npm run content`. Lo que va entre paréntesis es okurigana.
+# Cada significado es único y no contiene el kanji, para que en opción múltiple haya una sola respuesta.
+日|にち・ひ|día, sol
+一|いち・ひと(つ)|uno
+人|じん・にん・ひと|persona
+年|ねん・とし|año
+大|だい・おお(きい)|grande
+十|じゅう・とお|diez
+二|に・ふた(つ)|dos
+本|ほん・もと|libro, origen
+中|ちゅう・なか|dentro, medio
+出|しゅつ・で(る)|salir
+三|さん・み(っつ)|tres
+見|けん・み(る)|ver
+月|げつ・がつ・つき|luna, mes
+生|せい・い(きる)|vida, nacer
+五|ご・いつ(つ)|cinco
+上|じょう・うえ|arriba
+四|し・よん|cuatro
+金|きん・かね|oro, dinero
+九|きゅう・く|nueve
+入|にゅう・はい(る)|entrar
+立|りつ・た(つ)|ponerse de pie
+手|しゅ・て|mano
+学|がく・まな(ぶ)|estudiar
+円|えん|yen, círculo
+子|し・こ|niño, hijo
+目|もく・め|ojo
+八|はち・や(っつ)|ocho
+六|ろく・む(っつ)|seis
+下|か・した|abajo
+気|き|espíritu, ánimo
+小|しょう・ちい(さい)|pequeño (tamaño)
+七|しち・なな|siete
+山|さん・やま|montaña
+女|じょ・おんな|mujer
+百|ひゃく|cien
+先|せん・さき|previo, punta
+名|めい・な|nombre
+川|かわ|río
+千|せん|mil
+水|すい・みず|agua
+男|だん・おとこ|hombre
+口|こう・くち|boca
+校|こう|escuela
+空|くう・そら|cielo, vacío
+土|ど・つち|tierra, suelo
+木|もく・き|árbol
+車|しゃ・くるま|coche
+足|そく・あし|pie, pierna
+白|はく・しろ(い)|blanco
+天|てん|celestial, del cielo
+火|か・ひ|fuego
+花|か・はな|flor
+右|う・みぎ|derecha
+左|さ・ひだり|izquierda
+休|きゅう・やす(む)|descansar
+雨|う・あめ|lluvia
+耳|じ・みみ|oreja
+国|こく・くに|país
+会|かい・あ(う)|reunirse
+長|ちょう・なが(い)|largo, jefe
+時|じ・とき|hora, tiempo
+行|こう・い(く)|ir
+社|しゃ|empresa, santuario
+分|ふん・ぶん・わ(かる)|minuto, parte
+後|ご・あと・うし(ろ)|después, detrás
+前|ぜん・まえ|delante, frente
+間|かん・あいだ|intervalo, entre
+東|とう・ひがし|este
+今|こん・いま|ahora
+新|しん・あたら(しい)|nuevo
+高|こう・たか(い)|alto, caro
+外|がい・そと|fuera
+言|げん・い(う)|decir
+来|らい・く(る)|venir
+話|わ・はな(す)|hablar
+多|た・おお(い)|mucho
+北|ほく・きた|norte
+午|ご|mediodía
+書|しょ・か(く)|escribir
+道|どう・みち|camino
+半|はん|mitad
+西|せい・にし|oeste
+電|でん|electricidad
+少|しょう・すこ(し)|poco (cantidad)
+語|ご|idioma, palabra
+聞|ぶん・き(く)|escuchar
+食|しょく・た(べる)|comer
+何|なに・なん|qué
+南|なん・みなみ|sur
+万|まん|diez mil
+店|てん・みせ|tienda
+毎|まい|cada
+古|こ・ふる(い)|viejo
+買|ばい・か(う)|comprar
+週|しゅう|semana
+母|ぼ・はは|madre
+読|どく・よ(む)|leer
+友|ゆう・とも|amigo
+父|ふ・ちち|padre
+魚|ぎょ・さかな|pez, pescado
+安|あん・やす(い)|barato, tranquilo
+駅|えき|estación
+飲|いん・の(む)|beber

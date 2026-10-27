@@ -1,7 +1,7 @@
 import { DECKS } from "./data.js";
 import { pick, options } from "./srs.js";
 import { createPad } from "./gamepad.js";
-import { grade, queue, nextDue, interleave, NEW_PER_DAY } from "./scheduler.js";
+import { grade, queue, nextDue, interleave, sanitizeCards, validCard, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 
@@ -367,8 +367,7 @@ $("repad").addEventListener("click", () => { pad.reset(); $("msg").textContent =
 // ---------- progress backup ----------
 const validStats = s => s && typeof s === "object" &&
   Object.values(s).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
-const validCards = c => c && typeof c === "object" &&
-  Object.values(c).every(v => v && typeof v.due === "string" && !Number.isNaN(Date.parse(v.due)) && Number.isFinite(v.stability));
+const validCards = c => !!c && typeof c === "object" && Object.values(c).every(validCard);
 
 $("export").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs }, null, 2)], { type: "application/json" });
@@ -411,7 +410,7 @@ checkVoices();
 document.querySelector(".app").inert = true;
 $("start").disabled = true;
 store.get("kp-cards", {}).then(c => {
-  cards = validCards(c) ? c : {};
+  cards = sanitizeCards(c);
   ready = true; $("start").disabled = false;
   renderTop();
 });

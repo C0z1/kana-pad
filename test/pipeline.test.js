@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseVocab, checkVocab, dedupeMeanings } from "../tools/pipeline/build-content.mjs";
+import { parseVocab, checkVocab, duplicateMeanings } from "../tools/pipeline/build-content.mjs";
 import { VOCAB_N5 } from "../js/content/vocab-n5.js";
 import { KANJI_N5 } from "../js/content/kanji-n5.js";
 import { readFileSync } from "node:fs";
@@ -18,8 +18,8 @@ test("vocab check catches wrong readings, unknown words and duplicates", () => {
 });
 
 test("duplicate kanji meanings get disambiguated", () => {
-  const out = dedupeMeanings([{ q: "少", a: "poco" }, { q: "小", a: "poco" }]);
-  assert.notEqual(out[0].a, out[1].a);
+  const dup = duplicateMeanings([{ q: "少", a: "poco" }, { q: "小", a: "poco" }]);
+  assert.deepEqual(dup, ["poco"]);
 });
 
 test("generated packs match the source list and stay unique", () => {

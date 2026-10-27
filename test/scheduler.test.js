@@ -55,3 +55,14 @@ test("new cards are shuffled per day, failed cards come back within the session"
   const later = { k0: { due: new Date(now.getTime() + LEARN_AHEAD_MS + 60000).toISOString() } };
   assert.ok(!queue(entries, later, now, 2, "x").some(e => e.key === "k0"));
 });
+
+test("broken cards: rejected on import, repaired when stored, never freeze grading", async () => {
+  const { validCard, sanitizeCards, grade } = await import("../js/scheduler.js");
+  const broken = { due: "2020-01-01T00:00:00Z", stability: 1 };
+  assert.equal(validCard(broken), false);
+  const good = grade(undefined, true, 1000, now);
+  assert.equal(validCard(good), true);
+  assert.deepEqual(Object.keys(sanitizeCards({ a: good, b: broken, c: null })), ["a"]);
+  const regraded = grade(broken, true, 1000, now); // must not throw
+  assert.equal(validCard(regraded), true);
+});
