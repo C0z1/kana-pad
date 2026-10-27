@@ -22,6 +22,9 @@ export function shuffle(list, rng = Math.random) {
 export function options(items, item, field, rng = Math.random) {
   // Grammar items bring their own distractors: other items' answers would often be correct too.
   if (item.o) return shuffle([item.a, ...item.o], rng);
-  const wrong = [...new Set(items.map(i => i[field]).filter(v => v !== item[field]))];
+  // A distractor must differ on both sides: two words with the same meaning (or the same
+  // spelling) would make two answer bars correct.
+  const other = field === "a" ? "q" : "a";
+  const wrong = [...new Set(items.filter(i => i[field] !== item[field] && i[other] !== item[other]).map(i => i[field]))];
   return shuffle([item[field], ...shuffle(wrong, rng).slice(0, 3)], rng);
 }

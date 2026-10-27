@@ -103,5 +103,8 @@ if (process.argv[1]?.endsWith("build-content.mjs")) {
   }
   writeModule("js/content/vocab-n5.js", "VOCAB_N5", vocab, "Vocabulario N5: lista y significados propios de Kana Pad (MIT); lecturas verificadas con JMdict.");
   writeModule("js/content/kanji-n5.js", "KANJI_N5", kanji, "Kanji N5: lecturas y significados propios de Kana Pad (MIT); conjunto y lecturas verificados con KANJIDIC2.");
+  // The service worker precaches these so stroke order works offline for every N5 kanji.
+  const strokeFiles = kanji.map(k => `content/kanjivg/${k.q.codePointAt(0).toString(16).padStart(5, "0")}.svg`);
+  writeFileSync("content/kanjivg/n5.json", JSON.stringify(strokeFiles));
   console.log(`vocabulario: ${vocab.length} palabras · kanji: ${kanji.length}`);
 }

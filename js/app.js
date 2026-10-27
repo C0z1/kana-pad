@@ -1,7 +1,7 @@
 import { DECKS } from "./data.js";
 import { pick, options } from "./srs.js";
 import { createPad } from "./gamepad.js";
-import { grade, queue, nextDue, interleave, sanitizeCards, validCard, NEW_PER_DAY } from "./scheduler.js";
+import { grade, queue, nextDue, interleave, sanitizeCards, validCard, newCardsToday, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 
@@ -20,8 +20,7 @@ const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
 const todayKey = () => new Date().toLocaleDateString("sv"); // local YYYY-MM-DD
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
 let day = store.getSync("kp-day", { d: todayKey(), n: 0, fresh: 0 });
-if (day.d !== todayKey()) day = { d: todayKey(), n: 0, fresh: 0 };
-day.fresh ??= 0;
+let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correct } of already-learned cards
 const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
@@ -30,6 +29,7 @@ let ready = false; // starting before cards load would overwrite the saved sched
 let screen = "start"; // start | play | pause | summary
 let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
 let teaching = false; // a new card is shown with its answer before it is ever asked
+let taughtInARow = 0; // at most one lesson in a row while there are cards to ask
 let jaVoice = false;  // ear mode is impossible without a Japanese voice
 let round = { results: [], missed: [] };
 
@@ -40,11 +40,20 @@ const earOn = deck => prefs.ear && prefs.voice && jaVoice && deck.kind !== "gram
 // Ear mode always asks forward; grammar always asks for the missing piece.
 const answerField = deck => (prefs.reverse && !earOn(deck) && deck.kind !== "grammar" ? "q" : "a");
 const savePrefs = () => store.setSync("kp-prefs", prefs);
-const reviewQueue = () => queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh, day.d);
+const dueNow = () => Object.values(cards).filter(c => Date.parse(c.due) <= Date.now()).length;
+// Starts a new day (also when the app stays open past midnight) and fixes today's new-card limit.
+function rollDay() {
+  if (day.d !== todayKey()) day = { d: todayKey(), n: 0, fresh: 0 };
+  day.fresh ??= 0;
+  if (ready && day.limit === undefined) day.limit = newCardsToday(dueNow(), history, day.d);
+}
+rollDay();
+const reviewQueue = () => queue(ENTRIES, cards, new Date(), (day.limit ?? NEW_PER_DAY) - day.fresh, day.d);
 const pending = () => reviewQueue().length;
 
 // ---------- rendering ----------
 function renderTop() {
+  rollDay();
   const m = mode();
   $("decktag").textContent = m.name.toUpperCase();
   if (isReview()) {
@@ -78,6 +87,7 @@ const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 
 function showPrompt(revealed) {
   const q = $("q"), { item, deck } = cur;
+  q.lang = deck.kind === "grammar" || answerField(deck) !== "q" || revealed ? "ja" : "es";
   if (earOn(deck) && !revealed) {
     q.className = "glyph ear";
     q.innerHTML = SPEAKER + "<span>Escucha</span>";
@@ -102,8 +112,11 @@ function hintFor(deck) {
 
 function nextCard() {
   if (isReview()) {
-    const q = reviewQueue();
-    const e = q.find(x => x.key !== lastKey) ?? q[0];
+    const q = reviewQueue().filter(x => x.key !== lastKey);
+    const asked = q.find(x => cards[x.key]);
+    let e = q[0];
+    if (e && !cards[e.key] && taughtInARow >= 1 && asked) e = asked;
+    e ??= reviewQueue()[0];
     return e ? { item: e.item, deck: e.deck } : null;
   }
   const deck = mode();
@@ -113,6 +126,7 @@ function nextCard() {
 
 function next() {
   clearTimeout(timer);
+  rollDay();
   if (round.results.length >= ROUND) return showSummary();
   cur = nextCard();
   if (!cur) return showSummary();
@@ -120,6 +134,7 @@ function next() {
   lastKey = keyOf(deck, item);
   opts = options(deck.items, item, answerField(deck));
   teaching = isReview() && !cards[lastKey];
+  taughtInARow = teaching ? taughtInARow + 1 : 0;
   showPrompt(teaching);
   $("hint").textContent = teaching ? "Carta nueva: pulsa la respuesta marcada" : hintFor(deck);
   $("reading").textContent = teaching && deck.kind !== "grammar" ? (item.r ?? "") : "";
@@ -135,6 +150,7 @@ function next() {
     const label = document.createElement("span");
     label.className = "label" + (answerField(deck) === "q" || deck.kind === "grammar" ? " jp" : "");
     label.textContent = opts[i];
+    label.lang = label.classList.contains("jp") ? "ja" : "es";
     b.append(badge, label);
     b.addEventListener("click", () => answer(k));
     if (teaching) b.classList.add(opts[i] === item[answerField(deck)] ? "right" : "dim");
@@ -170,8 +186,7 @@ function answer(k) {
     day.fresh++; day.n++;
     cards[key] = grade(undefined, true, 0);
     store.set("kp-cards", cards); store.setSync("kp-day", day);
-    round.results.push(true);
-    renderTop(); renderPips();
+    renderTop();
     timer = setTimeout(next, 300);
     return;
   }
@@ -184,6 +199,11 @@ function answer(k) {
   stats[key] = s;
   if (isReview()) {
     if (!cards[key]) day.fresh++;
+    else {
+      const h = (history[day.d] ??= { reviews: 0, correct: 0 });
+      h.reviews++; if (ok) h.correct++;
+      store.setSync("kp-hist", history);
+    }
     cards[key] = grade(cards[key], ok, ms);
     store.set("kp-cards", cards);
   }
@@ -207,6 +227,7 @@ function answer(k) {
     const right = document.createElement("span");
     right.className = /[぀-ヿ一-鿿]/.test(item[field]) ? "jp" : "";
     right.textContent = item[field];
+    if (right.className) right.lang = "ja";
     $("verdict").replaceChildren("ERA: ", right);
   }
   $("verdict").className = "verdict " + (ok ? "ok" : "bad");
@@ -216,7 +237,7 @@ function answer(k) {
     const picked = deck.items.find(i => i[field] === chosen);
     if (picked) {
       const jp = document.createElement("span");
-      jp.className = "jp"; jp.textContent = picked.q;
+      jp.className = "jp"; jp.lang = "ja"; jp.textContent = picked.q;
       $("note").replaceChildren("Tu respuesta: ", jp, ` = ${picked.a}`);
     }
   }
@@ -230,7 +251,7 @@ function answer(k) {
 
   let wait = ok ? 800 : 2200;
   if (deck.kind === "grammar") wait = ok ? 2200 : 3500;
-  if (deck.kind === "kanji" && field === "a") {
+  if (deck.kind === "kanji") {
     showStrokes(item.q).then(n => {
       if (!n || screen !== "play") return;
       clearTimeout(timer);
@@ -257,11 +278,14 @@ function showSummary() {
     $("score").textContent = `${hits} / ${done}`;
     $("sumnote").textContent = isReview() ? `Quedan ${pending()} cartas para hoy.` : "";
   }
+  if (isReview() && day.limit !== undefined && day.limit < NEW_PER_DAY) {
+    $("sumnote").textContent += ` Hoy solo entran ${day.limit} cartas nuevas: hay muchos repasos pendientes o los aciertos bajaron. Así no se acumula.`;
+  }
   $("missed").replaceChildren(...round.missed.map(it => {
     const li = document.createElement("li");
     const inner = document.createElement("span");
     const jp = document.createElement("span");
-    jp.className = "jp"; jp.textContent = it.r && it.t ? it.r : it.q;
+    jp.className = "jp"; jp.lang = "ja"; jp.textContent = it.r && it.t ? it.r : it.q;
     inner.append(jp, it.t && it.r ? "" : it.a);
     li.append(inner);
     return li;
@@ -412,6 +436,7 @@ $("start").disabled = true;
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
   ready = true; $("start").disabled = false;
+  rollDay(); store.setSync("kp-day", day);
   renderTop();
 });
 renderTop();

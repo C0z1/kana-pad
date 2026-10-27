@@ -34,3 +34,9 @@ test("service worker precaches files that exist", () => {
   const list = JSON.parse(sw.match(/const APP = (\[[\s\S]*?\]);/)[1].replace(/,\s*\]/, "]").replace(/"/g, '"'));
   for (const f of list) if (f !== "./") assert.ok(existsSync(f), f);
 });
+
+test("every N5 kanji stroke file is listed for offline precache", () => {
+  const list = JSON.parse(readFileSync("content/kanjivg/n5.json", "utf8"));
+  assert.equal(list.length, DECKS.find(d => d.kind === "kanji").items.length);
+  for (const f of list) assert.ok(existsSync(f), f);
+});

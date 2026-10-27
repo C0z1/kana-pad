@@ -69,6 +69,16 @@ export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY, s
   return [...due, ...fresh, ...soon];
 }
 
+// Brake for the first weeks: with a big backlog or weak recent retention, take fewer new cards.
+export const BRAKE_PENDING = 100, BRAKE_RETENTION = 0.75, BRAKE_NEW = 5;
+export function newCardsToday(duePending, history, today) {
+  const recent = Object.entries(history).filter(([d]) => d < today).sort().slice(-3).map(([, h]) => h);
+  const reviews = recent.reduce((s, h) => s + h.reviews, 0);
+  const correct = recent.reduce((s, h) => s + h.correct, 0);
+  const lowRetention = reviews >= 30 && correct / reviews < BRAKE_RETENTION;
+  return duePending > BRAKE_PENDING || lowRetention ? BRAKE_NEW : NEW_PER_DAY;
+}
+
 // Merges lists by taking weights[i] items from list i per turn, so new cards mix
 // vocabulary, grammar and kanji instead of exhausting one deck before the next.
 export function interleave(lists, weights) {

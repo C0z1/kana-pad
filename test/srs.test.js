@@ -41,3 +41,21 @@ test("katakana is derived correctly", () => {
   assert.equal(kata[0].q, "ア");
   assert.equal(kata.find(i => i.a === "n").q, "ン");
 });
+
+test("options never offer a second correct answer, in either direction", () => {
+  for (const deck of DECKS.filter(d => d.kind !== "grammar")) {
+    const byA = new Map(deck.items.map(i => [i.a, i.q]));
+    for (let n = 0; n < 200; n++) {
+      const item = deck.items[n % deck.items.length];
+      const reverse = options(deck.items, item, "q");
+      // in reverse every option is a written form; only the item's own maps to its meaning
+      assert.equal(reverse.filter(q => deck.items.find(i => i.q === q)?.a === item.a).length, 1, deck.id + " " + item.q);
+      const forward = options(deck.items, item, "a");
+      assert.equal(forward.filter(a => byA.get(a) === item.q).length, 1);
+    }
+  }
+});
+
+test("kanji meanings never contain the kanji", () => {
+  for (const it of DECKS.find(d => d.kind === "kanji").items) assert.ok(!it.a.includes(it.q), it.q);
+});
