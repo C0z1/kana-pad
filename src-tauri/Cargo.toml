@@ -14,3 +14,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+
+# The Android test build uses the dev profile: without debug info the APK goes from
+# hundreds of MB to a few dozen.
+[profile.dev]
+debug = false
+strip = "debuginfo"
