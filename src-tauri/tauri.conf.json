@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Kana Pad",
+  "version": "0.5.1",
+  "identifier": "com.c0z1.kanapad",
+  "build": {
+    "frontendDist": "../dist",
+    "beforeBuildCommand": "node tools/build-web.mjs",
+    "beforeDevCommand": "node tools/build-web.mjs"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Kana Pad",
+        "width": 1280,
+        "height": 760,
+        "minWidth": 380,
+        "minHeight": 600,
+        "backgroundColor": "#0e0e14"
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Education",
+    "shortDescription": "Práctica de japonés con mando Xbox",
+    "longDescription": "Kana, gramática, vocabulario y kanji N5 con repaso espaciado (FSRS), pensado para usarse con un mando Xbox.",
+    "copyright": "Código MIT. Datos de kanji: KANJIDIC2 (CC BY-SA 4.0); trazos: KanjiVG (CC BY-SA 3.0).",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
