@@ -103,3 +103,16 @@ test("breather: a failed card never comes right back while others are available"
   assert.equal(pickNext([{ key: "x" }], [{ key: "x", t: 0 }], 1000, () => false), null); // all resting
   assert.equal(pickNext([{ key: "x" }], [{ key: "x", t: 0 }], 61000, () => false).key, "x");
 });
+
+test("brake values: 70% retention threshold, 10 new when retention is low, strictest limit wins", async () => {
+  const { newCardsToday, NEW_PER_DAY, BRAKE_NEW, BRAKE_NEW_RETENTION } = await import("../js/scheduler.js");
+  assert.equal(newCardsToday(10, {}, "2026-10-27"), NEW_PER_DAY);
+  assert.equal(newCardsToday(101, {}, "2026-10-27"), BRAKE_NEW);
+  const weak = { "2026-10-24": { reviews: 40, correct: 24 }, "2026-10-25": { reviews: 40, correct: 27 }, "2026-10-26": { reviews: 40, correct: 27 } };
+  assert.equal(newCardsToday(10, weak, "2026-10-27"), BRAKE_NEW_RETENTION); // 65% < 70%
+  assert.equal(BRAKE_NEW_RETENTION, 10);
+  assert.equal(newCardsToday(150, weak, "2026-10-27"), BRAKE_NEW);
+  assert.equal(newCardsToday(250, weak, "2026-10-27"), 0);
+  assert.equal(newCardsToday(10, { "2026-10-26": { reviews: 60, correct: 43 } }, "2026-10-27"), NEW_PER_DAY); // 71.7%
+  assert.equal(newCardsToday(10, { "2026-10-27": { reviews: 60, correct: 0 } }, "2026-10-27"), NEW_PER_DAY); // today doesn't count
+});

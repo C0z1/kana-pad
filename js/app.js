@@ -426,8 +426,9 @@ $("import").addEventListener("change", async e => {
       await store.set("kp-cards", cards);
     }
     renderTop();
-    $("msg").textContent = `Progreso importado: ${Object.keys(stats).length} cartas practicadas, ${Object.keys(cards).length} en repaso.` +
-      (skipped ? ` Se omitieron ${skipped} cartas dañadas; volverán como nuevas.` : "");
+    const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+    $("msg").textContent = `Progreso importado: ${n(Object.keys(stats).length, "carta practicada", "cartas practicadas")}, ${Object.keys(cards).length} en repaso.` +
+      (skipped ? ` Se ${skipped === 1 ? "omitió" : "omitieron"} ${n(skipped, "carta dañada", "cartas dañadas")}; ${skipped === 1 ? "volverá como nueva" : "volverán como nuevas"}.` : "");
   } catch {
     $("msg").textContent = "Ese archivo no es una copia de Kana Pad. Exporta uno desde esta pantalla y vuelve a intentarlo.";
   }

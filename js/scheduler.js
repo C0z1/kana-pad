@@ -83,14 +83,16 @@ export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY, s
 // Brake: with a big backlog or weak retention on mature cards, take fewer (or no) new cards.
 // `history` only counts answers to cards that were already in review (state 2), so cards
 // taught minutes ago don't drag retention down.
-export const BRAKE_PENDING = 100, BRAKE_STOP = 200, BRAKE_RETENTION = 0.75, BRAKE_MIN_REVIEWS = 50, BRAKE_NEW = 5;
+export const BRAKE_PENDING = 100, BRAKE_STOP = 200, BRAKE_RETENTION = 0.70, BRAKE_MIN_REVIEWS = 50;
+export const BRAKE_NEW = 5, BRAKE_NEW_RETENTION = 10; // the strictest applicable limit wins
 export function newCardsToday(duePending, history, today) {
   if (duePending > BRAKE_STOP) return 0;
   const recent = Object.entries(history).filter(([d]) => d < today).sort().slice(-3).map(([, h]) => h);
   const reviews = recent.reduce((s, h) => s + h.reviews, 0);
   const correct = recent.reduce((s, h) => s + h.correct, 0);
+  if (duePending > BRAKE_PENDING) return BRAKE_NEW;
   const lowRetention = reviews >= BRAKE_MIN_REVIEWS && correct / reviews < BRAKE_RETENTION;
-  return duePending > BRAKE_PENDING || lowRetention ? BRAKE_NEW : NEW_PER_DAY;
+  return lowRetention ? BRAKE_NEW_RETENTION : NEW_PER_DAY;
 }
 
 // Breather: a card just shown doesn't come back until 2 other cards or 60 s have passed.

@@ -31,6 +31,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .combo b { font: 400 clamp(56px, 8vw, 96px)/.9 var(--font-display); color: var(--hi); font-variant-numeric: tabular-nums; }
 .combo span { font-weight: 800; font-size: 16px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .combo span span { color: var(--ink); letter-spacing: 0; }
+.combo .combo-label { color: var(--muted); letter-spacing: .14em; }
 .combo.bump b { animation: bump .25s ease-out; }
 @keyframes bump { 50% { transform: scale(1.18); } }
 
@@ -143,6 +144,8 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   .summary .bar.primary { width: auto; }
   .combo-label { display: none; }
   .notice { font-size: 18px; }
+  html, body { overflow-x: clip; }
+  .verdict { font-size: 28px; }
   .answers, .opts { gap: 8px; }
   .bar { padding-block: 6px; }
   .note { font-size: 18px; min-height: 0; }

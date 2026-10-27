@@ -16,7 +16,7 @@ En [Releases](https://github.com/C0z1/kana-pad/releases/latest):
 | Linux | `.AppImage` o `.deb` | Al `.AppImage` dale permiso de ejecución (`chmod +x`) |
 | Android | `kana-pad-android.apk` | Versión de prueba firmada con clave de depuración. Permite "instalar apps de origen desconocido". Conecta el mando por Bluetooth |
 
-Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
+Las versiones descargables todavía no se actualizan solas: para pasar a una versión nueva, exporta tu progreso, instala la nueva e impórtalo. Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
 
 ## Controles
 
