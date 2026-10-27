@@ -5,6 +5,8 @@ import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyD
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 import { retention, streakDays, deckStats, forecast } from "./progress.js";
+import { buildExam, scoreExam, clock, SECTIONS, EXAM_SECONDS } from "./exam.js";
+import { READING_N5 } from "./content/reading-n5.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
 const ROUND = 10;
@@ -27,7 +29,7 @@ if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
 let ready = false; // starting before cards load would overwrite the saved schedule
 
-let screen = "start"; // start | play | pause | summary | progress
+let screen = "start"; // start | play | pause | summary | progress | exam
 let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
 let teaching = false; // a new card is shown with its answer before it is ever asked
 let recent = []; // cards shown lately: { key, t, taught }, for the breather between repeats
@@ -385,6 +387,19 @@ function renderProgress() {
     kpi(`${day.fresh}/${day.limit ?? NEW_PER_DAY}`, "cartas nuevas hoy"),
     kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
   );
+  const last = exams.at(-1);
+  if (last) $("progress").querySelector(".kpis").append(el("p", "notice pbrake",
+    `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per.vocab.join("/")}, gramática ${last.per.gram.join("/")}, lectura ${last.per.read.join("/")}.`));
+  const limit = day.limit ?? NEW_PER_DAY;
+  if (limit < NEW_PER_DAY) {
+    const why = el("p", "notice pbrake");
+    why.append(el("span", "tag-brake", "FRENO"), limit === 0
+      ? `Hoy no entran cartas nuevas: tienes más de 200 repasos pendientes. Haz solo "Repaso de hoy" hasta bajar de 100 y las nuevas vuelven solas.`
+      : dueNow() > 100
+        ? `Hoy entran ${limit} cartas nuevas en vez de ${NEW_PER_DAY}: tienes más de 100 repasos pendientes. Repasa primero y el límite sube solo.`
+        : `Hoy entran ${limit} cartas nuevas en vez de ${NEW_PER_DAY}: aciertas menos del 70% de las cartas maduras. Unos días repasando sin prisa lo corrigen.`);
+    $("progress").querySelector(".kpis").append(why);
+  }
   $("progress").querySelector(".decklist").replaceChildren(...deckStats(DECKS, cards).map(d => {
     const row = el("div", "drow");
     const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * d.seen) / d.total}%`; meter.append(fill);
@@ -427,9 +442,127 @@ $("openprogress").addEventListener("click", openProgress);
 $("closeprogress").addEventListener("click", closeProgress);
 for (const b of $("progress").querySelectorAll(".tab")) b.addEventListener("click", () => setTab(b.dataset.tab));
 
+// ---------- mock exam ----------
+let exam = null; // { qs, answers, i, left, paused, timer, from }
+let exams = []; // past results, newest last
+const deckOf = id => DECKS.find(d => d.id === id);
+
+function startExam() {
+  if (screen !== "pause" && screen !== "start") return;
+  exam = { qs: buildExam(deckOf("vocab").items, deckOf("gram5").items, READING_N5), answers: [], i: 0, left: EXAM_SECONDS, paused: false, from: screen };
+  screen = "exam";
+  $("overlay").hidden = true; $("exam").hidden = false;
+  $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
+  exam.timer = setInterval(() => {
+    if (exam.paused) return;
+    exam.left--;
+    renderClock();
+    if (exam.left <= 0) finishExam();
+  }, 1000);
+  renderClock(); renderExamQ();
+}
+
+function renderClock() {
+  $("etimer").textContent = clock(Math.max(0, exam.left));
+  $("etimer").classList.toggle("low", exam.left < 60);
+}
+
+function renderExamQ() {
+  const q = exam.qs[exam.i];
+  const n = SECTIONS.findIndex(s => s.id === q.section);
+  $("esec").textContent = `${n + 1} · ${SECTIONS[n].name} · pregunta ${exam.i + 1} de ${exam.qs.length}`;
+  const reading = q.section === "read";
+  $("eprompt").hidden = reading; $("epassage").hidden = !reading;
+  $("equestion").hidden = !reading;
+  if (reading) {
+    $("epassage").textContent = q.passage;
+    $("equestion").textContent = q.prompt;
+  } else {
+    const eq = $("eq");
+    eq.lang = "ja";
+    eq.className = q.section === "gram" ? "glyph sentence" : "glyph" + (q.prompt.length === 2 ? " len2" : q.prompt.length > 2 ? " len3" : "");
+    eq.textContent = q.prompt;
+    $("ehint").textContent = q.section === "gram" ? `Completa: ${q.hint}` : "¿Qué significa?";
+  }
+  $("eopts").replaceChildren(...KEYS.map((k, i) => {
+    const b = el("button", "bar"); b.type = "button"; b.dataset.k = k;
+    const badge = el("span", "badge", k.toUpperCase()); badge.dataset.k = k;
+    const label = el("span", "label" + (q.section === "gram" ? " jp" : ""), q.opts[i]);
+    label.lang = q.section === "gram" ? "ja" : "es";
+    b.append(badge, label);
+    b.addEventListener("click", () => examAnswer(k));
+    return b;
+  }));
+  $("epips").replaceChildren(...exam.qs.map((_, i) => el("i", i < exam.i ? "done" : i === exam.i ? "now" : "")));
+}
+
+function examAnswer(k) {
+  if (!exam || exam.paused || exam.locked || !$("eresult").hidden) return;
+  const q = exam.qs[exam.i];
+  exam.answers[exam.i] = q.opts[KEYS.indexOf(k)];
+  exam.locked = true;
+  $("eopts").querySelector(`[data-k="${k}"]`).classList.add("chosen");
+  setTimeout(() => {
+    exam.locked = false;
+    exam.i++;
+    if (exam.i >= exam.qs.length) finishExam(); else renderExamQ();
+  }, 300);
+}
+
+function setExamPaused(p) {
+  if (!exam || !$("eresult").hidden) return;
+  exam.paused = p;
+  $("epause").hidden = !p;
+}
+
+function finishExam() {
+  clearInterval(exam.timer);
+  const r = scoreExam(exam.qs, exam.answers);
+  exams = [...exams, { d: day.d, right: r.right, total: r.total, pass: r.pass, per: Object.fromEntries(Object.entries(r.per).map(([k, v]) => [k, [v.right, v.total]])) }].slice(-20);
+  store.set("kp-exams", exams);
+  $("ebody").hidden = true; $("eresult").hidden = false; $("epause").hidden = true;
+  $("esec").textContent = "Resultado";
+  $("escores").replaceChildren(...SECTIONS.map(s => {
+    const d = el("div", "escore");
+    d.append(el("b", "", `${r.per[s.id].right}/${r.per[s.id].total}`), el("span", "", s.name));
+    return d;
+  }));
+  $("epass").textContent = `${r.right}/${r.total} · ${r.pass ? "Aprobado" : "No aprobado"}`;
+  $("epass").className = "epass " + (r.pass ? "ok" : "bad");
+  $("emissed").replaceChildren(...SECTIONS.filter(s => r.per[s.id].missed.length).map(s => {
+    const box = el("div");
+    const ul = el("ul", "missed");
+    ul.append(...r.per[s.id].missed.map(q => {
+      const li = el("li"); const inner = el("span");
+      if (q.section === "read") inner.append(`${q.prompt} → ${q.answer}`);
+      else { const jp = el("span", "jp", q.item.r && q.item.t ? q.item.r : q.prompt); jp.lang = "ja"; inner.append(jp, q.section === "gram" ? "" : q.answer); }
+      li.append(inner); return li;
+    }));
+    box.append(el("p", "emsection", s.name), ul);
+    return box;
+  }));
+  $("eback").focus();
+}
+
+function closeExam() {
+  clearInterval(exam?.timer);
+  screen = exam?.from ?? "start"; exam = null;
+  $("exam").hidden = true; $("overlay").hidden = false;
+  $("openexam").focus();
+}
+$("openexam").addEventListener("click", startExam);
+$("eback").addEventListener("click", closeExam);
+
 // ---------- input ----------
 const ANSWER_BUTTONS = { 0: "a", 1: "b", 2: "x", 3: "y", 12: "y", 13: "a", 14: "x", 15: "b" };
 const pad = createPad(i => {
+  if (screen === "exam") {
+    if (!$("eresult").hidden) { if (i === 0 || i === 1) closeExam(); return; }
+    if (i === 9) return setExamPaused(!exam.paused);
+    if (exam.paused) { if (i === 0) setExamPaused(false); return; }
+    if (ANSWER_BUTTONS[i]) examAnswer(ANSWER_BUTTONS[i]);
+    return; // LB/RB and the modes stay locked during the exam
+  }
   if (screen === "progress") {
     if (i === 4) setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
     else if (i === 5) setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
@@ -442,6 +575,7 @@ const pad = createPad(i => {
   if (screen === "start" || screen === "pause") {
     if (i === 0 || i === 9) setPaused(false);
     else if (i === 3) openProgress();
+    else if (i === 2) startExam();
     return;
   }
   if (screen === "summary") { if (i === 0) newRound(); return; }
@@ -455,6 +589,14 @@ document.addEventListener("keydown", e => {
   if (e.target.closest?.("input, select, textarea")) return;
   const arrows = { ArrowUp: "y", ArrowLeft: "x", ArrowRight: "b", ArrowDown: "a" };
   const key = e.key.toLowerCase();
+  if (screen === "exam") {
+    // preventDefault: otherwise the same Enter also "clicks" the button that just got focus.
+    if (!$("eresult").hidden) { if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); closeExam(); } return; }
+    if (e.key === "Escape") return setExamPaused(!exam.paused);
+    if (exam.paused) { if (e.key === "Enter") { e.preventDefault(); setExamPaused(false); } return; }
+    if (arrows[e.key]) { e.preventDefault(); examAnswer(arrows[e.key]); }
+    return;
+  }
   if (screen === "progress") {
     if (key === "q") setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
     else if (key === "e") setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
@@ -462,6 +604,7 @@ document.addEventListener("keydown", e => {
     return;
   }
   if (key === "p" && (screen === "pause" || screen === "start")) return openProgress();
+  if (key === "x" && (screen === "pause" || screen === "start")) return startExam();
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }
   else if (key === "q") setDeck(prefs.deck - 1);
   else if (key === "e") setDeck(prefs.deck + 1);
@@ -469,7 +612,7 @@ document.addEventListener("keydown", e => {
   else if (key === "o") toggle("ear");
   else if (key === "i") toggle("reverse");
   else if (e.key === "Escape" && (screen === "play" || screen === "pause")) setPaused(screen === "play");
-  else if (e.key === "Enter" && screen === "summary") newRound();
+  else if (e.key === "Enter" && screen === "summary") { e.preventDefault(); newRound(); }
 });
 
 $("start").addEventListener("click", () => setPaused(false));
@@ -531,6 +674,7 @@ window.speechSynthesis?.addEventListener?.("voiceschanged", checkVoices);
 checkVoices();
 document.querySelector(".app").inert = true;
 $("start").disabled = true;
+store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
   ready = true; $("start").disabled = false;

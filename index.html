@@ -68,6 +68,7 @@
     <p>Responde con el botón del color que ves en cada opción. Las cartas que fallas vuelven más seguido. Cada acierto suma al combo.</p>
     <button type="button" class="bar primary" id="start"><span class="badge" data-k="a">A</span><span id="starttxt">Empezar</span></button>
     <button type="button" class="link" id="openprogress"><span class="badge" data-k="y">Y</span>Ver progreso</button>
+    <button type="button" class="link" id="openexam"><span class="badge" data-k="x">X</span>Simulacro N5 (20 min)</button>
     <div class="settings">
       <label for="voice">Voz en japonés</label>
       <input type="checkbox" id="voice">
@@ -94,6 +95,31 @@
     </details>
   </div>
 </div>
+
+<section class="exam" id="exam" hidden aria-label="Simulacro N5">
+  <header class="etop">
+    <span class="deck-tag">SIMULACRO N5</span>
+    <span class="esec" id="esec"></span>
+    <b class="etimer" id="etimer">20:00</b>
+  </header>
+  <div class="ebody" id="ebody">
+    <div class="prompt" id="eprompt"><div class="glyph" id="eq"></div><p class="hint" id="ehint"></p></div>
+    <div class="passage" id="epassage" lang="ja" hidden></div>
+    <section class="answers">
+      <p class="equestion" id="equestion" hidden></p>
+      <div class="opts" id="eopts"></div>
+      <div class="pips epips" id="epips"></div>
+    </section>
+  </div>
+  <div class="eresult" id="eresult" hidden>
+    <p class="hint">Resultado del simulacro</p>
+    <div class="escores" id="escores"></div>
+    <p class="epass" id="epass"></p>
+    <div id="emissed"></div>
+    <button type="button" class="bar primary" id="eback"><span class="badge" data-k="a">A</span><span>Volver</span></button>
+  </div>
+  <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> El reloj está detenido. Pulsa A o Menú para seguir.</p>
+</section>
 
 <div class="overlay" id="progress" hidden>
   <div class="panel">
