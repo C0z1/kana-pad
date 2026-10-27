@@ -1,0 +1,87 @@
+# Gramática N5 de Kana Pad (contenido propio).
+# lección|frase con ＿|respuesta|distractor,distractor,distractor|traducción|explicación
+# La lección sigue el orden habitual de los libros de nivel inicial (1–12) y decide cuándo entra cada frase.
+# Regla: cada distractor debe ser incorrecto en esa frase, no solo menos natural.
+
+1|わたし＿がくせいです。|は|を,で,へ|Yo soy estudiante.|は marca el tema de la oración: «en cuanto a mí…».
+1|これはわたし＿ほんです。|の|を,で,に|Este es mi libro.|の une dos sustantivos: わたしのほん = «el libro de mí», mi libro.
+1|わたしはにほんじん＿ありません。|では|を,が,に|No soy japonés.|Negativo formal de です: ではありません (o じゃありません).
+1|これはなん＿か。|です|ます,を,に|¿Qué es esto?|なんですか = ¿qué es?
+1|たなかさんはにほんじんです。わたし＿にほんじんです。|も|を,で,へ|Tanaka es japonés. Yo también soy japonés.|も = también; ocupa el lugar de は.
+1|いま＿じです。|よ|し,よん,よっ|Son las 4.|Las 4 en punto se dicen よじ, no よんじ.
+1|あのひとは＿ですか。|だれ|だれか,だれも,だれが|¿Quién es esa persona?|だれ = quién. だれか (alguien) y だれも (nadie) no van con ですか aquí.
+2|このとけいはいくらです＿。|か|を,に,で|¿Cuánto cuesta este reloj?|か al final convierte la frase en pregunta.
+2|あのほんはだれ＿ですか。|の|を,が,で|¿De quién es aquel libro?|だれの = de quién.
+2|それはわたしのかさ＿ありません。|じゃ|を,に,へ|Ese no es mi paraguas.|じゃありません = negativo de です, un poco menos formal que ではありません.
+2|すみません、いまなんじ＿か。|です|ます,を,に|Disculpe, ¿qué hora es?|なんじですか = ¿qué hora es?
+2|トイレは＿ですか。|どこ|どこか,どこも,どこが|¿Dónde está el baño?|どこ = dónde. どこか (algún lugar) y どこも (todas partes) no van aquí.
+2|このかばんは＿ですか。|いくら|いくらか,いくらも,いくらが|¿Cuánto cuesta esta bolsa?|いくら = cuánto cuesta.
+2|りんごを＿かいました。|みっつ|さんつ,みつ,さんにん|Compré tres manzanas.|Contador general: ひとつ, ふたつ, みっつ… (にん es solo para personas).
+3|まいにちコーヒー＿のみます。|を|に,で,の|Tomo café todos los días.|を marca el objeto directo del verbo: lo que se bebe.
+3|わたしはまいばんテレビ＿みます。|を|に,へ,の|Veo la tele todas las noches.|を marca lo que se ve.
+3|としょかん＿べんきょうします。|で|に,の,へ|Estudio en la biblioteca.|で marca el lugar donde ocurre una acción.
+3|あした、がっこう＿いきます。|に|を,で,の|Mañana voy a la escuela.|に (o へ) marca el destino de un movimiento.
+3|にちようびにともだちのうち＿いきます。|へ|で,の,を|El domingo voy a casa de un amigo.|へ (o に) marca el destino.
+3|9じ＿おきます。|に|で,を,が|Me levanto a las 9.|Las horas concretas llevan に.
+3|いっしょにコーヒーをのみ＿か。|ません|る,て,た|¿Tomamos un café juntos?|～ませんか es una invitación amable.
+3|あしたえいがをみ＿か。|ません|ました,て,ろ|¿Vemos una película mañana?|～ませんか es una invitación amable.
+3|わたしはときどきとしょかんでほんを＿。|よみます|よみります,よむます,よんます|A veces leo libros en la biblioteca.|よむ → よみます: む pasa a み.
+3|まいにちにほんごをべんきょう＿。|します|しります,するます,しします|Estudio japonés todos los días.|する → します.
+3|ねるまえに、はを＿。|みがきます|みがいます,みがくます,みがきります|Me lavo los dientes antes de dormir.|みがく → みがきます: く pasa a き.
+4|ともだち＿えいがをみました。|と|を,へ,に|Vi una película con un amigo.|と significa «con» cuando hablas de compañía.
+4|へやにねこ＿います。|が|を,で,へ|Hay un gato en el cuarto.|Con います y あります, lo que existe va con が.
+4|つくえのうえ＿ほんがあります。|に|を,で,へ|Hay un libro sobre el escritorio.|に marca dónde está algo (con あります / います).
+4|ゆうびんきょくはぎんこうのとなり＿あります。|に|を,へ,と|La oficina de correos está al lado del banco.|に marca dónde está algo.
+4|えき＿まえでまちます。|の|を,が,に|Espero frente a la estación.|えきのまえ = «el frente de la estación».
+4|きのうテレビを＿。|みました|みます,みません,みった|Ayer vi la televisión.|Pasado formal: ます → ました.
+4|きのうがっこうへ＿。|いきました|いきます,いきません,いきって|Ayer fui a la escuela.|Pasado formal: いきます → いきました.
+4|わたしはきのうなにもかい＿でした。|ません|ました,ない,なかった|Ayer no compré nada.|Pasado negativo formal: ～ませんでした.
+4|コーヒー＿こうちゃをのみました。|と|を,が,へ|Tomé café y té.|と une sustantivos: «y».
+4|1じかん＿まちました。|ぐらい|を,が,に|Esperé más o menos una hora.|ぐらい = aproximadamente (cantidad o duración).
+4|しゅうまつ、どこか＿いきましたか。|へ|を,が,で|¿Fuiste a algún lugar el fin de semana?|どこか = algún lugar; へ (o に) marca el destino.
+4|にほんご＿すこしわかります。|が|と,に,へ|Entiendo un poco de japonés.|わかります lleva が para lo que se entiende, no を.
+5|すし＿すきです。|が|と,で,に|Me gusta el sushi.|すき y きらい llevan が para lo que gusta.
+5|このへやは＿です。|しずか|しずかい,しずかな,しずかの|Este cuarto es tranquilo.|Adjetivo な antes de です: sin な.
+5|＿へやですね。|きれいな|きれい,きれいい,きれいの|Qué cuarto tan limpio.|Adjetivo な antes de un sustantivo: con な. きれい es adjetivo な aunque termine en い.
+5|やまださんは＿ひとです。|やさしい|やさしいな,やさしの,やさしく|Yamada es una persona amable.|Adjetivo い antes de un sustantivo: sin な.
+5|このへやはあまりひろく＿。|ないです|ありです,いです,なです|Este cuarto no es muy amplio.|Negativo de adjetivo い: ひろい → ひろくないです.
+5|このケーキはあまり＿。|おいしくないです|おいしいじゃないです,おいしくありです,おいしかないです|Este pastel no está muy rico.|Negativo de adjetivo い: い → くないです.
+5|きのうはさむ＿です。|かった|いでした,いだった,かったでした|Ayer hizo frío.|Pasado de adjetivo い: さむい → さむかったです.
+5|きのうのテストはやさし＿です。|かった|いでした,くでした,だった|El examen de ayer fue fácil.|Pasado de adjetivo い: やさしい → やさしかったです.
+5|きのうのパーティーはにぎやか＿。|でした|かったです,いでした,くなかったです|La fiesta de ayer fue animada.|Pasado de adjetivo な: にぎやかでした.
+5|うみへおよぎ＿いきました。|に|を,で,へ|Fui al mar a nadar.|Raíz ます + に + いく = ir a hacer algo.
+6|ちょっと＿ください。|まって|まちて,まった,まつ|Espere un momento, por favor.|Forma て + ください para pedir algo. まつ → まって.
+6|もういちどいって＿。|ください|くだい,くだせ,くださ|Dígalo otra vez, por favor.|Forma て + ください para pedir algo.
+6|でんきを＿ください。|けして|けすて,けしって,けした|Apague la luz, por favor.|けす → けして: す pasa a して.
+6|ここでしゃしんを＿もいいですか。|とって|とりて,とった,とる|¿Puedo tomar fotos aquí?|Forma て + もいいですか para pedir permiso. とる → とって.
+6|まどを＿もいいですか。|あけて|あけ,あける,あけた|¿Puedo abrir la ventana?|Forma て + もいいですか para pedir permiso.
+6|ここでしゃしんをとって＿いけません。|は|が,を,に|No se pueden tomar fotos aquí.|Forma て + はいけません = prohibición.
+6|あさごはんをたべて、がっこうへ＿。|いきました|いきって,いきて,いくて|Desayuné y fui a la escuela.|La forma て une acciones en orden; el tiempo lo marca el último verbo.
+6|いっしょにひるごはんを＿。|たべましょう|たべるましょう,たべりましょう,たべたましょう|Comamos juntos.|～ましょう = «hagamos…».
+6|てつだい＿か。|ましょう|ませ,まして,まし|¿Le ayudo?|～ましょうか = ofrecer ayuda.
+7|いま、にほんごをべんきょう＿います。|して|する,した,しって|Ahora estoy estudiando japonés.|Forma て + いる para una acción en curso. する → して.
+7|いもうとはいまとうきょうにすんで＿。|います|あります,です,ある|Mi hermana menor vive ahora en Tokio.|Forma て + いる para un estado: vivir en, estar casado.
+7|あにはけっこん＿います。|して|しって,する,した|Mi hermano mayor está casado.|けっこんしている = estar casado (es un estado).
+7|このへやはひろ＿、あかるいです。|くて|いで,いて,くで|Este cuarto es amplio y luminoso.|Adjetivo い en forma て: い → くて.
+7|やまださんはしんせつ＿、おもしろいです。|で|な,に,と|Yamada es amable y divertido.|Adjetivo な en forma て: な → で.
+8|あしたはあめがふる＿おもいます。|と|を,に,が|Creo que mañana lloverá.|Forma corta + とおもいます = creo que.
+8|せんせいはしゅくだいがある＿いっていました。|と|を,が,で|El profesor dijo que hay tarea.|Forma corta + といっていました = dijo que.
+8|わたしはすしがすき＿ないです。|じゃ|く,を,に|No me gusta el sushi.|Adjetivo な: negativo con じゃないです.
+8|あしたテストがある＿、べんきょうします。|から|を,で,へ|Mañana hay examen, así que estudio.|から = porque / así que.
+8|ここでタバコを＿ください。|すわないで|すわなくて,すわないて,すわなく|Por favor, no fume aquí.|Forma ない + で + ください para pedir que no se haga algo.
+9|きのう＿えいがはおもしろかったです。|みた|みて,みり,みった|La película que vi ayer fue interesante.|Forma corta en pasado antes de un sustantivo: きのうみたえいが.
+9|あそこでほんをよんでいるひと＿だれですか。|は|を,に,で|¿Quién es la persona que está leyendo allí?|は marca el tema de la pregunta.
+10|ひこうきはしんかんせん＿はやいです。|より|まで,から,と|El avión es más rápido que el shinkansen.|A は B より … = A es más … que B.
+10|にほんごのクラスでだれ＿いちばんせがたかいですか。|が|は,を,で|¿Quién es el más alto de la clase de japonés?|Una palabra interrogativa como sujeto lleva が, nunca は.
+10|なつやすみににほんへいく＿です。|つもり|たい,ません,ましょう|Pienso ir a Japón en las vacaciones de verano.|Forma de diccionario + つもりです = tener la intención.
+10|がっこうまでバス＿30ぷんかかります。|で|を,に,へ|Tardo 30 minutos en autobús hasta la escuela.|で marca el medio de transporte.
+10|バス＿がっこうへいきます。|で|を,に,へ|Voy a la escuela en autobús.|で marca el medio o instrumento: en autobús, con palillos.
+11|やすみのひは、そうじをした＿、せんたくをしたりします。|り|る,く,み|En mis días libres hago cosas como limpiar y lavar ropa.|～たり～たりする = hacer cosas como… (ejemplos).
+11|にほんにいったこと＿ありますか。|が|を,で,へ|¿Has ido alguna vez a Japón?|Pasado corto + ことがある = haber tenido la experiencia.
+11|にほんにいった＿があります。|こと|ため,まで,より|He ido a Japón.|Pasado corto + ことがある = haber tenido la experiencia.
+11|すしをたべ＿です。|たい|たり,ます,て|Quiero comer sushi.|Raíz ます + たい = «quiero».
+11|しょうらい、せんせいになり＿です。|たい|ます,て,る|Quiero ser profesor en el futuro.|Raíz ます + たい = querer.
+12|ちょっとたべ＿ました。|すぎ|すぎる,すぎた,すぎい|Comí un poco de más.|Raíz ます + すぎる = hacer algo de más.
+12|かぜですか。くすりをのんだ＿がいいですよ。|ほう|ほか,まで,より|¿Estás resfriado? Es mejor que tomes medicina.|Pasado corto + ほうがいい = es mejor que…
+12|あしたははれる＿しょう。|で|ま,ら,ば|Mañana probablemente hará buen tiempo.|Forma corta + でしょう = probablemente.
+12|まいにちべんきょうしなければ＿。|なりません|ありません,なります,います|Tengo que estudiar todos los días.|～なければなりません = tener que.

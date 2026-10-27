@@ -84,6 +84,28 @@ export function duplicateMeanings(items) {
   return dup;
 }
 
+// ---------- grammar: "lesson|sentence with ＿|answer|d1,d2,d3|translation|note", ordered by lesson ----------
+export function parseGrammar(text) {
+  return text.split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#")).map(l => {
+    const [lesson, q, a, o, t, n] = l.split("|");
+    return { l: Number(lesson), q, a, o: (o ?? "").split(","), t, n, r: (q ?? "").replace("＿", a) };
+  }).sort((x, y) => x.l - y.l); // stable: keeps the file order within a lesson
+}
+
+export function checkGrammar(items) {
+  const errors = [], seen = new Set();
+  for (const it of items) {
+    const id = it.q || JSON.stringify(it);
+    if (!Number.isInteger(it.l) || it.l < 1) errors.push(`lección inválida: ${id}`);
+    if (!it.q || it.q.split("＿").length !== 2) errors.push(`debe tener un solo hueco ＿: ${id}`);
+    if (it.o.length !== 3 || new Set([it.a, ...it.o]).size !== 4) errors.push(`necesita 3 distractores distintos de la respuesta: ${id}`);
+    if (!it.t || !it.n) errors.push(`falta traducción o explicación: ${id}`);
+    if (seen.has(it.q)) errors.push(`repetida: ${id}`);
+    seen.add(it.q);
+  }
+  return errors;
+}
+
 function writeModule(path, name, items, header) {
   writeFileSync(path, `// ${header}\n// Generado por tools/pipeline/build-content.mjs. No editar a mano.\nexport const ${name} = ${JSON.stringify(items, null, 0).replace(/},{/g, "},\n{")};\n`);
 }
@@ -92,10 +114,12 @@ if (process.argv[1]?.endsWith("build-content.mjs")) {
   mkdirSync("js/content", { recursive: true });
   const vocab = parseVocab(readFileSync("content/vocab-n5.txt", "utf8"));
   const kanji = parseKanji(readFileSync("content/kanji-n5.txt", "utf8"));
+  const grammar = parseGrammar(readFileSync("content/grammar-n5.txt", "utf8"));
   const errors = [
     ...checkVocab(vocab, load(FILES["jmdict-eng"])).map(e => `vocab-n5.txt: ${e}`),
     ...duplicateMeanings(vocab).map(a => `vocab-n5.txt: significado repetido: ${a}`),
     ...checkKanji(kanji, load(FILES["kanjidic2-all"])).map(e => `kanji-n5.txt: ${e}`),
+    ...checkGrammar(grammar).map(e => `grammar-n5.txt: ${e}`),
   ];
   if (errors.length) {
     console.error(`${errors.length} problemas:\n` + errors.join("\n"));
@@ -106,5 +130,6 @@ if (process.argv[1]?.endsWith("build-content.mjs")) {
   // The service worker precaches these so stroke order works offline for every N5 kanji.
   const strokeFiles = kanji.map(k => `content/kanjivg/${k.q.codePointAt(0).toString(16).padStart(5, "0")}.svg`);
   writeFileSync("content/kanjivg/n5.json", JSON.stringify(strokeFiles));
-  console.log(`vocabulario: ${vocab.length} palabras · kanji: ${kanji.length}`);
+  writeModule("js/content/grammar-n5.js", "GRAMMAR_N5", grammar, "Gramática N5: frases, distractores y explicaciones propios de Kana Pad (MIT), ordenados por lección.");
+  console.log(`vocabulario: ${vocab.length} palabras · kanji: ${kanji.length} · gramática: ${grammar.length} frases`);
 }

@@ -6,7 +6,8 @@ import { parsePaths, hexOf } from "../js/strokes.js";
 
 test("grammar items: one blank, answer not among distractors, 3 distinct distractors", () => {
   const g = DECKS.find(d => d.kind === "grammar");
-  assert.ok(g.items.length >= 30);
+  assert.ok(g.items.length >= 80);
+  assert.deepEqual(g.items.map(i => i.l), [...g.items.map(i => i.l)].sort((a, b) => a - b)); // new cards follow the lessons
   for (const it of g.items) {
     assert.equal(it.q.split("＿").length, 2, it.q);
     assert.equal(it.o.length, 3, it.q);

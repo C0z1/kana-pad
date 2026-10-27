@@ -6,6 +6,18 @@ Practica japonés con un mando Xbox: hiragana, katakana, gramática N5, 574 pala
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
 
+## Descargas
+
+En [Releases](https://github.com/C0z1/kana-pad/releases/latest):
+
+| Sistema | Archivo | Notas |
+| --- | --- | --- |
+| Windows | `.msi` o `-setup.exe` | El instalador no está firmado: si Windows SmartScreen avisa, elige "Más información" → "Ejecutar de todas formas" |
+| Linux | `.AppImage` o `.deb` | Al `.AppImage` dale permiso de ejecución (`chmod +x`) |
+| Android | `kana-pad-android.apk` | Versión de prueba firmada con clave de depuración. Permite "instalar apps de origen desconocido". Conecta el mando por Bluetooth |
+
+Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
+
 ## Controles
 
 | Mando | Teclado | Acción |
