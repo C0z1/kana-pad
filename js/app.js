@@ -541,7 +541,7 @@ function finishExam() {
     box.append(el("p", "emsection", s.name), ul);
     return box;
   }));
-  $("eback").focus();
+  $("eback").focus({ preventScroll: true }); $("exam").scrollTop = 0; // scores first, not the bottom button
 }
 
 function closeExam() {

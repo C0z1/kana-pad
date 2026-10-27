@@ -136,6 +136,9 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .drow .meter, .frow .meter { height: 18px; background: var(--line); transform: skewX(var(--skew)); }
 .drow .meter i, .frow .meter i { display: block; height: 100%; background: var(--hi); }
 .frow .meter i { background: var(--slab); }
+.frow small, .drow small { white-space: nowrap; }
+#emissed { width: min(100%, 1100px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px 32px; align-items: start; }
+#emissed .missed { justify-content: flex-start; }
 .drow small, .frow small { color: var(--muted); font-size: 16px; font-variant-numeric: tabular-nums; text-align: right; }
 .frow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 90px; align-items: center; gap: 16px; min-height: 44px; font-weight: 600; }
 .frow > span:first-child { text-transform: capitalize; }
@@ -199,6 +202,8 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   .frow { grid-template-columns: 80px minmax(0, 1fr) 60px; gap: 10px; }
   .tabs kbd { display: none; }
   .ebody { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .esec { order: 3; flex-basis: 100%; white-space: nowrap; }
+  .frow { grid-template-columns: 72px minmax(0, 1fr) 76px; }
   .etimer { font-size: 36px; }
   .passage { font-size: 18px; max-height: 34vh; padding: 14px; }
   .escore b { font-size: 64px; }
