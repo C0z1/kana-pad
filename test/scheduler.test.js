@@ -34,3 +34,8 @@ test("queue: overdue first, then new up to the daily limit", () => {
   assert.deepEqual(queue(entries, cards, now, 0).map(e => e.key), ["a", "b"]);
   assert.equal(nextDue(cards, now).toISOString(), "2026-11-30T00:00:00.000Z");
 });
+
+test("interleave mixes decks by weight and keeps every item", async () => {
+  const { interleave } = await import("../js/scheduler.js");
+  assert.deepEqual(interleave([["v1", "v2", "v3", "v4"], ["g1"], ["k1", "k2"]], [3, 1, 1]), ["v1", "v2", "v3", "g1", "k1", "v4", "k2"]);
+});

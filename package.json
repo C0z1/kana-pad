@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
-    "start": "npx --yes serve@14.2.4 ."
+    "start": "npx --yes serve@14.2.4 .",
+    "content": "node tools/pipeline/build-content.mjs"
   },
   "license": "MIT"
 }

@@ -31,6 +31,19 @@ export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY) {
   return [...due, ...fresh];
 }
 
+// Merges lists by taking weights[i] items from list i per turn, so new cards mix
+// vocabulary, grammar and kanji instead of exhausting one deck before the next.
+export function interleave(lists, weights) {
+  const pos = lists.map(() => 0), out = [];
+  while (lists.some((l, i) => pos[i] < l.length)) {
+    lists.forEach((l, i) => {
+      out.push(...l.slice(pos[i], pos[i] + weights[i]));
+      pos[i] += weights[i];
+    });
+  }
+  return out;
+}
+
 // Earliest future due date among seen cards, or null.
 export function nextDue(cards, now = new Date()) {
   let min = Infinity;

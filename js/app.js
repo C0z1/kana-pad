@@ -1,7 +1,7 @@
 import { DECKS } from "./data.js";
 import { pick, options } from "./srs.js";
 import { createPad } from "./gamepad.js";
-import { grade, queue, nextDue, NEW_PER_DAY } from "./scheduler.js";
+import { grade, queue, nextDue, interleave, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 
@@ -12,8 +12,10 @@ const $ = id => document.getElementById(id);
 // "Repaso de hoy" mixes every deck through FSRS; the other entries are free practice per deck.
 const REVIEW = { id: "review", name: "Repaso de hoy", kind: "review" };
 const MODES = [REVIEW, ...DECKS];
-const CURRICULUM = ["hira", "kata", "vocab", "gram5", "kanji"].map(id => DECKS.find(d => d.id === id));
-const ENTRIES = CURRICULUM.flatMap(deck => deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })));
+const entriesOf = id => { const deck = DECKS.find(d => d.id === id); return deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })); };
+// New cards: all kana first, then 3 words : 1 grammar point : 1 kanji.
+const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
+  ...interleave([entriesOf("vocab"), entriesOf("gram5"), entriesOf("kanji")], [3, 1, 1])];
 
 const todayKey = () => new Date().toLocaleDateString("sv"); // local YYYY-MM-DD
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights

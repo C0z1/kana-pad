@@ -1,0 +1,614 @@
+# Vocabulario N5 de Kana Pad: palabra|lectura|significado (contenido propio).
+# Las lecturas se validan contra JMdict con `npm run content`. Orden: por tema, de lo más básico a lo menos.
+
+# personas
+私|わたし|yo
+あなた|あなた|tú, usted
+人|ひと|persona
+男|おとこ|hombre
+女|おんな|mujer
+男の子|おとこのこ|niño
+女の子|おんなのこ|niña
+子供|こども|niño, hijo
+大人|おとな|adulto
+友達|ともだち|amigo
+先生|せんせい|profesor
+学生|がくせい|estudiante
+留学生|りゅうがくせい|estudiante extranjero
+医者|いしゃ|médico
+会社員|かいしゃいん|empleado de empresa
+警官|けいかん|policía
+皆さん|みなさん|todos ustedes
+誰|だれ|quién
+方|かた|persona (cortés)
+名前|なまえ|nombre
+
+# familia
+家族|かぞく|familia
+父|ちち|mi padre
+母|はは|mi madre
+お父さん|おとうさん|padre (de otro)
+お母さん|おかあさん|madre (de otro)
+兄|あに|mi hermano mayor
+姉|あね|mi hermana mayor
+弟|おとうと|hermano menor
+妹|いもうと|hermana menor
+お兄さん|おにいさん|hermano mayor (de otro)
+お姉さん|おねえさん|hermana mayor (de otro)
+兄弟|きょうだい|hermanos
+両親|りょうしん|padres
+祖父|そふ|mi abuelo
+祖母|そぼ|mi abuela
+おじいさん|おじいさん|abuelo, señor mayor
+おばあさん|おばあさん|abuela, señora mayor
+叔父|おじ|tío
+叔母|おば|tía
+夫|おっと|mi esposo
+妻|つま|mi esposa
+奥さん|おくさん|esposa (de otro)
+主人|しゅじん|esposo, dueño
+
+# cuerpo
+体|からだ|cuerpo
+頭|あたま|cabeza
+顔|かお|cara
+目|め|ojo
+耳|みみ|oreja
+鼻|はな|nariz
+口|くち|boca
+歯|は|diente
+手|て|mano
+足|あし|pie, pierna
+お腹|おなか|barriga, estómago
+背|せ|estatura, espalda
+声|こえ|voz
+病気|びょうき|enfermedad
+風邪|かぜ|resfriado
+薬|くすり|medicina
+
+# números y contadores
+零|れい|cero
+一|いち|uno
+二|に|dos
+三|さん|tres
+四|よん|cuatro
+五|ご|cinco
+六|ろく|seis
+七|なな|siete
+八|はち|ocho
+九|きゅう|nueve
+十|じゅう|diez
+百|ひゃく|cien
+千|せん|mil
+万|まん|diez mil
+一つ|ひとつ|uno (cosa)
+二つ|ふたつ|dos (cosas)
+三つ|みっつ|tres (cosas)
+四つ|よっつ|cuatro (cosas)
+五つ|いつつ|cinco (cosas)
+六つ|むっつ|seis (cosas)
+七つ|ななつ|siete (cosas)
+八つ|やっつ|ocho (cosas)
+九つ|ここのつ|nueve (cosas)
+一人|ひとり|una persona
+二人|ふたり|dos personas
+半分|はんぶん|mitad
+全部|ぜんぶ|todo
+番号|ばんごう|número
+いくつ|いくつ|cuántos, cuántos años
+いくら|いくら|cuánto cuesta
+
+# tiempo
+今|いま|ahora
+今日|きょう|hoy
+明日|あした|mañana
+昨日|きのう|ayer
+明後日|あさって|pasado mañana
+一昨日|おととい|anteayer
+毎日|まいにち|todos los días
+毎朝|まいあさ|todas las mañanas
+毎晩|まいばん|todas las noches
+朝|あさ|mañana (parte del día)
+昼|ひる|mediodía
+晩|ばん|noche
+夜|よる|noche
+夕方|ゆうがた|atardecer
+午前|ごぜん|a. m.
+午後|ごご|p. m., tarde
+今朝|けさ|esta mañana
+今晩|こんばん|esta noche
+今週|こんしゅう|esta semana
+先週|せんしゅう|la semana pasada
+来週|らいしゅう|la semana que viene
+毎週|まいしゅう|cada semana
+今月|こんげつ|este mes
+先月|せんげつ|el mes pasado
+来月|らいげつ|el mes que viene
+毎月|まいつき|cada mes
+今年|ことし|este año
+去年|きょねん|el año pasado
+来年|らいねん|el año que viene
+毎年|まいとし|cada año
+時間|じかん|tiempo, horas
+時|とき|cuando, momento
+時計|とけい|reloj
+週|しゅう|semana
+週末|しゅうまつ|fin de semana
+月曜日|げつようび|lunes
+火曜日|かようび|martes
+水曜日|すいようび|miércoles
+木曜日|もくようび|jueves
+金曜日|きんようび|viernes
+土曜日|どようび|sábado
+日曜日|にちようび|domingo
+誕生日|たんじょうび|cumpleaños
+休み|やすみ|descanso, vacaciones
+夏休み|なつやすみ|vacaciones de verano
+春|はる|primavera
+夏|なつ|verano
+秋|あき|otoño
+冬|ふゆ|invierno
+いつ|いつ|cuándo
+後で|あとで|después
+前|まえ|antes, delante
+もう|もう|ya
+まだ|まだ|todavía
+すぐ|すぐ|enseguida
+時々|ときどき|a veces
+いつも|いつも|siempre
+よく|よく|a menudo, bien
+初めて|はじめて|por primera vez
+最初|さいしょ|primero, al principio
+最後|さいご|último, al final
+
+# lugares
+家|いえ|casa
+部屋|へや|cuarto, habitación
+台所|だいどころ|cocina
+お手洗い|おてあらい|baño
+トイレ|トイレ|baño
+玄関|げんかん|entrada de la casa
+庭|にわ|jardín
+学校|がっこう|escuela
+大学|だいがく|universidad
+教室|きょうしつ|aula
+図書館|としょかん|biblioteca
+会社|かいしゃ|empresa
+病院|びょういん|hospital
+銀行|ぎんこう|banco
+郵便局|ゆうびんきょく|oficina de correos
+駅|えき|estación
+店|みせ|tienda
+喫茶店|きっさてん|cafetería
+食堂|しょくどう|comedor
+デパート|デパート|grandes almacenes
+スーパー|スーパー|supermercado
+コンビニ|コンビニ|tienda de conveniencia
+レストラン|レストラン|restaurante
+ホテル|ホテル|hotel
+公園|こうえん|parque
+映画館|えいがかん|cine
+交番|こうばん|caseta de policía
+大使館|たいしかん|embajada
+空港|くうこう|aeropuerto
+町|まち|ciudad, barrio
+国|くに|país
+外国|がいこく|extranjero
+日本|にほん|Japón
+道|みち|camino, calle
+橋|はし|puente
+角|かど|esquina
+信号|しんごう|semáforo
+建物|たてもの|edificio
+山|やま|montaña
+川|かわ|río
+海|うみ|mar
+池|いけ|estanque
+島|しま|isla
+所|ところ|lugar
+どこ|どこ|dónde
+ここ|ここ|aquí
+そこ|そこ|ahí
+あそこ|あそこ|allí
+
+# posiciones
+上|うえ|arriba, encima
+下|した|abajo, debajo
+中|なか|dentro
+外|そと|fuera
+右|みぎ|derecha
+左|ひだり|izquierda
+後ろ|うしろ|detrás
+横|よこ|al lado
+隣|となり|al lado (contiguo)
+近く|ちかく|cerca
+向こう|むこう|al otro lado
+東|ひがし|este
+西|にし|oeste
+南|みなみ|sur
+北|きた|norte
+
+# comida y bebida
+ご飯|ごはん|arroz cocido, comida
+朝ご飯|あさごはん|desayuno
+昼ご飯|ひるごはん|almuerzo
+晩ご飯|ばんごはん|cena
+料理|りょうり|cocina, plato
+食べ物|たべもの|comida
+飲み物|のみもの|bebida
+水|みず|agua
+お茶|おちゃ|té
+コーヒー|コーヒー|café
+牛乳|ぎゅうにゅう|leche
+お酒|おさけ|alcohol, sake
+ビール|ビール|cerveza
+ジュース|ジュース|jugo
+肉|にく|carne
+牛肉|ぎゅうにく|carne de res
+豚肉|ぶたにく|carne de cerdo
+鶏肉|とりにく|pollo
+魚|さかな|pescado
+卵|たまご|huevo
+野菜|やさい|verduras
+果物|くだもの|fruta
+りんご|りんご|manzana
+パン|パン|pan
+お菓子|おかし|dulces
+砂糖|さとう|azúcar
+塩|しお|sal
+醤油|しょうゆ|salsa de soya
+弁当|べんとう|comida para llevar
+すし|すし|sushi
+お皿|おさら|plato
+茶碗|ちゃわん|tazón de arroz
+箸|はし|palillos
+コップ|コップ|vaso
+カップ|カップ|taza
+
+# casa y objetos
+物|もの|cosa
+本|ほん|libro
+雑誌|ざっし|revista
+新聞|しんぶん|periódico
+辞書|じしょ|diccionario
+ノート|ノート|cuaderno
+紙|かみ|papel
+鉛筆|えんぴつ|lápiz
+ペン|ペン|bolígrafo
+机|つくえ|escritorio
+椅子|いす|silla
+テーブル|テーブル|mesa
+ベッド|ベッド|cama
+窓|まど|ventana
+戸|と|puerta (corrediza)
+ドア|ドア|puerta
+電気|でんき|electricidad, luz
+テレビ|テレビ|televisión
+ラジオ|ラジオ|radio
+電話|でんわ|teléfono
+携帯|けいたい|celular
+パソコン|パソコン|computadora
+カメラ|カメラ|cámara
+写真|しゃしん|foto
+鞄|かばん|bolsa, mochila
+傘|かさ|paraguas
+鍵|かぎ|llave
+財布|さいふ|cartera
+お金|おかね|dinero
+切手|きって|estampilla
+手紙|てがみ|carta
+葉書|はがき|tarjeta postal
+荷物|にもつ|equipaje, paquete
+箱|はこ|caja
+お風呂|おふろ|baño (tina)
+シャワー|シャワー|ducha
+冷蔵庫|れいぞうこ|refrigerador
+石鹸|せっけん|jabón
+タオル|タオル|toalla
+
+# ropa
+服|ふく|ropa
+洋服|ようふく|ropa occidental
+着物|きもの|kimono
+シャツ|シャツ|camisa
+セーター|セーター|suéter
+上着|うわぎ|chaqueta
+コート|コート|abrigo
+ズボン|ズボン|pantalón
+スカート|スカート|falda
+靴|くつ|zapatos
+靴下|くつした|calcetines
+帽子|ぼうし|sombrero, gorra
+眼鏡|めがね|lentes
+
+# transporte
+車|くるま|carro, coche
+自転車|じてんしゃ|bicicleta
+電車|でんしゃ|tren
+地下鉄|ちかてつ|metro
+バス|バス|autobús
+タクシー|タクシー|taxi
+飛行機|ひこうき|avión
+船|ふね|barco
+切符|きっぷ|boleto
+旅行|りょこう|viaje
+
+# naturaleza y clima
+天気|てんき|clima, tiempo
+雨|あめ|lluvia
+雪|ゆき|nieve
+風|かぜ|viento
+空|そら|cielo
+花|はな|flor
+木|き|árbol
+犬|いぬ|perro
+猫|ねこ|gato
+鳥|とり|pájaro
+動物|どうぶつ|animal
+
+# escuela y trabajo
+勉強|べんきょう|estudio
+宿題|しゅくだい|tarea
+授業|じゅぎょう|clase
+試験|しけん|examen
+テスト|テスト|prueba
+問題|もんだい|problema, pregunta
+質問|しつもん|pregunta
+答え|こたえ|respuesta
+意味|いみ|significado
+言葉|ことば|palabra, idioma
+漢字|かんじ|kanji
+平仮名|ひらがな|hiragana
+片仮名|かたかな|katakana
+日本語|にほんご|japonés
+英語|えいご|inglés
+作文|さくぶん|redacción
+文章|ぶんしょう|texto
+練習|れんしゅう|práctica
+仕事|しごと|trabajo
+会議|かいぎ|reunión
+
+# ocio
+趣味|しゅみ|pasatiempo
+音楽|おんがく|música
+歌|うた|canción
+映画|えいが|película
+絵|え|dibujo, pintura
+スポーツ|スポーツ|deporte
+散歩|さんぽ|paseo
+買い物|かいもの|compras
+パーティー|パーティー|fiesta
+ゲーム|ゲーム|juego, videojuego
+話|はなし|conversación, historia
+お土産|おみやげ|recuerdo de viaje
+
+# colores
+色|いろ|color
+赤|あか|rojo
+青|あお|azul
+白|しろ|blanco
+黒|くろ|negro
+黄色|きいろ|amarillo
+茶色|ちゃいろ|café (color)
+緑|みどり|verde
+
+# verbos
+会う|あう|ver a alguien, encontrarse
+開ける|あける|abrir
+上げる|あげる|dar, subir
+遊ぶ|あそぶ|jugar, divertirse
+浴びる|あびる|bañarse (ducha)
+洗う|あらう|lavar
+ある|ある|haber, estar (cosas)
+歩く|あるく|caminar
+言う|いう|decir
+行く|いく|ir
+いる|いる|haber, estar (seres vivos)
+要る|いる|necesitar
+入れる|いれる|meter, poner
+歌う|うたう|cantar
+生まれる|うまれる|nacer
+売る|うる|vender
+起きる|おきる|levantarse, despertarse
+置く|おく|poner, dejar
+教える|おしえる|enseñar
+押す|おす|empujar, presionar
+覚える|おぼえる|memorizar, recordar
+泳ぐ|およぐ|nadar
+降りる|おりる|bajarse
+終わる|おわる|terminar
+買う|かう|comprar
+返す|かえす|devolver
+帰る|かえる|volver a casa
+掛かる|かかる|tardar, costar
+書く|かく|escribir
+貸す|かす|prestar
+借りる|かりる|pedir prestado
+被る|かぶる|ponerse (sombrero)
+聞く|きく|escuchar, preguntar
+切る|きる|cortar
+着る|きる|ponerse (ropa)
+来る|くる|venir
+消す|けす|apagar, borrar
+答える|こたえる|responder
+困る|こまる|tener problemas
+咲く|さく|florecer
+死ぬ|しぬ|morir
+閉める|しめる|cerrar
+知る|しる|conocer, saber
+吸う|すう|fumar, aspirar
+住む|すむ|vivir (en un lugar)
+する|する|hacer
+座る|すわる|sentarse
+出す|だす|sacar, enviar
+立つ|たつ|ponerse de pie
+頼む|たのむ|pedir, encargar
+食べる|たべる|comer
+違う|ちがう|ser diferente, estar mal
+使う|つかう|usar
+疲れる|つかれる|cansarse
+着く|つく|llegar
+作る|つくる|hacer, fabricar
+勤める|つとめる|trabajar (para)
+出かける|でかける|salir
+出来る|できる|poder, estar listo
+出る|でる|salir
+飛ぶ|とぶ|volar
+止まる|とまる|detenerse
+取る|とる|tomar, agarrar
+撮る|とる|tomar (foto)
+習う|ならう|aprender (de alguien)
+並ぶ|ならぶ|hacer fila
+成る|なる|convertirse
+寝る|ねる|dormir, acostarse
+登る|のぼる|subir, escalar
+飲む|のむ|beber
+乗る|のる|subirse (a un vehículo)
+入る|はいる|entrar
+履く|はく|ponerse (zapatos, pantalón)
+始まる|はじまる|empezar
+走る|はしる|correr
+働く|はたらく|trabajar
+話す|はなす|hablar
+貼る|はる|pegar
+晴れる|はれる|despejarse
+弾く|ひく|tocar (instrumento)
+吹く|ふく|soplar
+降る|ふる|caer (lluvia, nieve)
+曲がる|まがる|doblar, girar
+待つ|まつ|esperar
+磨く|みがく|cepillar, pulir
+見せる|みせる|mostrar
+見る|みる|ver
+持つ|もつ|tener, sostener
+休む|やすむ|descansar, faltar
+やる|やる|hacer
+呼ぶ|よぶ|llamar
+読む|よむ|leer
+分かる|わかる|entender
+忘れる|わすれる|olvidar
+渡す|わたす|entregar
+渡る|わたる|cruzar
+結婚|けっこん|matrimonio
+
+# adjetivos い
+青い|あおい|azul
+赤い|あかい|rojo
+明るい|あかるい|luminoso, alegre
+暖かい|あたたかい|cálido
+新しい|あたらしい|nuevo
+暑い|あつい|caluroso
+熱い|あつい|caliente
+厚い|あつい|grueso
+危ない|あぶない|peligroso
+甘い|あまい|dulce
+忙しい|いそがしい|ocupado
+痛い|いたい|doloroso
+いい|いい|bueno
+薄い|うすい|delgado (grosor)
+美味しい|おいしい|rico, sabroso
+多い|おおい|muchos
+大きい|おおきい|grande
+遅い|おそい|lento, tarde
+重い|おもい|pesado
+面白い|おもしろい|divertido, interesante
+辛い|からい|picante
+軽い|かるい|ligero
+可愛い|かわいい|lindo
+黄色い|きいろい|amarillo
+汚い|きたない|sucio
+暗い|くらい|oscuro
+黒い|くろい|negro
+寒い|さむい|frío (clima)
+白い|しろい|blanco
+狭い|せまい|estrecho
+高い|たかい|alto, caro
+楽しい|たのしい|divertido
+小さい|ちいさい|pequeño
+近い|ちかい|cerca
+つまらない|つまらない|aburrido
+冷たい|つめたい|frío (al tacto)
+強い|つよい|fuerte
+遠い|とおい|lejos
+長い|ながい|largo
+早い|はやい|temprano
+速い|はやい|rápido
+低い|ひくい|bajo
+広い|ひろい|amplio
+太い|ふとい|grueso, gordo
+古い|ふるい|viejo (cosas)
+欲しい|ほしい|querer (algo)
+細い|ほそい|delgado, fino
+不味い|まずい|feo (sabor)
+丸い|まるい|redondo
+短い|みじかい|corto
+難しい|むずかしい|difícil
+易しい|やさしい|fácil
+優しい|やさしい|amable
+安い|やすい|barato
+弱い|よわい|débil
+悪い|わるい|malo
+若い|わかい|joven
+涼しい|すずしい|fresco
+少ない|すくない|pocos
+
+# adjetivos な
+綺麗|きれい|bonito, limpio
+静か|しずか|tranquilo
+賑やか|にぎやか|animado, concurrido
+元気|げんき|sano, con energía
+有名|ゆうめい|famoso
+親切|しんせつ|amable
+便利|べんり|práctico
+不便|ふべん|poco práctico
+大丈夫|だいじょうぶ|bien, sin problema
+好き|すき|que gusta
+嫌い|きらい|que no gusta
+上手|じょうず|hábil
+下手|へた|torpe
+暇|ひま|libre (de tiempo)
+大変|たいへん|duro, grave
+大切|たいせつ|importante
+簡単|かんたん|sencillo
+同じ|おなじ|igual
+色々|いろいろ|varios
+丈夫|じょうぶ|resistente
+嫌|いや|desagradable
+本当|ほんとう|verdad
+
+# palabras útiles
+はい|はい|sí
+いいえ|いいえ|no
+これ|これ|esto
+それ|それ|eso
+あれ|あれ|aquello
+どれ|どれ|cuál
+この|この|este (+ sustantivo)
+その|その|ese (+ sustantivo)
+あの|あの|aquel (+ sustantivo)
+どの|どの|cuál (+ sustantivo)
+何|なに|qué
+どう|どう|cómo
+どうして|どうして|por qué
+どんな|どんな|qué tipo de
+とても|とても|muy
+少し|すこし|un poco
+ちょっと|ちょっと|un poco, un momento
+沢山|たくさん|mucho
+大体|だいたい|más o menos
+たぶん|たぶん|quizá
+一緒に|いっしょに|juntos
+一番|いちばん|el más, número uno
+また|また|otra vez
+もっと|もっと|más
+ゆっくり|ゆっくり|despacio
+ありがとう|ありがとう|gracias
+すみません|すみません|perdón, disculpe
+ごめんなさい|ごめんなさい|lo siento
+お願いします|おねがいします|por favor
+こんにちは|こんにちは|hola
+おはよう|おはよう|buenos días
+こんばんは|こんばんは|buenas noches (saludo)
+さようなら|さようなら|adiós
+いただきます|いただきます|frase antes de comer
+ご馳走様|ごちそうさま|frase después de comer
