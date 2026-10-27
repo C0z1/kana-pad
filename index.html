@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kana Pad</title>
+<meta name="description" content="Practica hiragana, katakana, vocabulario N5 y kanji con un mando Xbox.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Anton&family=Barlow+Condensed:wght@500;600;800&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="deckbar">
+      <kbd>LB</kbd>
+      <button type="button" class="deck-tag" id="decktag">HIRAGANA</button>
+      <kbd>RB</kbd>
+    </div>
+    <div class="combo" aria-live="polite">
+      <b id="streak">×0</b>
+      <span>COMBO · <span id="acc">–</span> aciertos · hoy <span id="today">0</span></span>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="prompt">
+      <div class="glyph" id="q"></div>
+      <p class="hint" id="hint"></p>
+      <p class="reading" id="reading"></p>
+    </section>
+    <section class="answers">
+      <div class="opts" id="opts"></div>
+      <p class="verdict" id="verdict" aria-live="polite"></p>
+      <p class="note" id="note"></p>
+      <div class="round"><div class="pips" id="pips"></div><span id="roundtxt"></span></div>
+      <div class="modes">
+        <button type="button" class="mode" id="ear" aria-pressed="false"><kbd>LT</kbd>Modo oído</button>
+        <button type="button" class="mode" id="reverse" aria-pressed="false"><kbd>RT</kbd>Inverso</button>
+      </div>
+    </section>
+  </main>
+
+  <section class="summary" id="summary" hidden>
+    <p class="hint">Ronda terminada</p>
+    <p class="score" id="score"></p>
+    <ul class="missed" id="missed"></ul>
+    <button type="button" class="bar primary" id="again"><span class="badge" data-k="a">A</span><span>Otra ronda</span></button>
+  </section>
+
+  <footer class="bottom">
+    <span class="pad"><span class="dot" id="dot"></span><span id="padtxt">Sin mando</span></span>
+    <span class="help">LB/RB mazo · View voz · Menú pausa · Teclado: flechas, Q/E, O, I, S</span>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="card">
+    <h1>KANA PAD</h1>
+    <p>Responde con el botón del color que ves en cada opción. Las cartas que fallas vuelven más seguido. Cada acierto suma al combo.</p>
+    <button type="button" class="bar primary" id="start"><span class="badge" data-k="a">A</span><span id="starttxt">Empezar</span></button>
+    <div class="settings">
+      <label for="voice">Voz en japonés</label>
+      <input type="checkbox" id="voice">
+      <span>Mando</span>
+      <button type="button" class="link" id="repad">Usar otro mando</button>
+      <span>Progreso</span>
+      <span class="row">
+        <button type="button" class="link" id="export">Exportar</button>
+        <label class="link" for="import">Importar</label>
+        <input type="file" id="import" accept="application/json" hidden>
+      </span>
+    </div>
+    <p class="small" id="msg" aria-live="polite"></p>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
