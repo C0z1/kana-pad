@@ -10,7 +10,8 @@ permissions:
   contents: write
 
 env:
-  TAURI_CLI: npx --yes @tauri-apps/cli@2.12.2
+  # Same command as the "tauri" npm script, which the Android Gradle build calls back into.
+  TAURI_CLI: npm run tauri --
 
 jobs:
   desktop:
