@@ -1,40 +1,54 @@
 import { DECKS } from "./data.js";
 import { pick, options } from "./srs.js";
 import { createPad } from "./gamepad.js";
+import { grade, queue, nextDue, NEW_PER_DAY } from "./scheduler.js";
+import { store } from "./storage.js";
+import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
 const ROUND = 10;
 const $ = id => document.getElementById(id);
 
-const store = {
-  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
-};
+// "Repaso de hoy" mixes every deck through FSRS; the other entries are free practice per deck.
+const REVIEW = { id: "review", name: "Repaso de hoy", kind: "review" };
+const MODES = [REVIEW, ...DECKS];
+const CURRICULUM = ["hira", "kata", "vocab", "gram5", "kanji"].map(id => DECKS.find(d => d.id === id));
+const ENTRIES = CURRICULUM.flatMap(deck => deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })));
 
 const todayKey = () => new Date().toLocaleDateString("sv"); // local YYYY-MM-DD
-let stats = store.get("kp-stats", {});            // "deck:q" -> [hits, misses]
-let day = store.get("kp-day", { d: todayKey(), n: 0 });
-if (day.d !== todayKey()) day = { d: todayKey(), n: 0 };
-const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.get("kp-prefs", {}) };
-if (!DECKS[prefs.deck]) prefs.deck = 0;
+let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
+let day = store.getSync("kp-day", { d: todayKey(), n: 0, fresh: 0 });
+if (day.d !== todayKey()) day = { d: todayKey(), n: 0, fresh: 0 };
+day.fresh ??= 0;
+const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
+if (!MODES[prefs.deck]) prefs.deck = 0;
+let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
+let ready = false; // starting before cards load would overwrite the saved schedule
 
 let screen = "start"; // start | play | pause | summary
-let cur = null, opts = [], locked = false, streak = 0, last = null, timer = 0;
+let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
 let round = { results: [], missed: [] };
 
-const deck = () => DECKS[prefs.deck];
-const keyOf = it => deck().id + ":" + it.q;
-// Ear mode always asks forward: you hear Japanese and pick the reading/meaning.
-const answerField = () => (prefs.reverse && !prefs.ear ? "q" : "a");
-const savePrefs = () => store.set("kp-prefs", prefs);
-const isKana = () => deck().id === "hira" || deck().id === "kata";
+const mode = () => MODES[prefs.deck];
+const isReview = () => mode() === REVIEW;
+const keyOf = (deck, item) => deck.id + ":" + item.q;
+const earOn = deck => prefs.ear && deck.kind !== "grammar";
+// Ear mode always asks forward; grammar always asks for the missing piece.
+const answerField = deck => (prefs.reverse && !earOn(deck) && deck.kind !== "grammar" ? "q" : "a");
+const savePrefs = () => store.setSync("kp-prefs", prefs);
+const pending = () => queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh).length;
 
 // ---------- rendering ----------
 function renderTop() {
-  $("decktag").textContent = deck().name.toUpperCase();
-  let h = 0, m = 0;
-  for (const it of deck().items) { const s = stats[keyOf(it)]; if (s) { h += s[0]; m += s[1]; } }
-  $("acc").textContent = h + m ? Math.round((100 * h) / (h + m)) + "%" : "–";
+  const m = mode();
+  $("decktag").textContent = isReview() ? `${m.name.toUpperCase()} · ${pending()}` : m.name.toUpperCase();
+  if (isReview()) {
+    $("acc").textContent = `${pending()} pendientes`;
+  } else {
+    let h = 0, mi = 0;
+    for (const it of m.items) { const s = stats[keyOf(m, it)]; if (s) { h += s[0]; mi += s[1]; } }
+    $("acc").textContent = h + mi ? `${Math.round((100 * h) / (h + mi))}% aciertos` : "– aciertos";
+  }
   $("streak").textContent = "×" + streak;
   $("today").textContent = day.n;
   $("ear").setAttribute("aria-pressed", prefs.ear);
@@ -54,27 +68,50 @@ function renderPips() {
 const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 
 function showPrompt(revealed) {
-  const q = $("q");
-  if (prefs.ear && !revealed) {
+  const q = $("q"), { item, deck } = cur;
+  if (earOn(deck) && !revealed) {
     q.className = "glyph ear";
     q.innerHTML = SPEAKER + "<span>Escucha</span>";
-  } else if (answerField() === "q") {
+  } else if (deck.kind === "grammar") {
+    q.className = "glyph sentence";
+    q.textContent = revealed ? item.r : item.q;
+  } else if (answerField(deck) === "q" && !revealed) {
     q.className = "glyph latin";
-    q.textContent = cur.a;
+    q.textContent = item.a;
   } else {
-    q.className = "glyph" + (cur.q.length === 2 ? " len2" : cur.q.length > 2 ? " len3" : "");
-    q.textContent = cur.q;
+    q.className = "glyph" + (item.q.length === 2 ? " len2" : item.q.length > 2 ? " len3" : "");
+    q.textContent = item.q;
   }
+}
+
+function hintFor(deck) {
+  if (deck.kind === "grammar") return `Completa: ${cur.item.t}`;
+  if (earOn(deck)) return "¿Qué escuchaste?";
+  if (answerField(deck) === "q") return "¿Cómo se escribe?";
+  return deck.kind === "kana" ? "¿Cómo se lee?" : "¿Qué significa?";
+}
+
+function nextCard() {
+  if (isReview()) {
+    const q = queue(ENTRIES, cards, new Date(), NEW_PER_DAY - day.fresh);
+    const e = q.find(x => x.key !== lastKey) ?? q[0];
+    return e ? { item: e.item, deck: e.deck } : null;
+  }
+  const deck = mode();
+  const prev = deck.items.find(i => keyOf(deck, i) === lastKey);
+  return { item: pick(deck.items, it => stats[keyOf(deck, it)], Math.random, prev), deck };
 }
 
 function next() {
   clearTimeout(timer);
   if (round.results.length >= ROUND) return showSummary();
-  const d = deck();
-  cur = last = pick(d.items, it => stats[keyOf(it)], Math.random, last);
-  opts = options(d.items, cur, answerField());
+  cur = nextCard();
+  if (!cur) return showSummary();
+  const { item, deck } = cur;
+  lastKey = keyOf(deck, item);
+  opts = options(deck.items, item, answerField(deck));
   showPrompt(false);
-  $("hint").textContent = prefs.ear ? "¿Qué escuchaste?" : answerField() === "q" ? "¿Cómo se escribe?" : isKana() ? "¿Cómo se lee?" : "¿Qué significa?";
+  $("hint").textContent = hintFor(deck);
   $("reading").textContent = "";
   $("verdict").textContent = ""; $("verdict").className = "verdict";
   $("note").textContent = "";
@@ -85,75 +122,124 @@ function next() {
     const badge = document.createElement("span");
     badge.className = "badge"; badge.dataset.k = k; badge.textContent = k.toUpperCase();
     const label = document.createElement("span");
-    label.className = "label" + (answerField() === "q" ? " jp" : "");
+    label.className = "label" + (answerField(deck) === "q" || deck.kind === "grammar" ? " jp" : "");
     label.textContent = opts[i];
     b.append(badge, label);
     b.addEventListener("click", () => answer(k));
     return b;
   }));
-  renderPips();
+  renderPips(); renderTop();
   locked = false;
-  if (answerField() === "a") speak(cur.r || cur.q);
+  shownAt = performance.now();
+  if (answerField(deck) === "a" && deck.kind !== "grammar") speak(item.r || item.q);
+}
+
+async function showStrokes(ch) {
+  const paths = await strokePaths(ch);
+  if (!paths.length || cur?.item.q !== ch) return;
+  $("q").className = "glyph";
+  $("q").replaceChildren(strokeSvg(paths));
+  return paths.length;
 }
 
 function answer(k) {
   if (screen !== "play" || locked || !cur) return;
   locked = true;
-  const field = answerField();
+  const { item, deck } = cur;
+  const key = keyOf(deck, item);
+  const field = answerField(deck);
   const chosen = opts[KEYS.indexOf(k)];
-  const ok = chosen === cur[field];
-  const s = stats[keyOf(cur)] || [0, 0];
+  const ok = chosen === item[field];
+  const ms = performance.now() - shownAt;
+
+  const s = stats[key] || [0, 0];
   s[ok ? 0 : 1]++;
-  stats[keyOf(cur)] = s;
+  stats[key] = s;
+  if (isReview()) {
+    if (!cards[key]) day.fresh++;
+    cards[key] = grade(cards[key], ok, ms);
+    store.set("kp-cards", cards);
+  }
   streak = ok ? streak + 1 : 0;
   day.n++;
   round.results.push(ok);
-  if (!ok) round.missed.push(cur);
-  store.set("kp-stats", stats); store.set("kp-day", day);
+  if (!ok) round.missed.push(item);
+  store.setSync("kp-stats", stats); store.setSync("kp-day", day);
 
-  const bars = [...$("opts").children];
-  bars.forEach(b => {
+  for (const b of $("opts").children) {
     const v = opts[KEYS.indexOf(b.dataset.k)];
-    if (v === cur[field]) b.classList.add("right");
+    if (v === item[field]) b.classList.add("right");
     else if (b.dataset.k === k) b.classList.add("wrong");
     else b.classList.add("dim");
-  });
+  }
   showPrompt(true);
   $("stage").querySelector(".prompt").className = "prompt " + (ok ? "ok" : "bad");
-  if (cur.r) $("reading").textContent = cur.r;
-  $("verdict").textContent = ok ? "¡CORRECTO!" : "ERA: " + cur[field];
+  if (deck.kind !== "grammar" && item.r) $("reading").textContent = item.r;
+  if (ok) $("verdict").textContent = "¡CORRECTO!";
+  else {
+    const right = document.createElement("span");
+    right.className = /[぀-ヿ一-鿿]/.test(item[field]) ? "jp" : "";
+    right.textContent = item[field];
+    $("verdict").replaceChildren("ERA: ", right);
+  }
   $("verdict").className = "verdict " + (ok ? "ok" : "bad");
-  if (!ok) {
-    const picked = deck().items.find(i => i[field] === chosen);
+  if (deck.kind === "grammar") {
+    $("note").textContent = item.n;
+  } else if (!ok) {
+    const picked = deck.items.find(i => i[field] === chosen);
     if (picked) {
       const jp = document.createElement("span");
       jp.className = "jp"; jp.textContent = picked.q;
       $("note").replaceChildren("Tu respuesta: ", jp, ` = ${picked.a}`);
     }
-    pad.rumble();
-  } else {
+  }
+  if (!ok) pad.rumble();
+  else {
     const combo = $("streak").parentElement;
     combo.classList.remove("bump"); void combo.offsetWidth; combo.classList.add("bump");
   }
-  if (field === "q") speak(cur.r || cur.q);
+  if (field === "q" || deck.kind === "grammar") speak(item.r || item.q);
   renderTop(); renderPips();
-  timer = setTimeout(next, ok ? 800 : 2200);
+
+  let wait = ok ? 800 : 2200;
+  if (deck.kind === "grammar") wait = ok ? 2200 : 3500;
+  if (deck.kind === "kanji") {
+    showStrokes(item.q).then(n => {
+      if (!n || screen !== "play") return;
+      clearTimeout(timer);
+      timer = setTimeout(next, Math.max(wait, n * STROKE_SECONDS * 1000 + 900));
+    });
+  }
+  timer = setTimeout(next, wait);
 }
 
 function showSummary() {
   screen = "summary";
   $("stage").hidden = true; $("summary").hidden = false;
   const hits = round.results.filter(Boolean).length;
-  $("score").textContent = `${hits} / ${ROUND}`;
+  const done = round.results.length;
+  if (isReview() && done < ROUND) {
+    const nd = nextDue(cards);
+    $("sumtitle").textContent = "¡Todo al día!";
+    $("score").textContent = done ? `${hits} / ${done}` : "0 pendientes";
+    $("sumnote").textContent = nd
+      ? `Próximo repaso: ${nd.toLocaleString("es", { weekday: "long", hour: "2-digit", minute: "2-digit" })}. Mientras, practica un mazo con LB/RB.`
+      : "Practica un mazo con LB/RB.";
+  } else {
+    $("sumtitle").textContent = "Ronda terminada";
+    $("score").textContent = `${hits} / ${done}`;
+    $("sumnote").textContent = isReview() ? `Quedan ${pending()} cartas para hoy.` : "";
+  }
   $("missed").replaceChildren(...round.missed.map(it => {
     const li = document.createElement("li");
     const inner = document.createElement("span");
     const jp = document.createElement("span");
-    jp.className = "jp"; jp.textContent = it.q;
-    inner.append(jp, it.a);
+    jp.className = "jp"; jp.textContent = it.r && it.t ? it.r : it.q;
+    inner.append(jp, it.t && it.r ? "" : it.a);
     li.append(inner);
     return li;
   }));
+  renderTop();
   $("again").focus();
 }
 
@@ -166,8 +252,8 @@ function newRound() {
 
 // ---------- actions ----------
 function setDeck(i) {
-  prefs.deck = (i + DECKS.length) % DECKS.length;
-  savePrefs(); streak = 0; last = null;
+  prefs.deck = (i + MODES.length) % MODES.length;
+  savePrefs(); streak = 0; lastKey = null;
   renderTop();
   if (screen === "play" || screen === "summary") newRound();
 }
@@ -175,14 +261,14 @@ function toggle(name) {
   prefs[name] = !prefs[name];
   savePrefs(); renderTop();
   if (name === "voice" && !prefs.voice) speechSynthesis?.cancel();
-  if ((name === "ear" || name === "reverse") && screen === "play") { last = null; next(); }
+  if ((name === "ear" || name === "reverse") && screen === "play") { lastKey = null; next(); }
 }
 function setPaused(p) {
   if (p && screen === "play") {
     screen = "pause"; clearTimeout(timer);
     $("starttxt").textContent = "Continuar";
     $("overlay").hidden = false; $("start").focus();
-  } else if (!p && (screen === "pause" || screen === "start")) {
+  } else if (!p && ready && (screen === "pause" || screen === "start")) {
     const fresh = screen === "start";
     screen = "play"; $("overlay").hidden = true;
     keepAwake();
@@ -247,8 +333,13 @@ $("voice").addEventListener("change", () => toggle("voice"));
 $("repad").addEventListener("click", () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; });
 
 // ---------- progress backup ----------
+const validStats = s => s && typeof s === "object" &&
+  Object.values(s).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
+const validCards = c => c && typeof c === "object" &&
+  Object.values(c).every(v => v && typeof v.due === "string" && !Number.isNaN(Date.parse(v.due)) && Number.isFinite(v.stability));
+
 $("export").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify({ app: "kana-pad", v: 1, stats, day, prefs }, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs }, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `kana-pad-${todayKey()}.json`;
@@ -262,12 +353,11 @@ $("import").addEventListener("change", async e => {
   if (!file) return;
   try {
     const data = JSON.parse(await file.text());
-    const valid = data?.app === "kana-pad" && data.stats && typeof data.stats === "object" &&
-      Object.values(data.stats).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
-    if (!valid) throw new Error("bad file");
-    stats = data.stats; store.set("kp-stats", stats);
+    if (data?.app !== "kana-pad" || !validStats(data.stats) || (data.cards !== undefined && !validCards(data.cards))) throw new Error("bad file");
+    stats = data.stats; store.setSync("kp-stats", stats);
+    if (data.cards) { cards = data.cards; await store.set("kp-cards", cards); }
     renderTop();
-    $("msg").textContent = `Progreso importado: ${Object.keys(stats).length} cartas.`;
+    $("msg").textContent = `Progreso importado: ${Object.keys(stats).length} cartas practicadas, ${Object.keys(cards).length} en repaso.`;
   } catch {
     $("msg").textContent = "Ese archivo no es una copia de Kana Pad. Exporta uno desde esta pantalla y vuelve a intentarlo.";
   }
@@ -279,6 +369,13 @@ setInterval(() => {
   $("padtxt").textContent = s.text;
 }, 500);
 
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 speechSynthesis?.getVoices();
+$("start").disabled = true;
+store.get("kp-cards", {}).then(c => {
+  cards = validCards(c) ? c : {};
+  ready = true; $("start").disabled = false;
+  renderTop();
+});
 renderTop();
 $("start").focus();

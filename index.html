@@ -9,6 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Anton&family=Barlow+Condensed:wght@500;600;800&display=swap">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#0e0e14">
 </head>
 <body>
 <div class="app">
@@ -20,7 +24,7 @@
     </div>
     <div class="combo" aria-live="polite">
       <b id="streak">×0</b>
-      <span>COMBO · <span id="acc">–</span> aciertos · hoy <span id="today">0</span></span>
+      <span>COMBO · <span id="acc">–</span> · hoy <span id="today">0</span></span>
     </div>
   </header>
 
@@ -43,8 +47,9 @@
   </main>
 
   <section class="summary" id="summary" hidden>
-    <p class="hint">Ronda terminada</p>
+    <p class="hint" id="sumtitle">Ronda terminada</p>
     <p class="score" id="score"></p>
+    <p class="note" id="sumnote"></p>
     <ul class="missed" id="missed"></ul>
     <button type="button" class="bar primary" id="again"><span class="badge" data-k="a">A</span><span>Otra ronda</span></button>
   </section>
@@ -73,6 +78,15 @@
       </span>
     </div>
     <p class="small" id="msg" aria-live="polite"></p>
+    <details class="credits">
+      <summary>Fuentes y licencias</summary>
+      <ul>
+        <li>Orden de trazos: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, © Ulrich Apel, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Los archivos derivados en <code>content/kanjivg</code> se comparten con la misma licencia.</li>
+        <li>Calendario de repasos: <a href="https://github.com/open-spaced-repetition/ts-fsrs" target="_blank" rel="noopener">ts-fsrs</a> (FSRS v6), licencia MIT.</li>
+        <li>Tipografías: Dela Gothic One, Anton y Barlow Condensed, de Google Fonts (SIL Open Font License).</li>
+        <li>Mazos, frases de gramática y explicaciones: contenido propio de Kana Pad.</li>
+      </ul>
+    </details>
   </div>
 </div>
 

@@ -40,6 +40,12 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .glyph.len2 { font-size: min(28vh, 17vw, 220px); }
 .glyph.len3 { font-size: min(19vh, 11.5vw, 150px); }
 .glyph.latin { font: 800 clamp(36px, 5vw, 72px)/1.05 var(--font-ui); white-space: normal; text-align: center; text-transform: uppercase; text-shadow: 5px 5px 0 var(--bg); }
+.glyph.sentence { font: 400 clamp(30px, 3.6vw, 52px)/1.35 var(--font-jp); white-space: normal; text-align: center; text-shadow: 4px 4px 0 var(--bg); max-width: 90%; }
+.strokes { width: min(42vh, 28vw, 340px); height: auto; }
+.strokes path { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .3s ease-out both; filter: drop-shadow(4px 4px 0 var(--bg)); }
+/* Hidden until its turn: round caps would otherwise show a dot at each stroke's start. */
+@keyframes draw { 0% { stroke-dashoffset: 1; opacity: 0; } 1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
 .glyph.ear { font: 800 26px var(--font-ui); letter-spacing: .1em; display: grid; justify-items: center; gap: 12px; text-shadow: none; }
 .glyph.ear svg { width: 96px; height: 96px; }
 .hint { margin: 0; font-weight: 800; font-size: 22px; letter-spacing: .1em; text-transform: uppercase; }
@@ -62,6 +68,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .badge[data-k="x"] { background: var(--btn-x); } .badge[data-k="y"] { background: var(--btn-y); color: var(--bar-ink); }
 .verdict { margin: 0; min-height: 1.2em; font: 400 32px var(--font-display); letter-spacing: .04em; }
 .verdict.ok { color: var(--hi); } .verdict.bad { color: var(--bad); }
+.verdict .jp { font: 400 .85em var(--font-jp); }
 .note { margin: 0; max-width: 480px; min-height: 1.4em; color: var(--muted); text-align: right; }
 .note .jp { font: 400 1.3em var(--font-jp); color: var(--ink); }
 .round { width: min(100%, 480px); display: flex; align-items: center; gap: 10px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -79,6 +86,12 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .missed li > span { display: inline-block; transform: skewX(calc(var(--skew) * -1)); }
 .missed .jp { font: 400 26px var(--font-jp); margin-right: 8px; }
 .primary { width: auto; background: var(--hi); font-size: 28px; }
+.primary:disabled { opacity: .5; cursor: progress; }
+.summary .note { text-align: center; }
+.credits { width: 100%; text-align: left; color: var(--muted); font-size: 15px; }
+.credits summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.credits ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.credits a { color: var(--ink); }
 
 .bottom { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 15px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .pad { display: flex; align-items: center; gap: 8px; }
@@ -106,4 +119,4 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   .note { text-align: left; }
   .help { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } .strokes path { stroke-dashoffset: 0; opacity: 1; } }

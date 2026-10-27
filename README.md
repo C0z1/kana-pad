@@ -1,6 +1,8 @@
 # Kana Pad
 
-Practica japonés con un mando Xbox: hiragana, katakana, vocabulario N5 y kanji básicos. Está pensado para repasar en el cardio o en las pausas de un juego.
+Practica japonés con un mando Xbox: hiragana, katakana, gramática N5, vocabulario N5 y kanji básicos con orden de trazos. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
+
+**Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
 
@@ -31,7 +33,11 @@ npm test    # pruebas de la lógica de repaso y de los mazos
 | Archivo | Contenido |
 | --- | --- |
 | `js/data.js` | Mazos |
-| `js/srs.js` | Selección de cartas y opciones |
+| `js/srs.js` | Práctica libre: selección de cartas y opciones |
+| `js/scheduler.js` | Repaso diario con FSRS (`js/vendor/ts-fsrs.mjs`, MIT) |
+| `js/storage.js` | Guardado en IndexedDB |
+| `js/strokes.js` | Animación de trazos con KanjiVG (`content/kanjivg`, CC BY-SA 3.0) |
+| `sw.js`, `manifest.webmanifest` | App instalable y sin conexión |
 | `js/gamepad.js` | Lectura del mando |
 | `js/app.js` | Pantalla y estado |
 
@@ -43,4 +49,4 @@ npm test    # pruebas de la lógica de repaso y de los mazos
 
 ## Licencia
 
-MIT
+El código es MIT. Los archivos de `content/kanjivg` son de KanjiVG (© Ulrich Apel) bajo CC BY-SA 3.0. ts-fsrs es MIT.
