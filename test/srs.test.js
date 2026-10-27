@@ -22,7 +22,7 @@ test("pick favours missed cards and avoids the last one", () => {
 
 test("options: four distinct values including the answer", () => {
   for (const deck of DECKS) {
-    for (const field of ["a", "q"]) {
+    for (const field of deck.kind === "grammar" ? ["a"] : ["a", "q"]) {
       const item = deck.items[3];
       const opts = options(deck.items, item, field);
       assert.equal(opts.length, 4);

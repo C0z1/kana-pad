@@ -20,6 +20,8 @@ export function shuffle(list, rng = Math.random) {
 
 // The right answer plus three distinct wrong ones, read from `field` ("a" forward, "q" reverse).
 export function options(items, item, field, rng = Math.random) {
+  // Grammar items bring their own distractors: other items' answers would often be correct too.
+  if (item.o) return shuffle([item.a, ...item.o], rng);
   const wrong = [...new Set(items.map(i => i[field]).filter(v => v !== item[field]))];
   return shuffle([item[field], ...shuffle(wrong, rng).slice(0, 3)], rng);
 }
