@@ -1,6 +1,6 @@
 // Offline support: app files are cached on install; Google Fonts are cached the first time they load.
 // Bump VERSION whenever any file in APP changes so installed copies pick up the new release.
-const VERSION = "kana-pad-v0.5.0-r2";
+const VERSION = "kana-pad-v0.5.0-r3";
 const APP = [
   "./", "index.html", "manifest.webmanifest", "css/styles.css",
   "js/app.js", "js/data.js", "js/srs.js", "js/gamepad.js", "js/scheduler.js", "js/storage.js", "js/strokes.js",

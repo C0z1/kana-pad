@@ -395,7 +395,7 @@
 # verbos
 会う|あう|ver a alguien, encontrarse
 開ける|あける|abrir
-上げる|あげる|dar, subir
+上げる|あげる|dar, levantar
 遊ぶ|あそぶ|jugar, divertirse
 浴びる|あびる|bañarse (ducha)
 洗う|あらう|lavar
@@ -410,7 +410,7 @@
 生まれる|うまれる|nacer
 売る|うる|vender
 起きる|おきる|levantarse, despertarse
-置く|おく|poner, dejar
+置く|おく|dejar, colocar
 教える|おしえる|enseñar
 押す|おす|empujar, presionar
 覚える|おぼえる|memorizar, recordar
@@ -448,7 +448,7 @@
 使う|つかう|usar
 疲れる|つかれる|cansarse
 着く|つく|llegar
-作る|つくる|hacer, fabricar
+作る|つくる|fabricar, preparar
 勤める|つとめる|trabajar (para)
 出かける|でかける|salir (de paseo)
 出来る|できる|poder, estar listo
@@ -535,7 +535,7 @@
 速い|はやい|rápido
 低い|ひくい|bajo
 広い|ひろい|amplio
-太い|ふとい|grueso, gordo
+太い|ふとい|gordo, ancho
 古い|ふるい|viejo (cosas)
 欲しい|ほしい|querer (algo)
 細い|ほそい|delgado, fino
@@ -561,7 +561,7 @@
 親切|しんせつ|atento, servicial
 便利|べんり|práctico
 不便|ふべん|poco práctico
-大丈夫|だいじょうぶ|bien, sin problema
+大丈夫|だいじょうぶ|sin problema
 好き|すき|que gusta
 嫌い|きらい|que no gusta
 上手|じょうず|hábil

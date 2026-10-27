@@ -66,3 +66,40 @@ test("broken cards: rejected on import, repaired when stored, never freeze gradi
   const regraded = grade(broken, true, 1000, now); // must not throw
   assert.equal(validCard(regraded), true);
 });
+
+test("study day ends at 4:00 and review cards due later today are in the queue", async () => {
+  const { studyDay, dayEnd, queue } = await import("../js/scheduler.js");
+  const five = new Date(2026, 9, 27, 17, 0), late = new Date(2026, 9, 28, 2, 0);
+  assert.equal(studyDay(late), "2026-10-27"); // 2:00 still belongs to the 27th
+  assert.equal(dayEnd(five).getTime(), new Date(2026, 9, 28, 4, 0).getTime());
+  const entries = [{ key: "rev" }, { key: "learn" }];
+  const cards = {
+    rev: { due: new Date(2026, 9, 27, 21, 0).toISOString(), state: 2 },
+    learn: { due: new Date(2026, 9, 27, 21, 0).toISOString(), state: 1 },
+  };
+  const keys = queue(entries, cards, five, 0, "s").map(e => e.key);
+  assert.deepEqual(keys, ["rev"]); // learning cards keep their exact minute
+});
+
+test("brake: stops new cards past 200 pending, ignores retention under 50 mature reviews", async () => {
+  const { newCardsToday, NEW_PER_DAY } = await import("../js/scheduler.js");
+  assert.equal(newCardsToday(201, {}, "2026-10-27"), 0);
+  assert.equal(newCardsToday(10, { "2026-10-26": { reviews: 49, correct: 29 } }, "2026-10-27"), NEW_PER_DAY);
+});
+
+test("breather: a failed card never comes right back while others are available", async () => {
+  const { pickNext } = await import("../js/scheduler.js");
+  const q = [{ key: "x" }, { key: "y" }, { key: "z" }];
+  let recent = [], t = 0;
+  const shown = [];
+  for (let i = 0; i < 9; i++) {
+    // "x" keeps failing, so it stays first in the queue
+    const e = pickNext(q, recent, t, () => false);
+    shown.push(e.key);
+    recent = [...recent, { key: e.key, t }].slice(-5);
+    t += 5000;
+  }
+  for (let i = 1; i < shown.length; i++) assert.notEqual(shown[i], shown[i - 1]);
+  assert.equal(pickNext([{ key: "x" }], [{ key: "x", t: 0 }], 1000, () => false), null); // all resting
+  assert.equal(pickNext([{ key: "x" }], [{ key: "x", t: 0 }], 61000, () => false).key, "x");
+});

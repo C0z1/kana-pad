@@ -1,7 +1,7 @@
 import { DECKS } from "./data.js";
-import { pick, options } from "./srs.js";
+import { pick, options, speakable } from "./srs.js";
 import { createPad } from "./gamepad.js";
-import { grade, queue, nextDue, interleave, sanitizeCards, validCard, newCardsToday, NEW_PER_DAY } from "./scheduler.js";
+import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 
@@ -17,7 +17,7 @@ const entriesOf = id => { const deck = DECKS.find(d => d.id === id); return deck
 const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
   ...interleave([entriesOf("vocab"), entriesOf("gram5"), entriesOf("kanji")], [3, 1, 1])];
 
-const todayKey = () => new Date().toLocaleDateString("sv"); // local YYYY-MM-DD
+const todayKey = () => studyDay(); // local YYYY-MM-DD; the study day ends at 4:00
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
 let day = store.getSync("kp-day", { d: todayKey(), n: 0, fresh: 0 });
 let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correct } of already-learned cards
@@ -29,7 +29,8 @@ let ready = false; // starting before cards load would overwrite the saved sched
 let screen = "start"; // start | play | pause | summary
 let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
 let teaching = false; // a new card is shown with its answer before it is ever asked
-let taughtInARow = 0; // at most one lesson in a row while there are cards to ask
+let recent = []; // cards shown lately: { key, t, taught }, for the breather between repeats
+let resting = false; // the queue has cards, but all of them were just shown
 let jaVoice = false;  // ear mode is impossible without a Japanese voice
 let round = { results: [], missed: [] };
 
@@ -40,12 +41,15 @@ const earOn = deck => prefs.ear && prefs.voice && jaVoice && deck.kind !== "gram
 // Ear mode always asks forward; grammar always asks for the missing piece.
 const answerField = deck => (prefs.reverse && !earOn(deck) && deck.kind !== "grammar" ? "q" : "a");
 const savePrefs = () => store.setSync("kp-prefs", prefs);
-const dueNow = () => Object.values(cards).filter(c => Date.parse(c.due) <= Date.now()).length;
+const dueNow = () => {
+  const now = Date.now(), end = dayEnd().getTime();
+  return Object.values(cards).filter(c => Date.parse(c.due) <= (c.state === 2 ? end : now)).length;
+};
 // Starts a new day (also when the app stays open past midnight) and fixes today's new-card limit.
 function rollDay() {
   if (day.d !== todayKey()) day = { d: todayKey(), n: 0, fresh: 0 };
   day.fresh ??= 0;
-  if (ready && day.limit === undefined) day.limit = newCardsToday(dueNow(), history, day.d);
+  if (ready) day.limit = newCardsToday(dueNow(), history, day.d); // live: the brake lifts as the backlog clears
 }
 rollDay();
 const reviewQueue = () => queue(ENTRIES, cards, new Date(), (day.limit ?? NEW_PER_DAY) - day.fresh, day.d);
@@ -112,11 +116,9 @@ function hintFor(deck) {
 
 function nextCard() {
   if (isReview()) {
-    const q = reviewQueue().filter(x => x.key !== lastKey);
-    const asked = q.find(x => cards[x.key]);
-    let e = q[0];
-    if (e && !cards[e.key] && taughtInARow >= 1 && asked) e = asked;
-    e ??= reviewQueue()[0];
+    const q = reviewQueue();
+    const e = pickNext(q, recent, Date.now(), x => !cards[x.key]);
+    resting = !e && q.length > 0;
     return e ? { item: e.item, deck: e.deck } : null;
   }
   const deck = mode();
@@ -134,7 +136,7 @@ function next() {
   lastKey = keyOf(deck, item);
   opts = options(deck.items, item, answerField(deck));
   teaching = isReview() && !cards[lastKey];
-  taughtInARow = teaching ? taughtInARow + 1 : 0;
+  recent = [...recent.slice(-4), { key: lastKey, t: Date.now(), taught: teaching }];
   showPrompt(teaching);
   $("hint").textContent = teaching ? "Carta nueva: pulsa la respuesta marcada" : hintFor(deck);
   $("reading").textContent = teaching && deck.kind !== "grammar" ? (item.r ?? "") : "";
@@ -199,7 +201,7 @@ function answer(k) {
   stats[key] = s;
   if (isReview()) {
     if (!cards[key]) day.fresh++;
-    else {
+    else if (cards[key].state === 2) {
       const h = (history[day.d] ??= { reviews: 0, correct: 0 });
       h.reviews++; if (ok) h.correct++;
       store.setSync("kp-hist", history);
@@ -266,7 +268,11 @@ function showSummary() {
   $("stage").hidden = true; $("summary").hidden = false;
   const hits = round.results.filter(Boolean).length;
   const done = round.results.length;
-  if (isReview() && done < ROUND) {
+  if (isReview() && resting) {
+    $("sumtitle").textContent = "Un respiro";
+    $("score").textContent = done ? `${hits} / ${done}` : "…";
+    $("sumnote").textContent = "Las cartas que quedan acaban de salir. Vuelve en un minuto para repasarlas otra vez.";
+  } else if (isReview() && done < ROUND) {
     const nd = nextDue(cards);
     $("sumtitle").textContent = "¡Todo al día!";
     $("score").textContent = done ? `${hits} / ${done}` : "0 pendientes";
@@ -278,15 +284,19 @@ function showSummary() {
     $("score").textContent = `${hits} / ${done}`;
     $("sumnote").textContent = isReview() ? `Quedan ${pending()} cartas para hoy.` : "";
   }
-  if (isReview() && day.limit !== undefined && day.limit < NEW_PER_DAY) {
-    $("sumnote").textContent += ` Hoy solo entran ${day.limit} cartas nuevas: hay muchos repasos pendientes o los aciertos bajaron. Así no se acumula.`;
-  }
-  $("missed").replaceChildren(...round.missed.map(it => {
+  const braked = isReview() && day.limit !== undefined && day.limit < NEW_PER_DAY;
+  $("brake").hidden = !braked;
+  if (braked) $("braketxt").textContent = day.limit === 0
+    ? "Hoy no entran cartas nuevas: primero hay que ponerse al día con los repasos pendientes."
+    : `Hoy solo entran ${day.limit} cartas nuevas: hay muchos repasos pendientes o los aciertos bajaron. Así no se acumula.`;
+  const counts = new Map();
+  for (const it of round.missed) counts.set(it, (counts.get(it) ?? 0) + 1);
+  $("missed").replaceChildren(...[...counts].map(([it, n]) => {
     const li = document.createElement("li");
     const inner = document.createElement("span");
     const jp = document.createElement("span");
     jp.className = "jp"; jp.lang = "ja"; jp.textContent = it.r && it.t ? it.r : it.q;
-    inner.append(jp, it.t && it.r ? "" : it.a);
+    inner.append(jp, it.t && it.r ? "" : it.a, n > 1 ? ` ×${n}` : "");
     li.append(inner);
     return li;
   }));
@@ -335,7 +345,7 @@ function setPaused(p) {
 function speak(text) {
   if (!prefs.voice || !window.speechSynthesis) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(speakable(text));
   u.lang = "ja-JP"; u.rate = 0.85;
   const v = speechSynthesis.getVoices().find(v => v.lang.startsWith("ja"));
   if (v) u.voice = v;
@@ -391,7 +401,6 @@ $("repad").addEventListener("click", () => { pad.reset(); $("msg").textContent =
 // ---------- progress backup ----------
 const validStats = s => s && typeof s === "object" &&
   Object.values(s).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
-const validCards = c => !!c && typeof c === "object" && Object.values(c).every(validCard);
 
 $("export").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs }, null, 2)], { type: "application/json" });
@@ -408,11 +417,17 @@ $("import").addEventListener("change", async e => {
   if (!file) return;
   try {
     const data = JSON.parse(await file.text());
-    if (data?.app !== "kana-pad" || !validStats(data.stats) || (data.cards !== undefined && !validCards(data.cards))) throw new Error("bad file");
+    if (data?.app !== "kana-pad" || !validStats(data.stats) || (data.cards !== undefined && (!data.cards || typeof data.cards !== "object"))) throw new Error("bad file");
     stats = data.stats; store.setSync("kp-stats", stats);
-    if (data.cards) { cards = data.cards; await store.set("kp-cards", cards); }
+    let skipped = 0;
+    if (data.cards) {
+      cards = sanitizeCards(data.cards);
+      skipped = Object.keys(data.cards).length - Object.keys(cards).length;
+      await store.set("kp-cards", cards);
+    }
     renderTop();
-    $("msg").textContent = `Progreso importado: ${Object.keys(stats).length} cartas practicadas, ${Object.keys(cards).length} en repaso.`;
+    $("msg").textContent = `Progreso importado: ${Object.keys(stats).length} cartas practicadas, ${Object.keys(cards).length} en repaso.` +
+      (skipped ? ` Se omitieron ${skipped} cartas dañadas; volverán como nuevas.` : "");
   } catch {
     $("msg").textContent = "Ese archivo no es una copia de Kana Pad. Exporta uno desde esta pantalla y vuelve a intentarlo.";
   }

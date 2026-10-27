@@ -84,7 +84,10 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .mode:disabled { opacity: .35; cursor: not-allowed; }
 .tag-new { position: absolute; top: 16px; left: 14%; background: var(--hi); color: var(--bar-ink); font: 400 22px var(--font-display); letter-spacing: .06em; padding: 2px 12px; transform: rotate(-3deg); }
 
-.summary { display: grid; place-content: center; justify-items: center; gap: 16px; text-align: center; min-height: 0; overflow: auto; }
+.summary { display: grid; place-content: center; justify-items: center; gap: 16px; text-align: center; min-height: 0; overflow-x: clip; overflow-y: auto; padding-inline: 12px; }
+.notice { margin: 0; max-width: 560px; color: var(--ink); font-size: 22px; }
+.tag-brake { display: inline-block; background: var(--hi); color: var(--bar-ink); font: 400 20px var(--font-display); padding: 0 10px; margin-right: 8px; transform: rotate(-3deg); }
+.combo > span { white-space: nowrap; }
 .score { margin: 0; font: 400 120px/1 var(--font-display); color: var(--hi); font-variant-numeric: tabular-nums; }
 .missed { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 720px; }
 .missed li { background: var(--bad); color: var(--bar-ink); padding: 6px 16px; font-weight: 800; font-size: 22px; transform: skewX(var(--skew)); }
@@ -136,7 +139,10 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   /* Fit 390×844 without scrolling. */
   .app { gap: 8px; padding-block: 12px; }
   .stage { gap: 12px; }
-  .prompt { min-height: 30vh; padding: 12px; }
+  .prompt { min-height: 28vh; padding: 12px; }
+  .summary .bar.primary { width: auto; }
+  .combo-label { display: none; }
+  .notice { font-size: 18px; }
   .answers, .opts { gap: 8px; }
   .bar { padding-block: 6px; }
   .note { font-size: 18px; min-height: 0; }

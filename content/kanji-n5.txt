@@ -1,7 +1,7 @@
 # Kanji N5 de Kana Pad: kanji|lecturas comunes|significado (contenido propio).
 # Las lecturas se validan contra KANJIDIC2 con `npm run content`. Lo que va entre paréntesis es okurigana.
 # Cada significado es único y no contiene el kanji, para que en opción múltiple haya una sola respuesta.
-日|にち・ひ|día, sol
+日|にち・ひ・か|día, sol
 一|いち・ひと(つ)|uno
 人|じん・にん・ひと|persona
 年|ねん・とし|año
@@ -10,11 +10,11 @@
 二|に・ふた(つ)|dos
 本|ほん・もと|libro, origen
 中|ちゅう・なか|dentro, medio
-出|しゅつ・で(る)|salir
+出|しゅつ・で(る)・だ(す)|salir, sacar
 三|さん・み(っつ)|tres
 見|けん・み(る)|ver
 月|げつ・がつ・つき|luna, mes
-生|せい・い(きる)|vida, nacer
+生|せい・い(きる)・う(まれる)|vida, nacer
 五|ご・いつ(つ)|cinco
 上|じょう・うえ|arriba
 四|し・よん|cuatro
@@ -50,7 +50,7 @@
 車|しゃ・くるま|coche
 足|そく・あし|pie, pierna
 白|はく・しろ(い)|blanco
-天|てん|celestial, del cielo
+天|てん|cielo (divino)
 火|か・ひ|fuego
 花|か・はな|flor
 右|う・みぎ|derecha
@@ -82,9 +82,9 @@
 書|しょ・か(く)|escribir
 道|どう・みち|camino
 半|はん|mitad
-西|せい・にし|oeste
+西|せい・さい・にし|oeste
 電|でん|electricidad
-少|しょう・すこ(し)|poco (cantidad)
+少|しょう・すこ(し)・すく(ない)|poco (cantidad)
 語|ご|idioma, palabra
 聞|ぶん・き(く)|escuchar
 食|しょく・た(べる)|comer

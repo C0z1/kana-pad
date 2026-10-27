@@ -59,3 +59,9 @@ test("options never offer a second correct answer, in either direction", () => {
 test("kanji meanings never contain the kanji", () => {
   for (const it of DECKS.find(d => d.kind === "kanji").items) assert.ok(!it.a.includes(it.q), it.q);
 });
+
+test("readings are spoken without okurigana parentheses", async () => {
+  const { speakable } = await import("../js/srs.js");
+  assert.equal(speakable("いち・ひと(つ)"), "いち、ひとつ");
+  assert.ok(!/[()]/.test(speakable("み(っつ)")));
+});

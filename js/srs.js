@@ -28,3 +28,6 @@ export function options(items, item, field, rng = Math.random) {
   const wrong = [...new Set(items.filter(i => i[field] !== item[field] && i[other] !== item[other]).map(i => i[field]))];
   return shuffle([item[field], ...shuffle(wrong, rng).slice(0, 3)], rng);
 }
+
+// "ひと(つ)・いち" → "ひとつ、いち": parentheses mark okurigana in readings; the voice must not read them.
+export const speakable = text => text.replace(/[()]/g, "").replace(/・/g, "、");

@@ -55,28 +55,55 @@ export function seededRng(seed) {
   };
 }
 
+// The study day ends at 4:00 (like Anki), so a late-night session still counts as "today".
+export const DAY_START_HOUR = 4;
+export const studyDay = (now = new Date()) => new Date(now.getTime() - DAY_START_HOUR * 3600e3).toLocaleDateString("sv");
+export function dayEnd(now = new Date()) {
+  const end = new Date(now);
+  end.setHours(DAY_START_HOUR, 0, 0, 0);
+  if (end <= now) end.setDate(end.getDate() + 1);
+  return end;
+}
+
 // Overdue cards (most overdue first), then today's new cards shuffled (so kana can't be
 // guessed from あいうえお order), then cards due within LEARN_AHEAD_MS (just-failed ones).
+// Review cards (state 2) count as due for the whole study day; learning cards keep their minute.
 // `entries` are { key, ... } in curriculum order.
 export function queue(entries, cards, now = new Date(), newLeft = NEW_PER_DAY, seed = "") {
-  const t = now.getTime(), dueAt = e => Date.parse(cards[e.key].due);
+  const t = now.getTime(), end = dayEnd(now).getTime(), dueAt = e => Date.parse(cards[e.key].due);
   const seen = entries.filter(e => cards[e.key]).sort((a, b) => dueAt(a) - dueAt(b));
-  const due = seen.filter(e => dueAt(e) <= t);
-  const soon = seen.filter(e => dueAt(e) > t && dueAt(e) <= t + LEARN_AHEAD_MS);
+  const due = seen.filter(e => dueAt(e) <= (cards[e.key].state === 2 ? end : t));
+  const soon = seen.filter(e => !due.includes(e) && dueAt(e) <= t + LEARN_AHEAD_MS);
   const rng = seededRng(seed);
   const fresh = entries.filter(e => !cards[e.key]).slice(0, Math.max(0, newLeft))
     .map(e => [rng(), e]).sort((a, b) => a[0] - b[0]).map(([, e]) => e);
   return [...due, ...fresh, ...soon];
 }
 
-// Brake for the first weeks: with a big backlog or weak recent retention, take fewer new cards.
-export const BRAKE_PENDING = 100, BRAKE_RETENTION = 0.75, BRAKE_NEW = 5;
+// Brake: with a big backlog or weak retention on mature cards, take fewer (or no) new cards.
+// `history` only counts answers to cards that were already in review (state 2), so cards
+// taught minutes ago don't drag retention down.
+export const BRAKE_PENDING = 100, BRAKE_STOP = 200, BRAKE_RETENTION = 0.75, BRAKE_MIN_REVIEWS = 50, BRAKE_NEW = 5;
 export function newCardsToday(duePending, history, today) {
+  if (duePending > BRAKE_STOP) return 0;
   const recent = Object.entries(history).filter(([d]) => d < today).sort().slice(-3).map(([, h]) => h);
   const reviews = recent.reduce((s, h) => s + h.reviews, 0);
   const correct = recent.reduce((s, h) => s + h.correct, 0);
-  const lowRetention = reviews >= 30 && correct / reviews < BRAKE_RETENTION;
+  const lowRetention = reviews >= BRAKE_MIN_REVIEWS && correct / reviews < BRAKE_RETENTION;
   return duePending > BRAKE_PENDING || lowRetention ? BRAKE_NEW : NEW_PER_DAY;
+}
+
+// Breather: a card just shown doesn't come back until 2 other cards or 60 s have passed.
+// `recent` is [{ key, t, taught }] of the cards shown, oldest first. Returns null when every
+// candidate is resting (the caller tells the student to come back in a minute).
+export const BREATHER_CARDS = 2, BREATHER_MS = 60000;
+export function pickNext(q, recent, now, isNew) {
+  const resting = key => recent.slice(-BREATHER_CARDS).some(r => r.key === key && now - r.t < BREATHER_MS);
+  const ready = q.filter(e => !resting(e.key));
+  if (!ready.length) return null;
+  // At most one lesson in a row while there are cards to ask.
+  if (isNew(ready[0]) && recent.at(-1)?.taught) return ready.find(e => !isNew(e)) ?? ready[0];
+  return ready[0];
 }
 
 // Merges lists by taking weights[i] items from list i per turn, so new cards mix
