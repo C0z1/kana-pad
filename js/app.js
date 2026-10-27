@@ -388,7 +388,7 @@ function renderProgress() {
     kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
   );
   const last = exams.at(-1);
-  if (last) $("progress").querySelector(".kpis").append(el("p", "notice pbrake",
+  if (last) $("progress").querySelector(".kpis").append(el("p", "notice pexam",
     `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per.vocab.join("/")}, gramática ${last.per.gram.join("/")}, lectura ${last.per.read.join("/")}.`));
   const limit = day.limit ?? NEW_PER_DAY;
   if (limit < NEW_PER_DAY) {
@@ -412,7 +412,7 @@ function renderProgress() {
     const row = el("div", "frow");
     const label = i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" });
     const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * n) / max}%`; meter.append(fill);
-    row.append(el("span", "", label), meter, el("small", "", `${n} cartas`));
+    row.append(el("span", "", label), meter, el("small", "", `${n} ${n === 1 ? "carta" : "cartas"}`));
     return row;
   }));
 }

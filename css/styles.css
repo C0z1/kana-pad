@@ -131,6 +131,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .kpi b { font: 400 56px/1 var(--font-display); color: var(--hi); font-variant-numeric: tabular-nums; }
 .kpi span { color: var(--muted); font-weight: 600; font-size: 16px; }
 .pbrake { grid-column: 1 / -1; max-width: none; }
+.pexam { grid-column: 1 / -1; max-width: none; color: var(--muted); }
 .decklist, .forecast { display: grid; gap: 10px; }
 .drow { display: grid; grid-template-columns: 160px minmax(0, 1fr) 120px; align-items: center; gap: 16px; min-height: 44px; font-weight: 600; }
 .drow .meter, .frow .meter { height: 18px; background: var(--line); transform: skewX(var(--skew)); }
