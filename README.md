@@ -2,6 +2,8 @@
 
 Practica japonés con un mando Xbox: hiragana, katakana, gramática N5, 574 palabras de vocabulario N5 y los 103 kanji N5 con orden de trazos. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
 
+Incluye un **panel de progreso** (pausa → Y) y un **simulacro N5** de 20 minutos (pausa → X).
+
 **Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
