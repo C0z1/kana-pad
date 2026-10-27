@@ -4,6 +4,7 @@ import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
+import { retention, streakDays, deckStats, forecast } from "./progress.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
 const ROUND = 10;
@@ -20,13 +21,13 @@ const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
 const todayKey = () => studyDay(); // local YYYY-MM-DD; the study day ends at 4:00
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
 let day = store.getSync("kp-day", { d: todayKey(), n: 0, fresh: 0 });
-let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correct } of already-learned cards
+let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correct } of mature-review answers, { answers } of all
 const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
 let ready = false; // starting before cards load would overwrite the saved schedule
 
-let screen = "start"; // start | play | pause | summary
+let screen = "start"; // start | play | pause | summary | progress
 let cur = null, opts = [], locked = false, streak = 0, lastKey = null, timer = 0, shownAt = 0;
 let teaching = false; // a new card is shown with its answer before it is ever asked
 let recent = []; // cards shown lately: { key, t, taught }, for the breather between repeats
@@ -175,6 +176,12 @@ async function showStrokes(ch) {
   return paths.length;
 }
 
+function countAnswer() {
+  const h = (history[day.d] ??= { reviews: 0, correct: 0 });
+  h.answers = (h.answers ?? 0) + 1;
+  store.setSync("kp-hist", history);
+}
+
 function answer(k) {
   if (screen !== "play" || locked || !cur) return;
   const { item, deck } = cur;
@@ -185,7 +192,7 @@ function answer(k) {
     // Only the highlighted answer moves on; it is graded as a first, unhurried success.
     if (chosen !== item[field]) return;
     locked = true;
-    day.fresh++; day.n++;
+    day.fresh++; day.n++; countAnswer();
     cards[key] = grade(undefined, true, 0);
     store.set("kp-cards", cards); store.setSync("kp-day", day);
     renderTop();
@@ -210,7 +217,7 @@ function answer(k) {
     store.set("kp-cards", cards);
   }
   streak = ok ? streak + 1 : 0;
-  day.n++;
+  day.n++; countAnswer();
   round.results.push(ok);
   if (!ok) round.missed.push(item);
   store.setSync("kp-stats", stats); store.setSync("kp-day", day);
@@ -362,13 +369,81 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && screen === "play" && (!wakeLock || wakeLock.released)) keepAwake();
 });
 
+// ---------- progress panel ----------
+const TABS = ["hoy", "mazos", "pron"];
+let tab = "hoy";
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+
+function renderProgress() {
+  rollDay();
+  const ret = retention(history, day.d);
+  const kpi = (value, label) => { const d = el("div", "kpi"); d.append(el("b", "", value), el("span", "", label)); return d; };
+  const streakN = streakDays(history, day.d);
+  $("progress").querySelector(".kpis").replaceChildren(
+    kpi(String(day.n), "respuestas hoy"),
+    kpi(ret === null ? "—" : `${Math.round(ret * 100)}%`, "retención de cartas maduras (3 días)"),
+    kpi(`${day.fresh}/${day.limit ?? NEW_PER_DAY}`, "cartas nuevas hoy"),
+    kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
+  );
+  $("progress").querySelector(".decklist").replaceChildren(...deckStats(DECKS, cards).map(d => {
+    const row = el("div", "drow");
+    const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * d.seen) / d.total}%`; meter.append(fill);
+    row.append(el("span", "", d.name), meter, el("small", "", `${d.seen}/${d.total} · ${d.mature} maduras`));
+    return row;
+  }));
+  const ends = Array.from({ length: 7 }, (_, i) => { const e = dayEnd(); e.setDate(e.getDate() + i); return e; });
+  const counts = forecast(cards, ends), max = Math.max(1, ...counts);
+  $("progress").querySelector(".forecast").replaceChildren(...counts.map((n, i) => {
+    const row = el("div", "frow");
+    const label = i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" });
+    const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * n) / max}%`; meter.append(fill);
+    row.append(el("span", "", label), meter, el("small", "", `${n} cartas`));
+    return row;
+  }));
+}
+
+function setTab(t) {
+  tab = TABS[(TABS.indexOf(t) + TABS.length) % TABS.length];
+  for (const b of $("progress").querySelectorAll(".tab")) {
+    b.setAttribute("aria-selected", b.dataset.tab === tab);
+    if (b.dataset.tab === tab && $("progress").contains(document.activeElement)) b.focus();
+  }
+  for (const p of $("progress").querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== tab;
+}
+function openProgress() {
+  if (screen !== "pause" && screen !== "start") return;
+  progressFrom = screen; screen = "progress";
+  renderProgress(); setTab("hoy");
+  $("overlay").hidden = true; $("progress").hidden = false;
+  $("progress").querySelector(".tab").focus();
+}
+let progressFrom = "start";
+function closeProgress() {
+  screen = progressFrom;
+  $("progress").hidden = true; $("overlay").hidden = false;
+  $("openprogress").focus();
+}
+$("openprogress").addEventListener("click", openProgress);
+$("closeprogress").addEventListener("click", closeProgress);
+for (const b of $("progress").querySelectorAll(".tab")) b.addEventListener("click", () => setTab(b.dataset.tab));
+
 // ---------- input ----------
 const ANSWER_BUTTONS = { 0: "a", 1: "b", 2: "x", 3: "y", 12: "y", 13: "a", 14: "x", 15: "b" };
 const pad = createPad(i => {
+  if (screen === "progress") {
+    if (i === 4) setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
+    else if (i === 5) setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
+    else if (i === 1 || i === 9) closeProgress();
+    return;
+  }
   if (i === 4) return setDeck(prefs.deck - 1);
   if (i === 5) return setDeck(prefs.deck + 1);
   if (i === 8) return toggle("voice");
-  if (screen === "start" || screen === "pause") { if (i === 0 || i === 9) setPaused(false); return; }
+  if (screen === "start" || screen === "pause") {
+    if (i === 0 || i === 9) setPaused(false);
+    else if (i === 3) openProgress();
+    return;
+  }
   if (screen === "summary") { if (i === 0) newRound(); return; }
   if (i === 9) return setPaused(true);
   if (i === 6) return toggle("ear");
@@ -380,6 +455,13 @@ document.addEventListener("keydown", e => {
   if (e.target.closest?.("input, select, textarea")) return;
   const arrows = { ArrowUp: "y", ArrowLeft: "x", ArrowRight: "b", ArrowDown: "a" };
   const key = e.key.toLowerCase();
+  if (screen === "progress") {
+    if (key === "q") setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
+    else if (key === "e") setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
+    else if (e.key === "Escape" || key === "b") closeProgress();
+    return;
+  }
+  if (key === "p" && (screen === "pause" || screen === "start")) return openProgress();
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }
   else if (key === "q") setDeck(prefs.deck - 1);
   else if (key === "e") setDeck(prefs.deck + 1);

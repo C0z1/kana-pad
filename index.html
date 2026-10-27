@@ -67,6 +67,7 @@
     <h1>KANA PAD</h1>
     <p>Responde con el botón del color que ves en cada opción. Las cartas que fallas vuelven más seguido. Cada acierto suma al combo.</p>
     <button type="button" class="bar primary" id="start"><span class="badge" data-k="a">A</span><span id="starttxt">Empezar</span></button>
+    <button type="button" class="link" id="openprogress"><span class="badge" data-k="y">Y</span>Ver progreso</button>
     <div class="settings">
       <label for="voice">Voz en japonés</label>
       <input type="checkbox" id="voice">
@@ -91,6 +92,25 @@
         <li>Lista de vocabulario, significados en español, frases de gramática y explicaciones: contenido propio de Kana Pad.</li>
       </ul>
     </details>
+  </div>
+</div>
+
+<div class="overlay" id="progress" hidden>
+  <div class="panel">
+    <header class="ptop">
+      <span class="deck-tag">PROGRESO</span>
+      <div class="tabs" role="tablist" aria-label="Secciones del progreso">
+        <kbd>LB</kbd>
+        <button type="button" role="tab" class="tab" data-tab="hoy" aria-selected="true">Hoy</button>
+        <button type="button" role="tab" class="tab" data-tab="mazos" aria-selected="false">Mazos</button>
+        <button type="button" role="tab" class="tab" data-tab="pron" aria-selected="false">Próximos 7 días</button>
+        <kbd>RB</kbd>
+      </div>
+      <button type="button" class="link" id="closeprogress"><span class="badge" data-k="b">B</span>Volver</button>
+    </header>
+    <section class="kpis" data-panel="hoy" role="tabpanel"></section>
+    <section class="decklist" data-panel="mazos" role="tabpanel" hidden></section>
+    <section class="forecast" data-panel="pron" role="tabpanel" hidden></section>
   </div>
 </div>
 
