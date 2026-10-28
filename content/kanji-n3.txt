@@ -1,0 +1,370 @@
+# Kanji N3 de Kana Pad: kanji|lecturas comunes|significado (contenido propio).
+# Conjunto según la lista JLPT de kanji-data (MIT), sin los kanji de N5 y N4. Orden: de más a menos frecuente.
+# Las lecturas se validan contra KANJIDIC2 con `npm run content`. Lo que va entre paréntesis es okurigana.
+# Cada significado es único y no contiene el kanji.
+政|せい・しょう|gobierno
+議|ぎ|deliberación
+民|みん・たみ|pueblo, nación
+連|れん・つ(れる)|acompañar, enlazar
+対|たい・つい|frente a, par
+部|ぶ|departamento, parte
+合|ごう・がっ・あ(う)|juntar, encajar
+市|し・いち|mercado, ciudad
+内|ない・うち|dentro
+相|そう・しょう・あい|mutuo
+定|てい・じょう・さだ(める)|fijar, establecer
+回|かい・まわ(る)|vez, girar
+選|せん・えら(ぶ)|elegir
+米|べい・まい・こめ|arroz, EE. UU.
+実|じつ・み・みの(る)|realidad, fruto
+関|かん・せき|relación, barrera
+決|けつ・き(める)|decidir
+全|ぜん・まった(く)|todo, entero
+表|ひょう・おもて・あらわ(す)|superficie, tabla
+戦|せん・いくさ・たたか(う)|guerra, batalla
+経|けい・きょう・へ(る)|pasar por, sutra
+最|さい・もっと(も)|el más
+現|げん・あらわ(れる)|presente, aparecer
+調|ちょう・しら(べる)|investigar, tono
+化|か・け・ば(ける)|transformar
+当|とう・あ(たる)|acertar, actual
+約|やく|aproximadamente, promesa
+首|しゅ・くび|cuello, capital
+法|ほう・はっ・ほっ|ley, método
+性|せい・しょう|naturaleza, sexo
+要|よう・い(る)|necesitar, esencial
+制|せい|sistema, control
+治|じ・ち・おさ(める)・なお(る)|gobernar, curar
+務|む・つと(める)|deber, tarea
+成|せい・じょう・な(る)|llegar a ser
+期|き・ご|periodo
+取|しゅ・と(る)|tomar
+都|と・つ・みやこ|metrópoli
+和|わ・お・やわ(らぐ)|armonía, japonés
+機|き・はた|máquina, ocasión
+平|へい・びょう・たい(ら)・ひら|plano, paz
+加|か・くわ(える)|añadir
+受|じゅ・う(ける)|aceptar, recibir
+続|ぞく・つづ(く)|seguir, continuación
+進|しん・すす(む)|progresar
+数|すう・す・かず・かぞ(える)|número, contar
+記|き・しる(す)|anotar, crónica
+初|しょ・はじ(め)・はつ|primera vez
+指|し・ゆび・さ(す)|dedo, señalar
+権|けん・ごん|derecho, autoridad
+支|し・ささ(える)|apoyar, rama
+産|さん・う(む)|dar a luz, producto
+点|てん|punto
+報|ほう・むく(いる)|informe, recompensa
+済|さい・す(む)|liquidar, acabar
+活|かつ|actividad, vida
+原|げん・はら|llanura, original
+共|きょう・とも|juntos
+得|とく・え(る)・う(る)|obtener, ganancia
+解|かい・げ・と(く)|resolver, deshacer
+交|こう・まじ(わる)|cruzarse, intercambio
+資|し|recursos, capital
+予|よ・あらかじ(め)|de antemano
+向|こう・む(く)|orientarse hacia
+際|さい・きわ|ocasión, borde
+勝|しょう・か(つ)|victoria
+面|めん・おも・おもて・つら|cara, máscara
+告|こく・つ(げる)|anunciar
+反|はん・ほん・たん・そ(る)|anti-, contra
+判|はん・ばん|juicio, sello
+認|にん・みと(める)|reconocer
+参|さん・まい(る)|participar, acudir
+利|り・き(く)|beneficio
+組|そ・く(む)・くみ|grupo, armar
+信|しん|fe, confianza
+在|ざい・あ(る)|estar presente
+件|けん|caso, asunto (contador)
+側|そく・かわ・がわ・そば|lado
+任|にん・まか(せる)|encargar
+引|いん・ひ(く)|tirar de, jalar
+求|きゅう・もと(める)|pedir, buscar
+所|しょ・ところ|lugar (sitio)
+次|じ・し・つぎ|siguiente
+昨|さく|ayer, anterior
+論|ろん|argumento, teoría
+官|かん|funcionario del Estado
+増|ぞう・ま(す)・ふ(える)|incrementar
+係|けい・かか(る)・かかり|encargado
+感|かん|sentir, sensación
+情|じょう・せい・なさ(け)|emoción, compasión
+投|とう・な(げる)|arrojar
+示|じ・し・しめ(す)|mostrar
+変|へん・か(わる)|cambio, raro
+打|だ・う(つ)|pegar, batear
+直|ちょく・じき・なお(す)・ただ(ちに)|directo, reparar
+両|りょう|ambos lados
+式|しき|ceremonia, fórmula
+確|かく・たし(か)|seguro, confirmar
+果|か・は(たす)|fruta, resultado
+容|よう|contener, aspecto
+必|ひつ・かなら(ず)|sin falta, inevitable
+演|えん|actuar, representar
+歳|さい・せい・とし|años de edad
+争|そう・あらそ(う)|disputar
+談|だん|charla
+能|のう|capacidad, teatro noh
+位|い・くらい|rango, aproximadamente
+置|ち・お(く)|colocar
+流|りゅう・る・なが(れる)|corriente, fluir
+格|かく・こう|categoría, estatus
+疑|ぎ・うたが(う)|dudar
+過|か・す(ぎる)|exceso, pasar (tiempo)
+局|きょく|oficina, cadena (emisora)
+放|ほう・はな(す)|soltar
+常|じょう・つね|habitual
+状|じょう|estado, carta
+球|きゅう・たま|bola, esfera
+職|しょく|empleo, puesto
+与|よ・あた(える)|otorgar
+供|きょう・く・そな(える)・とも|ofrecer, acompañante
+役|やく・えき|papel, cargo
+構|こう・かま(える)・かま(う)|estructura, postura
+割|かつ・わ(る)・わり|dividir, proporción
+費|ひ・つい(やす)|gasto
+付|ふ・つ(ける)|adjuntar, pegar
+由|ゆ・ゆう・ゆい・よし|motivo, origen
+説|せつ・ぜい・と(く)|teoría, explicar
+難|なん・かた(い)・むずか(しい)|difícil
+優|ゆう・やさ(しい)・すぐ(れる)|amable, sobresalir
+夫|ふ・ふう・おっと|esposo
+収|しゅう・おさ(める)|ingreso, guardar
+断|だん・た(つ)・ことわ(る)|rechazar, cortar (lazos)
+石|せき・しゃく・いし|piedra
+違|い・ちが(う)|diferir
+消|しょう・き(える)・け(す)|apagar, borrar
+神|しん・じん・かみ|dios, espíritu
+番|ばん|turno, número de orden
+規|き|norma
+術|じゅつ・すべ|técnica, arte
+備|び・そな(える)|preparar, equipar
+宅|たく|residencia
+害|がい|daño
+配|はい・くば(る)|repartir
+警|けい|advertir, vigilar
+育|いく・そだ(つ)|crecer, criar
+席|せき|asiento
+訪|ほう・おとず(れる)・たず(ねる)|visitar
+乗|じょう・の(る)|subir a (vehículo)
+残|ざん・のこ(る)|sobrar
+想|そう・そ|idea, imaginar
+声|せい・しょう・こえ|voz
+念|ねん|deseo, sentimiento
+助|じょ・たす(ける)|ayudar
+労|ろう|trabajo duro
+例|れい・たと(える)|ejemplo
+然|ぜん・ねん|así, natural
+限|げん・かぎ(る)|límite
+追|つい・お(う)|perseguir
+商|しょう・あきな(う)|comercio
+葉|よう・は|hoja
+伝|でん・つた(える)|transmitir
+働|どう・はたら(く)|trabajar
+形|けい・ぎょう・かた・かたち|forma, figura
+景|けい|vista, paisaje
+落|らく・お(ちる)|caer
+好|こう・この(む)・す(く)|gustar
+退|たい・しりぞ(く)|retirarse
+頭|とう・ず・あたま|cabeza
+負|ふ・ま(ける)・お(う)|perder, cargar
+渡|と・わた(る)|cruzar
+失|しつ・うしな(う)|perder (algo)
+差|さ・さ(す)|diferencia
+末|まつ・ばつ・すえ|fin, extremo
+守|しゅ・す・まも(る)|proteger
+若|じゃく・にゃく・わか(い)|joven
+種|しゅ・たね|especie, semilla
+美|び・み・うつく(しい)|belleza
+命|めい・みょう・いのち|vida, orden
+福|ふく|fortuna, bendición
+望|ぼう・もう・のぞ(む)|esperanza, anhelar
+非|ひ|no-, error
+観|かん|observar, punto de vista
+察|さつ|conjeturar, inspeccionar
+段|だん|escalón, grado
+横|おう・よこ|horizontal, al lado
+深|しん・ふか(い)|hondo
+申|しん・もう(す)|decir (formal), solicitar
+様|よう・さま|señor (honorífico), manera
+財|ざい・さい|bienes, riqueza
+港|こう・みなと|puerto
+識|しき|conocimiento
+呼|こ・よ(ぶ)|llamar
+達|たつ・だ|alcanzar, plural de personas
+良|りょう・よ(い)|bueno
+候|こう|clima, candidato
+程|てい・ほど|grado, medida
+満|まん・ばん・み(ちる)|lleno, completo
+敗|はい・やぶ(れる)|derrota
+値|ち・ね・あたい|precio, valor
+突|とつ・つ(く)|clavar, de repente
+光|こう・ひか(る)・ひかり|luz, brillar
+路|ろ・る・みち|camino
+科|か|asignatura, sección
+積|せき・つ(む)・つ(もる)|apilar, acumular
+他|た・ほか|otro
+処|しょ|tratar, gestionar
+太|たい・た・ふと(い)|grueso, gordo
+客|きゃく・かく|cliente, visita
+否|ひ・いな・いや|negar
+師|し|maestro, experto
+登|とう・と・のぼ(る)|escalar
+易|えき・い・やさ(しい)・やす(い)|fácil, adivinación
+速|そく・はや(い)|rápido
+存|そん・ぞん|existir, saber
+飛|ひ・と(ぶ)|volar
+殺|さつ・さい・せつ・ころ(す)|matar
+号|ごう|número, edición
+単|たん|simple, unidad
+座|ざ・すわ(る)|sentarse
+破|は・やぶ(る)|romper, rasgar
+除|じょ・じ・のぞ(く)|excluir
+完|かん|completar
+降|こう・お(りる)・ふ(る)|bajar, caer (lluvia)
+責|せき・せ(める)|responsabilidad, culpar
+捕|ほ・と(らえる)・と(る)|capturar
+危|き・あぶ(ない)・あや(うい)|peligroso
+給|きゅう|salario, suministrar
+苦|く・くる(しい)・にが(い)|sufrimiento, amargo
+迎|げい・むか(える)|dar la bienvenida
+園|えん・その|jardín, parque
+具|ぐ|utensilio
+辞|じ・や(める)|renunciar, palabra
+因|いん・よ(る)|causa, factor
+馬|ば・うま・ま|caballo
+愛|あい|amor
+富|ふ・ふう・と(む)・とみ|riqueza, abundar
+彼|ひ・かれ・かの|él, aquel
+未|み・び・いま(だ)|aún no
+舞|ぶ・ま(う)|danzar
+亡|ぼう・もう・な(い)|difunto
+冷|れい・つめ(たい)・ひ(える)|frío (al tacto)
+適|てき|apropiado
+婦|ふ|dama, esposa
+寄|き・よ(る)|acercarse
+込|こ(む)|lleno, incluir
+顔|がん・かお|rostro
+類|るい・たぐ(い)|clase, categoría
+余|よ・あま(る)|sobrante
+王|おう|rey
+返|へん・かえ(す)|devolver
+妻|さい・つま|esposa (propia)
+背|はい・せ・せい|espalda, estatura
+熱|ねつ・あつ(い)|calor, fiebre
+宿|しゅく・やど|alojamiento
+薬|やく・くすり|medicamento
+険|けん・けわ(しい)|escarpado, riesgo
+頼|らい・たの(む)・たよ(る)|pedir un favor, confiar
+覚|かく・おぼ(える)・さ(める)|memorizar, despertar
+船|せん・ふね・ふな|barco
+途|と|ruta, en camino
+許|きょ・ゆる(す)|permitir, perdonar
+抜|ばつ・ぬ(く)|arrancar, sacar
+便|べん・びん・たよ(り)|comodidad, correo
+留|りゅう・る・と(める)|retener
+罪|ざい・つみ|crimen, pecado
+努|ど・つと(める)|esforzarse
+精|せい・しょう|espíritu, refinado
+散|さん・ち(る)|dispersarse
+静|せい・じょう・しず(か)|tranquilo
+婚|こん|matrimonio
+喜|き・よろこ(ぶ)|alegría
+浮|ふ・う(く)・う(かぶ)|flotar
+絶|ぜつ・た(える)|cortar, absoluto
+幸|こう・さいわ(い)・しあわ(せ)|felicidad
+押|おう・お(す)|empujar
+倒|とう・たお(れる)|derribar, caer
+等|とう・ひと(しい)・など|igualdad, etcétera
+老|ろう・お(いる)・ふ(ける)|vejez
+曲|きょく・ま(がる)|curvarse, melodía
+払|ふつ・はら(う)|pagar, barrer
+庭|てい・にわ|jardín de casa
+徒|と|a pie, discípulo
+勤|きん・ごん・つと(める)|trabajar para, servir en
+遅|ち・おく(れる)・おそ(い)|tarde, lento
+居|きょ・こ・い(る)|residir, estar
+雑|ざつ・ぞう|variado, mezcla
+招|しょう・まね(く)|invitar
+困|こん・こま(る)|estar en apuros
+欠|けつ・か(ける)|faltar
+更|こう・さら|de nuevo, renovar
+刻|こく・きざ(む)|grabar, picar
+賛|さん|aprobar
+抱|ほう・だ(く)・かか(える)|abrazar
+犯|はん・ぼん・おか(す)|delito
+恐|きょう・おそ(れる)・こわ(い)|temor
+息|そく・いき|aliento
+遠|えん・おん・とお(い)|lejano
+戻|れい・もど(る)|volver atrás
+願|がん・ねが(う)|desear, petición
+絵|かい・え|pintura, dibujo
+越|えつ・こ(す)・こ(える)|cruzar por encima
+欲|よく・ほ(しい)|querer, deseo
+痛|つう・いた(い)|dolor
+笑|しょう・わら(う)・え(む)|risa
+互|ご・たが(い)|recíproco
+束|そく・たば|manojo
+似|じ・に(る)|parecido
+列|れつ|fila
+探|たん・さぐ(る)・さが(す)|buscar, explorar
+逃|とう・に(げる)・のが(す)|escapar
+遊|ゆう・ゆ・あそ(ぶ)|jugar
+迷|めい・まよ(う)|perderse, dudar
+夢|む・ゆめ|sueño
+君|くん・きみ|tú, señor (tratamiento)
+閉|へい・と(じる)・し(める)|cerrar
+緒|しょ・ちょ・お|cordón, inicio
+折|せつ・お(る)・おり|doblar, ocasión
+草|そう・くさ|hierba
+暮|ぼ・く(れる)・く(らす)|vivir, anochecer
+酒|しゅ・さけ・さか|sake, alcohol
+悲|ひ・かな(しい)|tristeza
+晴|せい・は(れる)|despejado
+掛|か(ける)|colgar
+到|とう・いた(る)|llegar a
+寝|しん・ね(る)|acostarse
+暗|あん・くら(い)|oscuro
+盗|とう・ぬす(む)|hurtar
+吸|きゅう・す(う)|aspirar, fumar
+陽|よう・ひ|sol, yang
+御|ぎょ・ご・お|honorable (prefijo)
+歯|し・は|diente
+忘|ぼう・わす(れる)|olvidar
+雪|せつ・ゆき|nieve
+吹|すい・ふ(く)|soplar
+娘|じょう・むすめ|hija, muchacha
+誤|ご・あやま(る)|error
+洗|せん・あら(う)|lavar
+慣|かん・な(れる)|habituarse
+礼|れい・らい|reverencia, gratitud
+窓|そう・まど|ventana
+昔|せき・しゃく・むかし|tiempos antiguos
+貧|ひん・びん・まず(しい)|pobre
+怒|ど・いか(る)・おこ(る)|ira
+泳|えい・およ(ぐ)|nadar
+祖|そ|antepasado
+杯|はい・さかずき|copa (contador)
+疲|ひ・つか(れる)|cansarse
+皆|かい・みな|todo el mundo
+鳴|めい・な(く)・な(る)|cantar (animal), sonar
+腹|ふく・はら|vientre
+煙|えん・けむり|humo
+眠|みん・ねむ(る)・ねむ(い)|dormir, sueño (somnolencia)
+怖|ふ・こわ(い)|miedo
+頂|ちょう・いただ(く)|cima, recibir (humilde)
+箱|そう・はこ|caja
+晩|ばん|noche (temprano)
+寒|かん・さむ(い)|frío (clima)
+髪|はつ・かみ|pelo de la cabeza
+忙|ぼう・いそが(しい)|ocupado
+才|さい|talento, años (edad)
+靴|か・くつ|zapato
+恥|ち・は(じる)・はじ|vergüenza
+偶|ぐう・たま|casual, par
+偉|い・えら(い)|admirable
+猫|びょう・ねこ|gato
+幾|き・いく|cuántos

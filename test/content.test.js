@@ -22,7 +22,7 @@ test("every deck has unique prompts, so progress keys never collide", () => {
 });
 
 test("every kanji has a KanjiVG file with strokes", () => {
-  for (const it of DECKS.find(d => d.kind === "kanji").items) {
+  for (const it of DECKS.filter(d => d.kind === "kanji").flatMap(d => d.items)) {
     const f = `content/kanjivg/${hexOf(it.q)}.svg`;
     assert.ok(existsSync(f), f);
     assert.ok(parsePaths(readFileSync(f, "utf8")).length > 0, f);
@@ -36,8 +36,8 @@ test("service worker precaches files that exist", () => {
   for (const f of list) if (f !== "./") assert.ok(existsSync(f), f);
 });
 
-test("every N5 kanji stroke file is listed for offline precache", () => {
-  const list = JSON.parse(readFileSync("content/kanjivg/n5.json", "utf8"));
-  assert.equal(list.length, DECKS.find(d => d.kind === "kanji").items.length);
+test("every kanji and kana stroke file is listed for offline precache", () => {
+  const list = JSON.parse(readFileSync("content/kanjivg/strokes.json", "utf8"));
+  assert.equal(list.length, DECKS.filter(d => d.kind === "kanji" || d.kind === "kana").reduce((n, d) => n + d.items.length, 0));
   for (const f of list) assert.ok(existsSync(f), f);
 });

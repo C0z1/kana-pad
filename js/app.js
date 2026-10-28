@@ -1,4 +1,4 @@
-import { DECKS } from "./data.js";
+import { DECKS, LEVELS } from "./data.js";
 import { pick, options, speakable } from "./srs.js";
 import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY, BREATHER_CARDS, BREATHER_MS } from "./scheduler.js";
@@ -11,6 +11,7 @@ import { STORIES_N5 } from "./content/stories-n5.js";
 import { parseWord, parseStory, lookupWord } from "./stories.js";
 import { activeVoices, pickVoice, voiceVariation, buildListening } from "./listening.js";
 import { BUILT_IN, clipUrl } from "./voices.js";
+import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
 import { shuffle } from "./srs.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
@@ -23,9 +24,11 @@ const REVIEW = { id: "review", name: "Repaso de hoy", kind: "review" };
 const PRACTICE = { id: "seen", name: "Práctica de lo visto", kind: "practice" };
 const MODES = [REVIEW, PRACTICE, ...DECKS];
 const entriesOf = id => { const deck = DECKS.find(d => d.id === id); return deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })); };
-// New cards: all kana first, then 3 words : 1 grammar point : 1 kanji.
+// New cards: all kana first, then per level (N5, N4, N3) 3 words : 1 grammar point : 1 kanji.
 const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
-  ...interleave([entriesOf("vocab"), entriesOf("gram5"), entriesOf("kanji")], [3, 1, 1])];
+  ...interleave([entriesOf("vocab"), entriesOf("gram5"), entriesOf("kanji")], [3, 1, 1]),
+  ...interleave([entriesOf("vocab4"), entriesOf("gram4"), entriesOf("kanji4")], [3, 1, 1]),
+  ...interleave([entriesOf("vocab3"), entriesOf("gram3"), entriesOf("kanji3")], [3, 1, 1])];
 
 const todayKey = () => studyDay(); // local YYYY-MM-DD; the study day ends at 4:00
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
@@ -64,7 +67,7 @@ function rollDay() {
 rollDay();
 // Extra new cards the student asked for today ("5 nuevas más"); the brake still wins at 0.
 const newLimit = () => (day.limit === 0 ? 0 : (day.limit ?? NEW_PER_DAY) + (day.bonus ?? 0));
-const reviewQueue = () => queue(ENTRIES, cards, new Date(), newLimit() - day.fresh, day.d);
+const reviewQueue = () => queue(fromLevel(ENTRIES, cards, prefs.level), cards, new Date(), newLimit() - day.fresh, day.d);
 const seenEntries = () => ENTRIES.filter(e => cards[e.key]);
 const pending = () => reviewQueue().length;
 
@@ -461,6 +464,8 @@ function menuItems() {
   if (menu.level === "settings") {
     return [
       { label: `Voz japonesa: ${prefs.voice ? "sí" : "no"}`, sub: jaVoice ? "Lee cada carta en voz alta" : "No hay voz japonesa instalada", preview: [jaVoice ? "Lee cada carta en voz alta." : "Instala una voz japonesa: Configuración → Hora e idioma → Voz."], action: () => { toggle("voice"); renderMenu(); } },
+      { label: `Punto de partida: ${levelName(prefs.level ?? "kana")}`, sub: "A: cambiar · o repite la prueba de nivel", preview: ["Nivel desde el que entran cartas nuevas al repaso.", "Lo que ya viste se sigue repasando."], action: () => { const i = LEVELS.findIndex(l => l.id === (prefs.level ?? "kana")); prefs.level = LEVELS[(i + 1) % LEVELS.length].id; savePrefs(); renderMenu(); } },
+      { label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", preview: ["Vuelve a calcular tu punto de partida."], action: startPlacement },
       { label: "Voces del listening", sub: `${listenVoices().length} activas`, preview: ["Elige qué voces japonesas usa el listening."], action: () => openLevel("voices") },
       { label: "Usar otro mando", sub: "Elige el mando con un botón", preview: ["Después pulsa un botón en el mando que quieras usar."], action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
       { label: "Exportar progreso", sub: "Guarda una copia en un archivo", preview: ["Descarga un archivo con todo tu progreso."], action: exportProgress },
@@ -469,6 +474,7 @@ function menuItems() {
     ];
   }
   const items = [];
+  if (!prefs.level && screen !== "pause") items.push({ label: "Prueba de nivel", sub: "Encuentra tu punto de partida", preview: ["Unas preguntas de kana, N5, N4 y N3.", "El repaso empieza en el primer nivel que no domines.", "Si empiezas de cero, elige Repaso de hoy."], action: startPlacement });
   if (screen === "pause") items.push({ label: "Continuar", sub: "Volver a donde estabas", preview: ["Vuelve a la ronda en curso."], action: () => setPaused(false) });
   const limit = day.limit ?? NEW_PER_DAY;
   items.push(
@@ -526,7 +532,7 @@ function activateMenu() {
 }
 function openLevel(level) { menu.from = menu.sel; menu.level = level; menu.sel = 0; $("credits").hidden = true; renderMenu(); }
 function menuBack() {
-  if (menu.level === "voices") { menu.level = "settings"; menu.sel = 1; renderMenu(); }
+  if (menu.level === "voices") { menu.level = "settings"; menu.sel = 3; renderMenu(); }
   else if (menu.level !== "main") { menu.level = "main"; menu.sel = menu.from; $("credits").hidden = true; renderMenu(); }
   else if (screen === "pause") setPaused(false);
 }
@@ -652,9 +658,7 @@ const deckOf = id => DECKS.find(d => d.id === id);
 function startExam() {
   if (screen !== "pause" && screen !== "start") return;
   exam = { qs: buildExam(deckOf("vocab").items, deckOf("gram5").items, READING_N5), answers: [], i: 0, left: EXAM_SECONDS, paused: false, from: screen };
-  screen = "exam";
-  $("overlay").hidden = true; $("exam").hidden = false;
-  $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
+  showExam("SIMULACRO N5");
   exam.timer = setInterval(() => {
     if (exam.paused) return;
     exam.left--;
@@ -662,6 +666,45 @@ function startExam() {
     if (exam.left <= 0) finishExam();
   }, 1000);
   renderClock(); renderExamQ();
+}
+
+function showExam(title) {
+  screen = "exam";
+  $("overlay").hidden = true; $("exam").hidden = false;
+  $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
+  $("etitle").textContent = title; $("etimer").hidden = !!exam.placement;
+}
+
+// ---------- placement test (same screen as the mock exam, no clock) ----------
+const levelName = id => LEVELS.find(l => l.id === id)?.name ?? "";
+const placementQs = lv => levelQuestions(DECKS, LEVELS[lv].id)
+  .map(q => ({ ...q, section: q.kind === "grammar" ? "gram" : "vocab", ask: q.kind === "kana" ? "¿Cómo se lee?" : undefined }));
+
+function startPlacement() {
+  if (screen !== "pause" && screen !== "start") return;
+  exam = { placement: true, lv: 0, rights: [], qs: placementQs(0), answers: [], i: 0, paused: false, from: screen };
+  showExam("PRUEBA DE NIVEL");
+  renderExamQ();
+}
+
+function nextPlacementLevel() {
+  exam.rights.push(exam.qs.filter((q, i) => exam.answers[i] === q.answer).length);
+  const lv = startLevel(LEVELS, exam.rights);
+  if (!lv) { exam.lv++; exam.qs = placementQs(exam.lv); exam.answers = []; exam.i = 0; renderExamQ(); return; }
+  prefs.level = lv; savePrefs();
+  $("ebody").hidden = true; $("eresult").hidden = false;
+  $("esec").textContent = "Resultado";
+  $("escores").replaceChildren(...exam.rights.map((r, i) => {
+    const d = el("div", "escore");
+    d.append(el("b", "", `${r}/${PER_LEVEL}`), el("span", "", LEVELS[i].name));
+    return d;
+  }));
+  $("epass").textContent = `Empiezas en ${levelName(lv)}`;
+  $("epass").className = "epass ok";
+  $("emissed").replaceChildren(el("p", "note", lv === "kana"
+    ? "Las cartas nuevas empiezan por hiragana y katakana."
+    : `Las cartas nuevas de tu repaso empiezan en ${levelName(lv)}. Los niveles anteriores siguen en Práctica.`));
+  $("eback").focus({ preventScroll: true });
 }
 
 function renderClock() {
@@ -672,7 +715,8 @@ function renderClock() {
 function renderExamQ() {
   const q = exam.qs[exam.i];
   const n = SECTIONS.findIndex(s => s.id === q.section);
-  $("esec").textContent = `${n + 1} · ${SECTIONS[n].name} · pregunta ${exam.i + 1} de ${exam.qs.length}`;
+  $("esec").textContent = exam.placement ? `${levelName(LEVELS[exam.lv].id)} · pregunta ${exam.i + 1} de ${exam.qs.length}`
+    : `${n + 1} · ${SECTIONS[n].name} · pregunta ${exam.i + 1} de ${exam.qs.length}`;
   const reading = q.section === "read";
   $("eprompt").hidden = reading; $("epassage").hidden = !reading;
   $("equestion").hidden = !reading;
@@ -684,7 +728,7 @@ function renderExamQ() {
     eq.lang = "ja";
     eq.className = q.section === "gram" ? "glyph sentence" : "glyph" + (q.prompt.length === 2 ? " len2" : q.prompt.length > 2 ? " len3" : "");
     eq.textContent = q.prompt;
-    $("ehint").textContent = q.section === "gram" ? `Completa: ${q.hint}` : "¿Qué significa?";
+    $("ehint").textContent = q.section === "gram" ? `Completa: ${q.hint}` : q.ask ?? "¿Qué significa?";
   }
   $("eopts").replaceChildren(...KEYS.map((k, i) => {
     const b = el("button", "bar"); b.type = "button"; b.dataset.k = k;
@@ -707,7 +751,7 @@ function examAnswer(k) {
   setTimeout(() => {
     exam.locked = false;
     exam.i++;
-    if (exam.i >= exam.qs.length) finishExam(); else renderExamQ();
+    if (exam.i < exam.qs.length) renderExamQ(); else if (exam.placement) nextPlacementLevel(); else finishExam();
   }, 300);
 }
 

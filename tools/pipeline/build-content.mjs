@@ -52,15 +52,18 @@ export function parseKanji(text) {
   return parseVocab(text); // same "a|b|c" line format
 }
 
-// Every N5 (old level 4) kanji present once, readings attested in KANJIDIC2, meanings unique
+// Every kanji of the level present once, readings attested in KANJIDIC2, meanings unique
 // and never containing the kanji itself (that would give the answer away).
-export function checkKanji(items, kanjidic) {
-  const dict = new Map(kanjidic.characters.filter(c => c.misc.jlptLevel === 4).map(c => [c.literal, c]));
+// `expected` is the level's kanji set; N5 defaults to KANJIDIC2's old level 4.
+export function checkKanji(items, kanjidic, expected, level = "N5") {
+  const all = new Map(kanjidic.characters.map(c => [c.literal, c]));
+  const set = expected ?? kanjidic.characters.filter(c => c.misc.jlptLevel === 4).map(c => c.literal);
+  const dict = new Map(set.map(k => [k, all.get(k)]));
   const errors = [];
   const seenQ = new Set(), seenA = new Set();
   for (const it of items) {
     const c = dict.get(it.q);
-    if (!c) { errors.push(`no es un kanji N5 de KANJIDIC2: ${it.q}`); continue; }
+    if (!c) { errors.push(`no es un kanji ${level}: ${it.q}`); continue; }
     if (seenQ.has(it.q)) errors.push(`repetido: ${it.q}`);
     if (seenA.has(it.a)) errors.push(`significado repetido: ${it.a} (${it.q})`);
     if (it.a.includes(it.q)) errors.push(`el significado contiene el kanji: ${it.q}`);
@@ -73,7 +76,7 @@ export function checkKanji(items, kanjidic) {
       if (!on.includes(base) && !kun.some(k => k.startsWith(base))) errors.push(`lectura no está en KANJIDIC2: ${it.q} ${reading}`);
     }
   }
-  for (const k of dict.keys()) if (!seenQ.has(k)) errors.push(`falta el kanji N5: ${k}`);
+  for (const k of dict.keys()) if (!seenQ.has(k)) errors.push(`falta el kanji ${level}: ${k}`);
   return errors;
 }
 
@@ -110,26 +113,64 @@ function writeModule(path, name, items, header) {
   writeFileSync(path, `// ${header}\n// Generado por tools/pipeline/build-content.mjs. No editar a mano.\nexport const ${name} = ${JSON.stringify(items, null, 0).replace(/},{/g, "},\n{")};\n`);
 }
 
+// N4 and N3 kanji sets come from kanji-data (MIT), minus the kanji of easier levels.
+const KANJI_DATA = "https://raw.githubusercontent.com/davidluzgouveia/kanji-data/master/kanji.json";
+function kanjiSets() {
+  const path = `${CACHE}/kanji-data.json`;
+  if (!existsSync(path)) execSync(`curl -sfL -o ${path} ${KANJI_DATA}`, { stdio: "inherit" });
+  const data = JSON.parse(readFileSync(path, "utf8"));
+  return lv => Object.entries(data).filter(([, v]) => v.jlpt_new === lv).map(([k]) => k);
+}
+
+// KanjiVG stroke files are fetched once into content/kanjivg (CC BY-SA 3.0, kept unmodified).
+const strokeFile = k => `content/kanjivg/${k.codePointAt(0).toString(16).padStart(5, "0")}.svg`;
+function fetchStrokes(kanji) {
+  for (const k of kanji) {
+    const f = strokeFile(k);
+    if (!existsSync(f)) execSync(`curl -sfL -o ${f} https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${f.split("/").pop()}`, { stdio: "inherit" });
+  }
+}
+
+// Each level: vocabulary, kanji and grammar files in content/, one JS module per file in js/content/.
+const LEVELS = ["n5", "n4", "n3"];
+
 if (process.argv[1]?.endsWith("build-content.mjs")) {
   mkdirSync("js/content", { recursive: true });
-  const vocab = parseVocab(readFileSync("content/vocab-n5.txt", "utf8"));
-  const kanji = parseKanji(readFileSync("content/kanji-n5.txt", "utf8"));
-  const grammar = parseGrammar(readFileSync("content/grammar-n5.txt", "utf8"));
-  const errors = [
-    ...checkVocab(vocab, load(FILES["jmdict-eng"])).map(e => `vocab-n5.txt: ${e}`),
-    ...duplicateMeanings(vocab).map(a => `vocab-n5.txt: significado repetido: ${a}`),
-    ...checkKanji(kanji, load(FILES["kanjidic2-all"])).map(e => `kanji-n5.txt: ${e}`),
-    ...checkGrammar(grammar).map(e => `grammar-n5.txt: ${e}`),
-  ];
+  const jmdict = load(FILES["jmdict-eng"]), kanjidic = load(FILES["kanjidic2-all"]), setOf = kanjiSets();
+  const errors = [], built = {}, easier = new Set();
+  for (const lv of LEVELS) {
+    const N = lv.toUpperCase();
+    const vocab = parseVocab(readFileSync(`content/vocab-${lv}.txt`, "utf8"));
+    const kanji = parseKanji(readFileSync(`content/kanji-${lv}.txt`, "utf8"));
+    const grammar = parseGrammar(readFileSync(`content/grammar-${lv}.txt`, "utf8"));
+    const expected = lv === "n5" ? undefined : setOf(Number(lv[1])).filter(k => !easier.has(k));
+    errors.push(
+      ...checkVocab(vocab, jmdict).map(e => `vocab-${lv}.txt: ${e}`),
+      ...duplicateMeanings(vocab).map(a => `vocab-${lv}.txt: significado repetido: ${a}`),
+      ...checkKanji(kanji, kanjidic, expected, N).map(e => `kanji-${lv}.txt: ${e}`),
+      ...checkGrammar(grammar).map(e => `grammar-${lv}.txt: ${e}`),
+    );
+    kanji.forEach(k => easier.add(k.q));
+    built[lv] = { N, vocab, kanji, grammar };
+  }
   if (errors.length) {
     console.error(`${errors.length} problemas:\n` + errors.join("\n"));
     process.exit(1);
   }
-  writeModule("js/content/vocab-n5.js", "VOCAB_N5", vocab, "Vocabulario N5: lista y significados propios de Kana Pad (MIT); lecturas verificadas con JMdict.");
-  writeModule("js/content/kanji-n5.js", "KANJI_N5", kanji, "Kanji N5: lecturas y significados propios de Kana Pad (MIT); conjunto y lecturas verificados con KANJIDIC2.");
-  // The service worker precaches these so stroke order works offline for every N5 kanji.
-  const strokeFiles = kanji.map(k => `content/kanjivg/${k.q.codePointAt(0).toString(16).padStart(5, "0")}.svg`);
-  writeFileSync("content/kanjivg/n5.json", JSON.stringify(strokeFiles));
-  writeModule("js/content/grammar-n5.js", "GRAMMAR_N5", grammar, "Gramática N5: frases, distractores y explicaciones propios de Kana Pad (MIT), ordenados por lección.");
-  console.log(`vocabulario: ${vocab.length} palabras · kanji: ${kanji.length} · gramática: ${grammar.length} frases`);
+  const strokes = [];
+  for (const [lv, { N, vocab, kanji, grammar }] of Object.entries(built)) {
+    writeModule(`js/content/vocab-${lv}.js`, `VOCAB_${N}`, vocab, `Vocabulario ${N}: lista y significados propios de Kana Pad (MIT); lecturas verificadas con JMdict.`);
+    writeModule(`js/content/kanji-${lv}.js`, `KANJI_${N}`, kanji, `Kanji ${N}: lecturas y significados propios de Kana Pad (MIT); conjunto y lecturas verificados con KANJIDIC2.`);
+    writeModule(`js/content/grammar-${lv}.js`, `GRAMMAR_${N}`, grammar, `Gramática ${N}: frases, distractores y explicaciones propios de Kana Pad (MIT), ordenados por lección.`);
+    fetchStrokes(kanji.map(k => k.q));
+    strokes.push(...kanji.map(k => strokeFile(k.q)));
+    console.log(`${N} · vocabulario: ${vocab.length} palabras · kanji: ${kanji.length} · gramática: ${grammar.length} frases`);
+  }
+  // Kana strokes too, for drawing practice (data.js reads the modules written above).
+  const { DECKS } = await import("../../js/data.js");
+  const kana = DECKS.filter(d => d.kind === "kana").flatMap(d => d.items.map(i => i.q));
+  fetchStrokes(kana);
+  strokes.push(...kana.map(strokeFile));
+  // The service worker precaches these so stroke order works offline for every kanji and kana.
+  writeFileSync("content/kanjivg/strokes.json", JSON.stringify(strokes));
 }

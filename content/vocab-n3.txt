@@ -1,0 +1,1852 @@
+# Vocabulario N3 de Kana Pad: palabra|lectura|significado (significados propios en español).
+# Selección de palabras basada en las listas JLPT de open-anki-jlpt-decks (MIT), derivadas de tanos.co.uk.
+# Las lecturas se validan contra JMdict con `npm run content`. Cada significado es único en el mazo.
+
+作法|さほう|modales, etiqueta
+様々|さまざま|diversos
+冷ます|さます|dejar enfriar
+覚ます|さます|despertar (los sentidos)
+冷める|さめる|enfriarse (la comida)
+覚める|さめる|despertarse
+左右|さゆう|izquierda y derecha
+皿|さら|plato
+更に|さらに|además, aún más
+去る|さる|marcharse
+猿|さる|mono
+騒ぎ|さわぎ|alboroto
+参加|さんか|participación
+参考|さんこう|referencia
+賛成|さんせい|estar de acuerdo
+酸素|さんそ|oxígeno
+詩|し|poema
+幸せ|しあわせ|felicidad
+ジーンズ|ジーンズ|jeans
+四角|しかく|cuadrado
+しかも|しかも|y encima
+四季|しき|las cuatro estaciones
+時期|じき|temporada, época
+至急|しきゅう|urgentemente
+しきりに|しきりに|repetidamente
+刺激|しげき|estímulo
+資源|しげん|recursos naturales
+事件|じけん|incidente, caso policial
+時刻|じこく|hora exacta
+事実|じじつ|hecho real
+事情|じじょう|circunstancias
+詩人|しじん|poeta
+自身|じしん|uno mismo
+沈む|しずむ|hundirse
+自然|しぜん|naturaleza
+思想|しそう|pensamiento, ideología
+舌|した|lengua (órgano)
+次第|しだい|según, en cuanto
+従う|したがう|obedecer
+したがって|したがって|por consiguiente
+親しい|したしい|cercano, íntimo
+失業|しつぎょう|desempleo
+湿気|しっけ|humedad (en el ambiente)
+実験|じっけん|experimento
+実現|じつげん|realización
+実行|じっこう|ejecución, poner en práctica
+実際|じっさい|en realidad
+実施|じっし|aplicación (de una medida)
+湿度|しつど|grado de humedad
+じっと|じっと|quieto, fijamente
+実に|じつに|verdaderamente
+実は|じつは|a decir verdad
+失望|しつぼう|decepción
+実力|じつりょく|capacidad real
+支店|してん|sucursal
+指導|しどう|orientación, instrucción
+自動|じどう|automático
+児童|じどう|niños (escolares)
+支配|しはい|dominio, control
+芝居|しばい|obra de teatro
+しばしば|しばしば|a menudo
+芝生|しばふ|césped
+支払う|しはらう|abonar (un pago)
+死亡|しぼう|defunción
+資本|しほん|capital (dinero)
+姉妹|しまい|hermanas
+自慢|じまん|presumir
+地味|じみ|sobrio, discreto
+示す|しめす|indicar
+占める|しめる|ocupar (una proporción)
+湿る|しめる|humedecerse
+霜|しも|escarcha
+借金|しゃっきん|deuda
+しゃべる|しゃべる|charlar
+州|しゅう|estado, provincia
+銃|じゅう|arma de fuego
+周囲|しゅうい|entorno
+収穫|しゅうかく|cosecha
+宗教|しゅうきょう|religión
+重視|じゅうし|dar importancia
+就職|しゅうしょく|conseguir empleo
+修正|しゅうせい|corrección, enmienda
+重体|じゅうたい|estado grave
+渋滞|じゅうたい|atasco de tráfico
+重大|じゅうだい|grave, trascendental
+住宅|じゅうたく|vivienda
+集団|しゅうだん|grupo, colectivo
+集中|しゅうちゅう|concentración
+収入|しゅうにゅう|ingresos
+住民|じゅうみん|habitantes
+重要|じゅうよう|primordial
+修理|しゅうり|reparación
+主義|しゅぎ|principio, -ismo
+宿泊|しゅくはく|hospedaje
+手術|しゅじゅつ|operación quirúrgica
+首相|しゅしょう|primer ministro
+手段|しゅだん|medio, recurso
+主張|しゅちょう|afirmación, insistir
+出場|しゅつじょう|participar (en un torneo)
+出身|しゅっしん|lugar de origen
+出版|しゅっぱん|publicación
+首都|しゅと|capital de un país
+主婦|しゅふ|ama de casa
+主要|しゅよう|principal, clave
+需要|じゅよう|demanda
+種類|しゅるい|variedad, tipo
+順|じゅん|orden, turno
+瞬間|しゅんかん|instante
+順調|じゅんちょう|sin contratiempos
+順番|じゅんばん|turno en la fila
+使用|しよう|empleo, uso (formal)
+章|しょう|capítulo
+賞|しょう|premio
+障害|しょうがい|obstáculo, discapacidad
+奨学金|しょうがくきん|beca
+乗客|じょうきゃく|pasajero
+状況|じょうきょう|situación
+条件|じょうけん|condiciones
+正午|しょうご|mediodía en punto
+正直|しょうじき|honesto
+常識|じょうしき|sentido común
+少女|しょうじょ|chica, niña
+少々|しょうしょう|un poquito (formal)
+症状|しょうじょう|síntomas
+生じる|しょうじる|surgir, producirse
+状態|じょうたい|estado (condición)
+上達|じょうたつ|mejorar (en una habilidad)
+冗談|じょうだん|broma
+上等|じょうとう|de primera calidad
+衝突|しょうとつ|choque, colisión
+商人|しょうにん|comerciante
+承認|しょうにん|aprobación oficial
+少年|しょうねん|muchacho
+商売|しょうばい|negocio, comercio
+消費|しょうひ|consumo
+商品|しょうひん|producto en venta
+賞品|しょうひん|premio (objeto)
+消防|しょうぼう|bomberos
+情報|じょうほう|información
+証明|しょうめい|demostración, certificado
+省略|しょうりゃく|omisión, abreviatura
+女王|じょおう|reina
+職業|しょくぎょう|profesión
+食卓|しょくたく|mesa del comedor
+食品|しょくひん|alimentos
+植物|しょくぶつ|planta
+食欲|しょくよく|apetito
+食料|しょくりょう|víveres
+書斎|しょさい|estudio (cuarto)
+女子|じょし|chicas, femenino
+助手|じょしゅ|asistente
+徐々に|じょじょに|poco a poco
+署名|しょめい|firma
+女優|じょゆう|actriz
+処理|しょり|procesamiento, tratamiento
+書類|しょるい|documentos
+知らせ|しらせ|aviso, noticia
+尻|しり|trasero
+知り合い|しりあい|conocido
+印|しるし|marca, señal
+城|しろ|castillo
+進学|しんがく|seguir estudiando (siguiente nivel)
+神経|しんけい|nervio
+真剣|しんけん|en serio
+信仰|しんこう|fe religiosa
+人工|じんこう|artificial
+深刻|しんこく|serio, crítico
+診察|しんさつ|consulta médica
+人種|じんしゅ|raza
+信じる|しんじる|creer
+人生|じんせい|vida (de una persona)
+親戚|しんせき|parientes
+新鮮|しんせん|fresco
+心臓|しんぞう|corazón (órgano)
+身長|しんちょう|estatura
+慎重|しんちょう|prudente
+審判|しんぱん|árbitro
+人物|じんぶつ|personaje
+進歩|しんぽ|progreso
+親友|しんゆう|mejor amigo
+信用|しんよう|crédito, confianza
+信頼|しんらい|confiar en
+心理|しんり|psicología
+人類|じんるい|humanidad
+巣|す|nido
+酢|す|vinagre
+水準|すいじゅん|nivel, estándar
+推薦|すいせん|recomendación
+スイッチ|スイッチ|interruptor
+睡眠|すいみん|sueño (descanso)
+数字|すうじ|cifra
+スープ|スープ|sopa
+姿|すがた|figura, silueta
+スキー|スキー|esquí
+救う|すくう|salvar
+少なくとも|すくなくとも|por lo menos
+優れる|すぐれる|destacar, ser superior
+スケート|スケート|patinaje
+スケジュール|スケジュール|agenda, horario
+少しも|すこしも|ni lo más mínimo
+過ごす|すごす|pasar (el tiempo)
+筋|すじ|músculo, trama
+進める|すすめる|hacer avanzar
+勧める|すすめる|aconsejar
+スター|スター|estrella (famoso)
+スタイル|スタイル|estilo
+頭痛|ずつう|dolor de cabeza
+ずっと|ずっと|todo el tiempo
+すっぱい|すっぱい|ácido, agrio
+素敵|すてき|precioso
+既に|すでに|ya
+すなわち|すなわち|es decir
+スピーチ|スピーチ|discurso breve
+全て|すべて|todo (la totalidad)
+済ませる|すませる|terminar (un trámite)
+墨|すみ|tinta china
+澄む|すむ|aclararse, ser transparente
+鋭い|するどい|afilado
+すれ違う|すれちがう|cruzarse con alguien
+ずれる|ずれる|desplazarse, desfasarse
+姓|せい|apellido
+税|ぜい|impuesto
+性格|せいかく|carácter
+正確|せいかく|exacto
+世紀|せいき|siglo
+請求|せいきゅう|reclamación, factura
+清潔|せいけつ|limpio, higiénico
+制限|せいげん|restricción
+成功|せいこう|éxito
+正式|せいしき|oficial, formal
+性質|せいしつ|naturaleza, propiedad
+精神|せいしん|mente, espíritu
+成人|せいじん|adulto (mayor de edad)
+精々|せいぜい|como mucho
+成績|せいせき|calificaciones
+製造|せいぞう|fabricación
+贅沢|ぜいたく|lujo
+成長|せいちょう|crecimiento
+制度|せいど|sistema, régimen
+青年|せいねん|joven (persona)
+生年月日|せいねんがっぴ|fecha de nacimiento
+製品|せいひん|producto fabricado
+政府|せいふ|gobierno nacional
+生物|せいぶつ|ser vivo
+生命|せいめい|vida (biológica)
+整理|せいり|organizar
+咳|せき|tos
+石炭|せきたん|carbón
+責任|せきにん|responsabilidad
+石油|せきゆ|petróleo
+世間|せけん|la gente, el mundo
+積極的|せっきょくてき|activo, proactivo
+設計|せっけい|diseño (planos)
+絶対|ぜったい|absolutamente
+セット|セット|conjunto, juego
+愛|あい|amor
+相変わらず|あいかわらず|como siempre
+愛情|あいじょう|cariño
+合図|あいず|señal (gesto)
+アイスクリーム|アイスクリーム|helado
+愛する|あいする|amar
+相手|あいて|la otra persona, rival
+あいにく|あいにく|por desgracia
+遭う|あう|toparse con (algo malo)
+明かり|あかり|lámpara, luz
+空き|あき|hueco, vacante
+明らか|あきらか|evidente
+諦める|あきらめる|rendirse
+飽きる|あきる|hartarse
+握手|あくしゅ|apretón de manos
+悪魔|あくま|demonio
+明ける|あける|amanecer
+揚げる|あげる|freír
+挙げる|あげる|levantar (la mano), citar
+預かる|あずかる|guardar algo ajeno
+預ける|あずける|dejar en custodia
+汗|あせ|sudor
+与える|あたえる|conceder
+温かい|あたたかい|cálido (al tacto)
+温まる|あたたまる|calentarse
+温める|あたためる|calentar
+辺り|あたり|alrededor
+当たり前|あたりまえ|lo natural, obvio
+当たる|あたる|dar en el blanco
+あちこち|あちこち|aquí y allá
+扱う|あつかう|manejar, tratar
+集まり|あつまり|reunión
+当てる|あてる|acertar, aplicar
+跡|あと|huella, rastro
+穴|あな|agujero
+油|あぶら|aceite
+脂|あぶら|grasa
+誤り|あやまり|equivocación
+嵐|あらし|tormenta
+争う|あらそう|competir, pelear
+新た|あらた|nuevo, renovado
+あらゆる|あらゆる|todo tipo de
+表す|あらわす|expresar
+現す|あらわす|mostrarse, dejarse ver
+現れる|あらわれる|aparecer
+あるいは|あるいは|o tal vez
+アルバム|アルバム|álbum
+泡|あわ|espuma, burbuja
+合わせる|あわせる|unir, ajustar
+慌てる|あわてる|ponerse nervioso
+哀れ|あわれ|lastimoso
+案|あん|propuesta
+案外|あんがい|inesperadamente
+暗記|あんき|memorizar
+安定|あんてい|estabilidad
+あんなに|あんなに|tanto (como aquello)
+あんまり|あんまり|no mucho
+胃|い|estómago
+委員|いいん|miembro de comité
+意外|いがい|sorprendente
+息|いき|respiración
+勢い|いきおい|ímpetu
+生き物|いきもの|criatura
+いけない|いけない|no se debe
+医師|いし|médico (formal)
+意志|いし|voluntad
+維持|いじ|mantenimiento
+意識|いしき|conciencia
+異常|いじょう|anormal
+意地悪|いじわる|malintencionado
+泉|いずみ|manantial
+いずれ|いずれ|tarde o temprano
+以前|いぜん|antes, anteriormente
+板|いた|tabla
+偉大|いだい|grandeza
+いたずら|いたずら|travesura
+痛み|いたみ|dolor (sensación)
+至る|いたる|llegar a (un punto)
+位置|いち|posición
+一時|いちじ|temporalmente
+一度に|いちどに|de una vez
+市場|いちば|mercado
+いつか|いつか|algún día
+一家|いっか|toda la familia
+一種|いっしゅ|una especie de
+一瞬|いっしゅん|un segundo, un instante
+一生|いっしょう|toda la vida
+一層|いっそう|aún más
+一体|いったい|¿qué demonios…?
+一致|いっち|coincidencia
+いつでも|いつでも|en cualquier momento
+いつの間にか|いつのまにか|sin darse cuenta
+一般|いっぱん|en general
+一方|いっぽう|por otro lado
+いつまでも|いつまでも|para siempre
+移動|いどう|desplazamiento
+従兄弟|いとこ|primo
+稲|いね|planta de arroz
+居眠り|いねむり|cabecear, dormitar
+違反|いはん|infracción
+衣服|いふく|vestimenta
+居間|いま|sala de estar
+今に|いまに|pronto, algún día
+今にも|いまにも|en cualquier instante
+イメージ|イメージ|imagen (idea)
+以来|いらい|desde entonces
+依頼|いらい|encargo, solicitud
+いらいら|いらいら|irritación
+医療|いりょう|atención médica
+岩|いわ|roca
+祝い|いわい|festejo
+祝う|いわう|celebrar
+言わば|いわば|por así decirlo
+いわゆる|いわゆる|el llamado
+インク|インク|tinta
+印刷|いんさつ|impresión
+印象|いんしょう|impresión (sensación)
+引退|いんたい|jubilación, retiro
+インタビュー|インタビュー|entrevista
+引用|いんよう|cita textual
+ウイスキー|ウイスキー|whisky
+うがい|うがい|hacer gárgaras
+受け取る|うけとる|recibir (un objeto)
+動かす|うごかす|mover algo
+兎|うさぎ|conejo
+失う|うしなう|perder (algo valioso)
+疑う|うたがう|sospechar
+宇宙|うちゅう|universo
+撃つ|うつ|disparar
+うっかり|うっかり|por descuido
+映す|うつす|reflejar, proyectar
+訴える|うったえる|demandar, apelar
+写る|うつる|salir en una foto
+映る|うつる|reflejarse
+うなる|うなる|gruñir
+奪う|うばう|arrebatar
+生まれ|うまれ|nacimiento
+有無|うむ|presencia o ausencia
+梅|うめ|ciruelo
+埋める|うめる|enterrar, rellenar
+裏切る|うらぎる|traicionar
+羨ましい|うらやましい|envidiable
+売れる|うれる|venderse
+噂|うわさ|rumor
+運|うん|suerte
+永遠|えいえん|eternidad
+影響|えいきょう|influencia
+営業|えいぎょう|ventas, horario comercial
+衛星|えいせい|satélite
+栄養|えいよう|nutrición
+笑顔|えがお|sonrisa
+描く|えがく|dibujar, describir
+餌|えさ|cebo, alimento de animales
+エネルギー|エネルギー|energía
+得る|える|obtener
+円|えん|círculo, yen
+延期|えんき|aplazamiento
+演技|えんぎ|actuación
+援助|えんじょ|ayuda económica
+エンジン|エンジン|motor
+演説|えんぜつ|discurso público
+演奏|えんそう|interpretación musical
+追い付く|おいつく|alcanzar a alguien
+追う|おう|perseguir
+応援|おうえん|apoyo, animar
+王様|おうさま|rey
+王子|おうじ|príncipe
+応じる|おうじる|responder a, atender
+横断|おうだん|cruzar (la calle)
+終える|おえる|concluir
+大いに|おおいに|en gran medida
+覆う|おおう|cubrir
+大家|おおや|casero
+丘|おか|colina
+沖|おき|mar adentro
+奥|おく|fondo, interior
+贈る|おくる|obsequiar
+起こる|おこる|ocurrir
+押さえる|おさえる|sujetar, contener
+幼い|おさない|muy pequeño (niño)
+納める|おさめる|pagar (impuestos), entregar
+お辞儀|おじぎ|reverencia
+お洒落|おしゃれ|elegante, a la moda
+お喋り|おしゃべり|parlanchín
+汚染|おせん|contaminación
+恐らく|おそらく|probablemente
+恐れる|おそれる|temer
+恐ろしい|おそろしい|aterrador
+教わる|おそわる|ser enseñado
+お互い|おたがい|mutuamente
+穏やか|おだやか|apacible
+大人しい|おとなしい|tranquilo, dócil
+劣る|おとる|ser inferior
+鬼|おに|ogro
+帯|おび|faja (de kimono)
+オフィス|オフィス|oficina
+溺れる|おぼれる|ahogarse
+お前|おまえ|tú (brusco)
+おめでとう|おめでとう|felicidades
+思い付く|おもいつく|ocurrírsele a uno
+思い出|おもいで|recuerdo
+主に|おもに|principalmente
+思わず|おもわず|sin querer
+泳ぎ|およぎ|nado
+およそ|およそ|aproximadamente
+及ぼす|およぼす|ejercer (influencia)
+降ろす|おろす|bajar (a alguien), descargar
+恩|おん|deuda de gratitud
+温暖|おんだん|templado (clima)
+温度|おんど|temperatura
+蚊|か|mosquito
+カード|カード|tarjeta
+貝|かい|marisco, concha
+害|がい|perjuicio
+会員|かいいん|socio
+絵画|かいが|pintura (cuadro)
+海外|かいがい|el extranjero
+会計|かいけい|contabilidad, la cuenta
+解決|かいけつ|solución
+会合|かいごう|reunión formal
+外交|がいこう|diplomacia
+開始|かいし|inicio
+解釈|かいしゃく|interpretación
+外出|がいしゅつ|salir de casa
+改善|かいぜん|mejora
+快適|かいてき|cómodo, agradable
+回復|かいふく|recuperación
+飼う|かう|tener (una mascota)
+帰す|かえす|mandar de vuelta
+替える|かえる|cambiar por otro
+香り|かおり|aroma
+画家|がか|pintor
+抱える|かかえる|llevar en brazos
+価格|かかく|precio (formal)
+化学|かがく|química
+輝く|かがやく|resplandecer
+係|かかり|encargado
+限る|かぎる|limitar
+掻く|かく|rascar
+嗅ぐ|かぐ|olfatear
+家具|かぐ|muebles
+額|がく|monto, marco
+覚悟|かくご|estar preparado (resignado)
+確実|かくじつ|seguro, fiable
+学者|がくしゃ|académico, erudito
+学習|がくしゅう|aprendizaje
+隠す|かくす|esconder
+拡大|かくだい|ampliación
+確認|かくにん|confirmación
+学問|がくもん|estudios, saber
+隠れる|かくれる|esconderse
+影|かげ|sombra
+欠ける|かける|faltar, astillarse
+加減|かげん|ajuste, punto justo
+過去|かこ|pasado
+籠|かご|cesta, jaula
+囲む|かこむ|rodear
+火災|かさい|incendio (formal)
+重なる|かさなる|amontonarse
+重ねる|かさねる|apilar
+飾り|かざり|adorno
+貸し|かし|préstamo (lo que se presta)
+菓子|かし|dulces
+家事|かじ|tareas domésticas
+賢い|かしこい|listo, sabio
+歌手|かしゅ|cantante
+稼ぐ|かせぐ|ganar dinero
+数える|かぞえる|contar (números)
+型|かた|molde, modelo
+肩|かた|hombro
+硬い|かたい|rígido
+方々|かたがた|personas (cortés)
+片付く|かたづく|quedar ordenado
+刀|かたな|espada
+語る|かたる|narrar
+勝ち|かち|victoria
+価値|かち|valor (mérito)
+がっかり|がっかり|desilusionarse
+活気|かっき|animación, vitalidad
+楽器|がっき|instrumento musical
+学期|がっき|semestre, trimestre
+活動|かつどう|actividad
+活躍|かつやく|desempeño destacado
+活用|かつよう|aprovechamiento, conjugación
+仮定|かてい|suposición
+過程|かてい|proceso
+課程|かてい|programa de estudios
+悲しむ|かなしむ|entristecerse
+必ずしも|かならずしも|no necesariamente
+かなり|かなり|bastante
+金|かね|dinero, metal
+鐘|かね|campana
+可能|かのう|posible
+株|かぶ|acción (bolsa)
+我慢|がまん|aguantar
+神|かみ|dios
+雷|かみなり|trueno
+髪の毛|かみのけ|pelo de la cabeza
+科目|かもく|asignatura
+かもしれない|かもしれない|quizá
+かゆい|かゆい|que pica
+殻|から|cáscara
+刈る|かる|cortar (pasto, pelo)
+皮|かわ|piel, cáscara blanda
+革|かわ|cuero
+可哀想|かわいそう|pobrecito
+可愛らしい|かわいらしい|encantador
+乾かす|かわかす|secar
+渇く|かわく|tener sed
+代わる|かわる|reemplazar a alguien
+缶|かん|lata
+勘|かん|intuición
+考え|かんがえ|idea, opinión propia
+感覚|かんかく|sentido, sensación física
+間隔|かんかく|espacio entre dos cosas
+観客|かんきゃく|público, espectadores
+環境|かんきょう|medio ambiente
+歓迎|かんげい|bienvenida
+観光|かんこう|turismo
+観察|かんさつ|observación
+感じ|かんじ|impresión, sensación
+感謝|かんしゃ|gratitud
+患者|かんじゃ|paciente
+勘定|かんじょう|la cuenta (pagar)
+感情|かんじょう|sentimientos
+感じる|かんじる|sentir
+感心|かんしん|admiración
+関心|かんしん|interés (atención)
+関する|かんする|relacionarse con
+完成|かんせい|terminación
+完全|かんぜん|perfecto, completo
+乾燥|かんそう|sequedad
+感想|かんそう|impresiones, comentario
+感動|かんどう|emoción profunda
+監督|かんとく|director (cine, equipo)
+管理|かんり|administración, gestión
+完了|かんりょう|finalización
+関連|かんれん|vínculo
+議員|ぎいん|parlamentario
+記憶|きおく|memoria
+気温|きおん|temperatura ambiente
+機械|きかい|máquina
+議会|ぎかい|parlamento
+期間|きかん|plazo, periodo
+機関|きかん|organismo, motor
+企業|きぎょう|empresa
+効く|きく|surtir efecto
+期限|きげん|fecha límite
+機嫌|きげん|humor (de alguien)
+気候|きこう|clima
+岸|きし|orilla
+生地|きじ|tela, masa
+記事|きじ|artículo de prensa
+技師|ぎし|ingeniero, técnico
+記者|きしゃ|periodista
+傷|きず|herida, rasguño
+期待|きたい|expectativa
+気体|きたい|gas (estado)
+帰宅|きたく|volver a casa
+貴重|きちょう|valioso, precioso
+議長|ぎちょう|presidente de la sesión
+きちんと|きちんと|como es debido
+きつい|きつい|apretado, duro
+気付く|きづく|darse cuenta
+気に入る|きにいる|gustar (agradar)
+記入|きにゅう|rellenar (un formulario)
+記念|きねん|conmemoración
+機能|きのう|función
+気の毒|きのどく|lamentable
+寄付|きふ|donación
+希望|きぼう|deseo, aspiración
+基本|きほん|lo básico
+決まり|きまり|norma, regla establecida
+奇妙|きみょう|curioso, raro
+義務|ぎむ|obligación
+疑問|ぎもん|duda
+逆|ぎゃく|al revés
+キャプテン|キャプテン|capitán
+キャンプ|キャンプ|campamento
+級|きゅう|nivel, grado
+休暇|きゅうか|vacaciones (permiso)
+休憩|きゅうけい|descanso
+急激|きゅうげき|brusco
+吸収|きゅうしゅう|absorción
+救助|きゅうじょ|rescate
+急速|きゅうそく|rápido (cambio)
+休息|きゅうそく|reposo
+急に|きゅうに|de repente
+給料|きゅうりょう|sueldo
+器用|きよう|habilidoso con las manos
+教科書|きょうかしょ|manual escolar
+競技|きょうぎ|competición deportiva
+行儀|ぎょうぎ|buenos modales
+供給|きょうきゅう|suministro
+教授|きょうじゅ|catedrático
+強調|きょうちょう|énfasis
+共通|きょうつう|en común
+共同|きょうどう|colaboración
+恐怖|きょうふ|terror
+協力|きょうりょく|cooperación
+強力|きょうりょく|potente
+許可|きょか|permiso
+局|きょく|oficina pública, emisora
+巨大|きょだい|enorme
+嫌う|きらう|detestar
+霧|きり|niebla
+切れる|きれる|cortar bien, agotarse
+記録|きろく|registro, récord
+議論|ぎろん|debate
+禁煙|きんえん|prohibido fumar
+金額|きんがく|cantidad de dinero
+金庫|きんこ|caja fuerte
+禁止|きんし|prohibición
+金属|きんぞく|metal (material)
+近代|きんだい|era moderna
+緊張|きんちょう|nervios, tensión
+筋肉|きんにく|músculos
+金融|きんゆう|finanzas
+食う|くう|tragar, comer (vulgar)
+偶然|ぐうぜん|por casualidad
+臭い|くさい|apestoso
+鎖|くさり|cadena
+腐る|くさる|pudrirse
+癖|くせ|manía, hábito
+管|くだ|tubo
+具体|ぐたい|concreción
+下り|くだり|bajada, tren de salida
+苦痛|くつう|sufrimiento
+ぐっすり|ぐっすり|profundamente dormido
+区別|くべつ|distinción
+組|くみ|grupo, clase escolar
+組合|くみあい|sindicato
+組む|くむ|armar, cruzar (brazos)
+汲む|くむ|sacar (agua)
+悔しい|くやしい|que da rabia
+暮らし|くらし|modo de vida
+クラシック|クラシック|clásico
+暮らす|くらす|vivir (día a día)
+グラス|グラス|copa, vaso
+クリーム|クリーム|crema
+繰り返す|くりかえす|repetir
+クリスマス|クリスマス|Navidad
+狂う|くるう|enloquecer, descomponerse
+グループ|グループ|equipo, grupo
+苦しい|くるしい|penoso, difícil de soportar
+苦しむ|くるしむ|padecer
+暮れ|くれ|fin de año
+苦労|くろう|penurias
+加える|くわえる|agregar
+詳しい|くわしい|detallado
+加わる|くわわる|unirse a
+軍|ぐん|ejército
+軍隊|ぐんたい|tropas
+訓練|くんれん|entrenamiento
+敬意|けいい|respeto
+経営|けいえい|gestión empresarial
+景気|けいき|situación económica
+傾向|けいこう|tendencia
+警告|けいこく|advertencia
+計算|けいさん|cálculo
+掲示|けいじ|anuncio en tablón
+刑事|けいじ|detective
+芸術|げいじゅつ|arte
+契約|けいやく|contrato
+経由|けいゆ|vía, pasando por
+ケース|ケース|estuche, caso
+劇|げき|drama
+劇場|げきじょう|teatro (edificio)
+化粧|けしょう|maquillaje
+けち|けち|tacaño
+血液|けつえき|sangre (formal)
+結果|けっか|resultado
+欠陥|けっかん|defecto (de fábrica)
+結局|けっきょく|al final de cuentas
+決心|けっしん|determinación
+欠席|けっせき|inasistencia
+決定|けってい|resolución, decisión
+欠点|けってん|punto débil
+結論|けつろん|conclusión
+煙|けむり|humo
+蹴る|ける|patear
+券|けん|boleto, vale
+県|けん|prefectura
+見解|けんかい|punto de vista
+限界|げんかい|límite
+現金|げんきん|efectivo
+言語|げんご|idioma
+健康|けんこう|salud
+検査|けんさ|inspección, análisis
+現在|げんざい|actualmente
+現実|げんじつ|realidad
+現象|げんしょう|fenómeno
+現状|げんじょう|situación actual
+建設|けんせつ|construcción (obra)
+現代|げんだい|época actual
+建築|けんちく|arquitectura
+見当|けんとう|estimación, idea aproximada
+検討|けんとう|estudio, examinar
+現場|げんば|lugar de los hechos
+憲法|けんぽう|constitución
+権利|けんり|derecho
+碁|ご|go (juego)
+恋|こい|amor romántico
+濃い|こい|espeso, intenso
+恋人|こいびと|pareja sentimental
+幸運|こううん|buena suerte
+講演|こうえん|conferencia
+効果|こうか|efecto
+硬貨|こうか|moneda
+高価|こうか|costoso
+豪華|ごうか|lujoso
+合格|ごうかく|aprobar (un examen)
+交換|こうかん|intercambio
+航空|こうくう|aviación
+光景|こうけい|escena, espectáculo
+合計|ごうけい|total
+攻撃|こうげき|ataque
+貢献|こうけん|contribución
+広告|こうこく|publicidad
+交際|こうさい|trato, noviazgo
+校舎|こうしゃ|edificio escolar
+後者|こうしゃ|este último
+公正|こうせい|imparcialidad
+構成|こうせい|composición, estructura
+高速|こうそく|alta velocidad
+行動|こうどう|conducta
+強盗|ごうとう|asalto
+後輩|こうはい|compañero más joven
+幸福|こうふく|dicha
+公平|こうへい|justo, equitativo
+候補|こうほ|candidato
+考慮|こうりょ|tener en cuenta
+越える|こえる|cruzar, superar
+コーチ|コーチ|entrenador
+コード|コード|cable, código
+氷|こおり|hielo
+凍る|こおる|congelarse
+ゴール|ゴール|meta, gol
+誤解|ごかい|malentendido
+語学|ごがく|estudio de idiomas
+呼吸|こきゅう|respirar
+故郷|こきょう|tierra natal
+国語|こくご|lengua nacional
+国籍|こくせき|nacionalidad
+黒板|こくばん|pizarrón
+克服|こくふく|superar (una dificultad)
+国民|こくみん|ciudadanía
+穀物|こくもつ|cereales
+腰|こし|cintura, cadera
+胡椒|こしょう|pimienta
+個人|こじん|individuo
+越す|こす|pasar al otro lado
+国家|こっか|Estado
+国会|こっかい|Dieta (parlamento japonés)
+国境|こっきょう|frontera
+骨折|こっせつ|fractura
+小包|こづつみ|paquete postal
+琴|こと|koto (arpa japonesa)
+異なる|ことなる|diferir
+諺|ことわざ|refrán
+断る|ことわる|rechazar
+粉|こな|polvo, harina
+好み|このみ|gusto, preferencia
+好む|このむ|preferir
+こぼす|こぼす|derramar
+こぼれる|こぼれる|derramarse
+小麦|こむぎ|trigo
+小屋|こや|cabaña
+これら|これら|estos
+殺す|ころす|matar
+転ぶ|ころぶ|tropezar y caer
+今回|こんかい|en esta ocasión
+今後|こんご|en adelante
+混雑|こんざつ|aglomeración
+こんなに|こんなに|tanto como esto
+困難|こんなん|dificultad
+婚約|こんやく|compromiso matrimonial
+混乱|こんらん|caos
+差|さ|diferencia
+サービス|サービス|servicio
+際|さい|en ocasión de
+最高|さいこう|lo mejor, máximo
+財産|ざいさん|patrimonio
+最終|さいしゅう|último, final
+最中|さいちゅう|en pleno
+最低|さいてい|lo peor, mínimo
+才能|さいのう|talento
+裁判|さいばん|juicio
+材料|ざいりょう|ingredientes, materiales
+幸い|さいわい|afortunadamente
+サイン|サイン|autógrafo
+境|さかい|límite (entre zonas)
+逆らう|さからう|desobedecer
+作業|さぎょう|labor, tarea
+裂く|さく|desgarrar
+作品|さくひん|obra
+作物|さくもつ|cultivos
+桜|さくら|cerezo
+叫ぶ|さけぶ|gritar
+避ける|さける|evitar
+支える|ささえる|sostener
+刺さる|ささる|clavarse
+刺す|さす|pinchar, picar
+指す|さす|apuntar con el dedo
+座席|ざせき|butaca
+誘う|さそう|invitar a hacer algo
+札|さつ|billete
+作家|さっか|escritor
+作曲|さっきょく|composición musical
+ざっと|ざっと|a grandes rasgos
+さっぱり|さっぱり|refrescante, nada de nada
+さて|さて|bueno, pues
+砂漠|さばく|desierto
+差別|さべつ|discriminación
+ママ|ママ|mamá
+豆|まめ|frijoles, legumbres
+守る|まもる|defender, cumplir
+迷う|まよう|perderse, dudar
+丸|まる|círculo, redondo
+まるで|まるで|como si fuera
+万一|まんいち|por si acaso
+満足|まんぞく|satisfacción
+身|み|cuerpo, uno mismo
+実|み|fruto
+見送り|みおくり|despedir a alguien
+味方|みかた|aliado
+見事|みごと|espléndido
+ミス|ミス|error, fallo
+満ちる|みちる|llenarse
+認める|みとめる|admitir
+見舞い|みまい|visita de apoyo
+土産|みやげ|recuerdo de viaje
+妙|みょう|peculiar
+未来|みらい|futuro
+魅力|みりょく|encanto
+診る|みる|examinar (a un paciente)
+ミルク|ミルク|leche
+向かい|むかい|de enfrente
+迎え|むかえ|ir a buscar a alguien
+向く|むく|mirar hacia
+剥く|むく|pelar
+向ける|むける|orientar
+無視|むし|ignorar
+蒸し暑い|むしあつい|bochornoso
+虫歯|むしば|caries
+寧ろ|むしろ|más bien
+蒸す|むす|cocer al vapor
+結ぶ|むすぶ|atar
+無駄|むだ|inútil, desperdicio
+夢中|むちゅう|absorto, enganchado
+胸|むね|pecho
+無料|むりょう|gratis
+芽|め|brote
+明確|めいかく|preciso, claro
+名刺|めいし|tarjeta de visita
+名詞|めいし|sustantivo
+命じる|めいじる|ordenar
+名人|めいじん|maestro, experto
+命令|めいれい|orden, mandato
+迷惑|めいわく|molestia
+目上|めうえ|superior (persona)
+飯|めし|comida (coloquial)
+滅多に|めったに|rara vez
+メモ|メモ|nota, apunte
+面|めん|cara, aspecto
+綿|めん|algodón
+免許|めんきょ|licencia
+面接|めんせつ|entrevista de trabajo
+面倒|めんどう|engorro
+メンバー|メンバー|integrante
+申し込む|もうしこむ|solicitar, inscribirse
+申し訳|もうしわけ|excusa, disculpa
+毛布|もうふ|manta
+燃える|もえる|arder
+目的|もくてき|propósito
+目標|もくひょう|meta, objetivo
+文字|もじ|carácter escrito
+もしかすると|もしかすると|a lo mejor
+もしも|もしも|en caso de que
+持ち上げる|もちあげる|levantar en peso
+用いる|もちいる|emplear
+もったいない|もったいない|qué desperdicio
+尤も|もっとも|razonable
+元|もと|origen, antiguo
+戻す|もどす|devolver a su sitio
+基づく|もとづく|basarse en
+求める|もとめる|exigir, buscar
+物音|ものおと|ruido (de algo)
+物語|ものがたり|relato
+物事|ものごと|las cosas en general
+燃やす|もやす|quemar algo
+模様|もよう|estampado, patrón
+文句|もんく|queja
+やがて|やがて|al poco tiempo
+役|やく|papel, función
+訳す|やくす|traducir
+役割|やくわり|rol
+家賃|やちん|alquiler
+厄介|やっかい|fastidioso
+宿|やど|posada
+雇う|やとう|contratar
+屋根|やね|techo
+破る|やぶる|rasgar, incumplir
+破れる|やぶれる|romperse (tela, papel)
+辞める|やめる|renunciar (a un puesto)
+やや|やや|ligeramente
+唯一|ゆいいつ|único
+勇気|ゆうき|valor, coraje
+友好|ゆうこう|amistad (entre países)
+有効|ゆうこう|válido
+優秀|ゆうしゅう|excelente
+優勝|ゆうしょう|campeonato
+友情|ゆうじょう|amistad
+友人|ゆうじん|amigo (formal)
+有能|ゆうのう|competente
+郵便|ゆうびん|correo
+ユーモア|ユーモア|humor
+有利|ゆうり|ventajoso
+床|ゆか|suelo, piso
+愉快|ゆかい|divertido, alegre
+譲る|ゆずる|ceder
+豊か|ゆたか|abundante
+茹でる|ゆでる|hervir (alimentos)
+許す|ゆるす|perdonar
+夜明け|よあけ|alba
+酔う|よう|emborracharse
+容易|ようい|sencillo (formal)
+容器|ようき|recipiente
+陽気|ようき|alegre, jovial
+要求|ようきゅう|exigencia
+用心|ようじん|precaución
+様子|ようす|aspecto, situación
+要するに|ようするに|en resumen
+要素|ようそ|elemento
+要点|ようてん|punto clave
+曜日|ようび|día de la semana
+ヨーロッパ|ヨーロッパ|Europa
+予期|よき|previsión
+横切る|よこぎる|atravesar
+汚す|よごす|ensuciar
+予算|よさん|presupuesto
+寄せる|よせる|acercar, arrimar
+予測|よそく|predicción
+ヨット|ヨット|velero
+夜中|よなか|medianoche
+世の中|よのなか|la sociedad, el mundo
+余分|よぶん|de sobra
+予報|よほう|pronóstico
+予防|よぼう|prevención
+読み|よみ|lectura (de un kanji)
+嫁|よめ|nuera, novia
+余裕|よゆう|margen, holgura
+喜び|よろこび|gozo
+ライター|ライター|encendedor
+楽|らく|cómodo, fácil
+ラケット|ラケット|raqueta
+利益|りえき|ganancias
+理解|りかい|comprensión
+陸|りく|tierra firme
+利口|りこう|inteligente
+離婚|りこん|divorcio
+理想|りそう|ideal
+率|りつ|tasa, índice
+留学|りゅうがく|estudiar en el extranjero
+流行|りゅうこう|moda
+量|りょう|cantidad
+寮|りょう|residencia estudiantil
+両替|りょうがえ|cambio de divisas
+料金|りょうきん|tarifa
+例|れい|caso, ejemplo
+礼|れい|reverencia, agradecer
+例外|れいがい|excepción
+礼儀|れいぎ|cortesía
+冷静|れいせい|sereno
+列|れつ|fila, cola
+列車|れっしゃ|tren
+レベル|レベル|nivel (grado)
+連想|れんそう|asociación de ideas
+連続|れんぞく|consecutivo
+老人|ろうじん|anciano
+労働|ろうどう|trabajo (laboral)
+ロケット|ロケット|cohete
+論じる|ろんじる|argumentar
+論争|ろんそう|polémica
+論文|ろんぶん|tesis, artículo académico
+輪|わ|anillo, aro
+ワイン|ワイン|vino
+わがまま|わがまま|caprichoso
+別れ|わかれ|despedida
+分かれる|わかれる|dividirse
+脇|わき|axila, costado
+湧く|わく|brotar
+分ける|わける|repartir, dividir
+わざと|わざと|a propósito
+僅か|わずか|apenas
+話題|わだい|tema de conversación
+笑い|わらい|carcajada
+割る|わる|partir, romper
+悪口|わるくち|hablar mal de alguien
+我々|われわれ|nosotros
+湾|わん|bahía
+宛てる|あてる|dirigir (una carta)
+アップ|アップ|subida
+アンケート|アンケート|encuesta
+医院|いいん|consultorio médico
+怒り|いかり|enojo
+意地|いじ|terquedad
+依然|いぜん|todavía, como antes
+傷める|いためる|dañar
+炒める|いためる|saltear, sofreír
+一帯|いったい|toda la zona
+異動|いどう|traslado de puesto
+衣料|いりょう|ropa (sector)
+渦|うず|remolino
+埋まる|うまる|quedar enterrado, llenarse
+産む|うむ|parir
+縁|えん|vínculo, destino
+尾|お|cola de animal
+負う|おう|cargar con
+遅れ|おくれ|retraso
+教え|おしえ|enseñanza
+驚き|おどろき|asombro
+織る|おる|tejer
+欠く|かく|carecer de
+核|かく|núcleo
+学歴|がくれき|formación académica
+駆ける|かける|correr a toda prisa
+賭ける|かける|apostar
+課題|かだい|tarea, reto
+片付け|かたづけ|limpieza, orden
+借り|かり|deuda (favor)
+狩り|かり|caza
+癌|がん|cáncer
+刊行|かんこう|edición, publicar
+慣行|かんこう|práctica habitual
+歓声|かんせい|ovación
+官僚|かんりょう|burócrata
+器官|きかん|órgano (del cuerpo)
+起源|きげん|origen histórico
+機構|きこう|mecanismo, organización
+築く|きずく|construir (relaciones, fortuna)
+規制|きせい|regulación
+協議|きょうぎ|negociación
+協調|きょうちょう|armonía, coordinación
+菌|きん|bacteria
+近視|きんし|miopía
+刑|けい|pena, condena
+経緯|けいい|cómo ocurrió, antecedentes
+計器|けいき|medidor
+契機|けいき|motivo, punto de partida
+形態|けいたい|forma, modalidad
+血管|けっかん|vaso sanguíneo
+決行|けっこう|llevar a cabo pese a todo
+減少|げんしょう|disminución
+公演|こうえん|función, presentación
+後悔|こうかい|arrepentimiento
+航海|こうかい|travesía por mar
+拘束|こうそく|restricción, detención
+荒廃|こうはい|ruina
+降伏|こうふく|rendición
+興奮|こうふん|excitación
+語句|ごく|palabras y frases
+故人|こじん|difunto (persona)
+小銭|こぜに|monedas sueltas
+ことによると|ことによると|puede que
+コンテスト|コンテスト|concurso
+採集|さいしゅう|recolección
+策|さく|estrategia
+設備|せつび|instalaciones
+絶滅|ぜつめつ|extinción
+節約|せつやく|ahorro
+攻める|せめる|atacar
+責める|せめる|reprochar
+全員|ぜんいん|todos los miembros
+専攻|せんこう|carrera, especialización
+全国|ぜんこく|todo el país
+洗剤|せんざい|detergente
+先日|せんじつ|hace unos días
+前者|ぜんしゃ|el primero (de dos)
+選手|せんしゅ|jugador, atleta
+全身|ぜんしん|todo el cuerpo
+前進|ぜんしん|avance
+センター|センター|centro (instalación)
+全体|ぜんたい|el conjunto
+選択|せんたく|elección
+宣伝|せんでん|propaganda
+象|ぞう|elefante
+騒音|そうおん|ruido molesto
+増加|ぞうか|aumento
+操作|そうさ|manejo, operación
+想像|そうぞう|imaginación
+相続|そうぞく|herencia
+装置|そうち|aparato
+相当|そうとう|considerable
+速度|そくど|velocidad
+そこで|そこで|entonces, así que
+組織|そしき|organización
+そして|そして|y luego
+注ぐ|そそぐ|verter
+育つ|そだつ|crecer (criarse)
+そっくり|そっくり|clavado, igualito
+そっと|そっと|con delicadeza
+袖|そで|manga
+備える|そなえる|prepararse para
+その上|そのうえ|encima de eso
+そのうち|そのうち|un día de estos
+そのまま|そのまま|tal cual
+蕎麦|そば|fideos soba
+ソファー|ソファー|sofá
+粗末|そまつ|modesto, burdo
+それぞれ|それぞれ|cada uno
+それでも|それでも|aun así
+それと|それと|y también
+それとも|それとも|¿o bien…?
+揃う|そろう|estar todos, completarse
+揃える|そろえる|reunir, igualar
+損|そん|pérdida, desventaja
+損害|そんがい|daños
+尊敬|そんけい|respetar, admirar
+存在|そんざい|existencia
+尊重|そんちょう|respetar (opinión, derechos)
+体育|たいいく|educación física
+体温|たいおん|temperatura corporal
+大会|たいかい|torneo, congreso
+大気|たいき|atmósfera
+代金|だいきん|importe
+退屈|たいくつ|aburrido
+滞在|たいざい|estancia
+大使|たいし|embajador
+大した|たいした|gran cosa
+体重|たいじゅう|peso corporal
+対象|たいしょう|objeto, destinatario
+対照|たいしょう|contraste
+大臣|だいじん|ministro
+対する|たいする|hacia, respecto a
+大戦|たいせん|gran guerra
+態度|たいど|actitud
+大統領|だいとうりょう|presidente de un país
+大半|たいはん|la mayor parte
+代表|だいひょう|representante
+大部分|だいぶぶん|la mayoría
+逮捕|たいほ|arresto
+題名|だいめい|título
+ダイヤ|ダイヤ|diamante, horario de trenes
+太陽|たいよう|el Sol
+平ら|たいら|llano
+代理|だいり|suplente
+大陸|たいりく|continente
+倒す|たおす|tumbar, derrotar
+だが|だが|pero (escrito)
+互い|たがい|el uno al otro
+高める|たかめる|elevar
+宝|たから|tesoro
+炊く|たく|cocer arroz
+確かめる|たしかめる|comprobar
+多少|たしょう|un poco, algo
+助かる|たすかる|salvarse, ser de ayuda
+助ける|たすける|socorrer
+ただ|ただ|solo, gratis
+戦い|たたかい|lucha
+戦う|たたかう|combatir
+叩く|たたく|golpear con la mano
+直ちに|ただちに|inmediatamente
+畳む|たたむ|doblar (ropa)
+立ち上がる|たちあがる|ponerse de pie
+立場|たちば|postura, posición
+建つ|たつ|ser construido
+経つ|たつ|transcurrir
+達する|たっする|alcanzar (una cifra)
+だって|だって|es que…, porque
+たっぷり|たっぷり|de sobra, abundante
+たとえ|たとえ|aunque, aun si
+谷|たに|valle
+他人|たにん|desconocido, otra persona
+種|たね|semilla
+束|たば|fajo, ramo
+足袋|たび|calcetines japoneses
+旅|たび|viaje largo
+たびたび|たびたび|una y otra vez
+玉|たま|bola, cuenta
+騙す|だます|engañar
+偶々|たまたま|casualmente
+たまらない|たまらない|insoportable, irresistible
+溜まる|たまる|acumularse
+黙る|だまる|callarse
+試し|ためし|prueba, intento
+試す|ためす|poner a prueba
+溜める|ためる|acumular, ahorrar
+便り|たより|noticias, carta
+頼る|たよる|depender de
+段|だん|peldaño
+単位|たんい|unidad, crédito escolar
+単語|たんご|palabra (vocabulario)
+男子|だんし|chicos, masculino
+単純|たんじゅん|sencillo, simple
+誕生|たんじょう|nacimiento (formal)
+ダンス|ダンス|danza
+団体|だんたい|asociación
+担当|たんとう|estar a cargo
+単なる|たんなる|mero
+単に|たんに|simplemente
+地位|ちい|posición social
+地域|ちいき|región
+チーズ|チーズ|queso
+チーム|チーム|equipo deportivo
+知恵|ちえ|ingenio
+地下|ちか|subterráneo
+違い|ちがい|discrepancia
+違いない|ちがいない|sin duda
+近頃|ちかごろ|hoy en día
+地球|ちきゅう|la Tierra
+地区|ちく|distrito
+遅刻|ちこく|llegar tarde
+知事|ちじ|gobernador
+知識|ちしき|conocimientos
+父親|ちちおや|padre (formal)
+知能|ちのう|inteligencia
+地平線|ちへいせん|horizonte
+地方|ちほう|provincia, región
+チャンス|チャンス|ocasión
+ちゃんと|ちゃんと|bien, correctamente
+中央|ちゅうおう|central
+中学|ちゅうがく|escuela secundaria
+中古|ちゅうこ|de segunda mano
+中止|ちゅうし|suspensión
+駐車|ちゅうしゃ|estacionar
+昼食|ちゅうしょく|almuerzo
+中心|ちゅうしん|núcleo, centro
+注目|ちゅうもく|atención (mirar)
+注文|ちゅうもん|pedido
+長期|ちょうき|largo plazo
+調査|ちょうさ|encuesta, estudio
+調子|ちょうし|forma, condición
+頂上|ちょうじょう|cumbre
+ちょうだい|ちょうだい|dame (coloquial)
+貯金|ちょきん|ahorros
+直接|ちょくせつ|directamente
+著者|ちょしゃ|autor
+散らす|ちらす|esparcir
+散る|ちる|caer (pétalos)
+遂に|ついに|finalmente
+通過|つうか|paso, tránsito
+通貨|つうか|divisa
+通学|つうがく|ir a la escuela
+通勤|つうきん|ir al trabajo
+通行|つうこう|circulación
+通じる|つうじる|comunicarse, conducir a
+通信|つうしん|comunicaciones
+通訳|つうやく|intérprete
+捕まる|つかまる|ser atrapado
+掴む|つかむ|agarrar
+疲れ|つかれ|cansancio
+付き合い|つきあい|relación social
+付き合う|つきあう|salir con alguien
+次々|つぎつぎ|uno tras otro
+付く|つく|pegarse, adherirse
+就く|つく|ocupar (un puesto)
+突く|つく|pinchar, empujar
+次ぐ|つぐ|seguir en rango
+付ける|つける|poner, añadir
+着ける|つける|ponerse (accesorio)
+伝わる|つたわる|transmitirse
+土|つち|tierra (suelo)
+続き|つづき|continuación
+包み|つつみ|envoltorio
+勤め|つとめ|empleo, trabajo
+務め|つとめ|deber
+繋がる|つながる|conectarse
+繋ぐ|つなぐ|amarrar, conectar
+常に|つねに|siempre (formal)
+翼|つばさ|ala
+つまり|つまり|o sea
+罪|つみ|pecado, delito
+積む|つむ|cargar, apilar
+詰める|つめる|rellenar, apretar
+積もる|つもる|acumularse (nieve)
+梅雨|つゆ|temporada de lluvias
+連れ|つれ|acompañante
+出会い|であい|encuentro
+出会う|であう|encontrarse con
+提案|ていあん|sugerencia
+定期|ていき|periódico, abono
+抵抗|ていこう|resistencia
+提出|ていしゅつ|entrega (de un documento)
+停電|ていでん|apagón
+程度|ていど|hasta qué punto, grado
+停留所|ていりゅうじょ|parada de autobús
+デート|デート|cita romántica
+敵|てき|enemigo
+出来事|できごと|suceso
+適する|てきする|ser apto
+適切|てきせつ|apropiado
+適度|てきど|moderado
+適用|てきよう|aplicación (de una norma)
+できれば|できれば|si es posible
+手品|てじな|truco de magia
+ですから|ですから|por lo tanto
+鉄|てつ|hierro
+哲学|てつがく|filosofía
+手伝い|てつだい|ayudante
+徹底|てってい|a fondo
+鉄道|てつどう|ferrocarril
+徹夜|てつや|pasar la noche en vela
+手間|てま|esfuerzo, molestia
+デモ|デモ|manifestación
+典型|てんけい|prototipo
+天候|てんこう|tiempo (meteorológico)
+電子|でんし|electrónico
+テント|テント|tienda de campaña
+伝統|でんとう|tradición
+天然|てんねん|natural (no artificial)
+問い|とい|pregunta escrita
+党|とう|partido político
+塔|とう|torre
+答案|とうあん|hoja de examen
+同一|どういつ|idéntico
+当時|とうじ|en aquel entonces
+動詞|どうし|verbo
+同時|どうじ|al mismo tiempo
+どうしても|どうしても|como sea
+到着|とうちゃく|llegada
+道徳|どうとく|moral
+投票|とうひょう|votación
+東洋|とうよう|Oriente
+同様|どうよう|igual que
+童謡|どうよう|canción infantil
+同僚|どうりょう|colega
+道路|どうろ|carretera
+通す|とおす|dejar pasar
+通り過ぎる|とおりすぎる|pasar de largo
+都会|とかい|gran ciudad
+溶く|とく|disolver
+解く|とく|resolver, desatar
+退く|どく|apartarse
+毒|どく|veneno
+得意|とくい|punto fuerte
+読書|どくしょ|leer libros
+独身|どくしん|soltero
+特徴|とくちょう|rasgo característico
+独特|どくとく|singular
+独立|どくりつ|independencia
+溶ける|とける|derretirse
+解ける|とける|desatarse, resolverse
+どこか|どこか|a algún sitio
+ところが|ところが|sin embargo
+ところで|ところで|por cierto
+登山|とざん|alpinismo
+都市|とし|urbe
+年月|としつき|los años, el tiempo
+図書|としょ|libros (biblioteca)
+年寄り|としより|personas mayores
+閉じる|とじる|cerrar (un libro, los ojos)
+途端|とたん|justo en el momento
+土地|とち|terreno
+突然|とつぜん|de improviso
+トップ|トップ|la cima, el primero
+届く|とどく|llegar (un envío)
+とにかく|とにかく|en todo caso
+飛ばす|とばす|hacer volar, saltarse
+飛び出す|とびだす|salir disparado
+留める|とめる|sujetar (con broche)
+泊める|とめる|alojar a alguien
+友|とも|amigo (poético)
+共に|ともに|junto con
+虎|とら|tigre
+ドライブ|ドライブ|paseo en coche
+トラック|トラック|camión, pista
+ドラマ|ドラマ|serie dramática
+トランプ|トランプ|naipes
+取り上げる|とりあげる|retomar, confiscar
+努力|どりょく|esfuerzo
+トレーニング|トレーニング|entrenar
+ドレス|ドレス|vestido
+取れる|とれる|desprenderse
+泥|どろ|barro
+トン|トン|tonelada
+とんでもない|とんでもない|¡qué va!, absurdo
+どんなに|どんなに|por mucho que
+トンネル|トンネル|túnel
+内容|ないよう|contenido
+なお|なお|aún, además
+仲|なか|relación personal
+流す|ながす|hacer correr, derramar
+半ば|なかば|mitad, a medias
+仲間|なかま|compañeros
+中身|なかみ|lo que hay dentro
+眺め|ながめ|vista panorámica
+眺める|ながめる|contemplar
+流れ|ながれ|corriente, flujo
+流れる|ながれる|fluir
+亡くす|なくす|perder a un ser querido
+殴る|なぐる|dar un puñetazo
+なぜなら|なぜなら|porque (explicación)
+謎|なぞ|enigma
+納得|なっとく|quedar convencido
+何か|なにか|algo
+何も|なにも|nada
+鍋|なべ|olla
+怠ける|なまける|holgazanear
+波|なみ|ola
+涙|なみだ|lágrima
+悩む|なやむ|angustiarse
+鳴らす|ならす|hacer sonar
+縄|なわ|soga
+何で|なんで|¿por qué?
+何でも|なんでも|cualquier cosa
+何とか|なんとか|de alguna manera
+似合う|にあう|sentar bien
+煮える|にえる|cocerse
+苦手|にがて|ser malo en algo
+握る|にぎる|empuñar
+日常|にちじょう|vida cotidiana
+日光|にっこう|luz solar
+日中|にっちゅう|a plena luz del día
+にっこり|にっこり|sonreír ampliamente
+入場|にゅうじょう|entrada (a un recinto)
+煮る|にる|guisar
+人気|にんき|popularidad
+人間|にんげん|ser humano
+抜く|ぬく|extraer
+抜ける|ぬける|caerse (pelo), salirse
+布|ぬの|tela
+濡らす|ぬらす|mojar
+根|ね|raíz
+値|ね|valor de mercado
+願い|ねがい|petición, anhelo
+願う|ねがう|anhelar
+鼠|ねずみ|ratón
+熱帯|ねったい|trópico
+熱中|ねっちゅう|apasionarse
+年間|ねんかん|anual, al año
+年中|ねんじゅう|todo el año
+年代|ねんだい|década, generación
+年齢|ねんれい|edad
+農家|のうか|familia campesina
+農業|のうぎょう|agricultura
+農民|のうみん|campesinos
+能力|のうりょく|habilidad
+軒|のき|alero
+残す|のこす|dejar (sin terminar)
+残り|のこり|lo que queda
+乗せる|のせる|subir (a un vehículo)
+載せる|のせる|poner encima, publicar
+覗く|のぞく|asomarse, espiar
+除く|のぞく|quitar, excluir
+望み|のぞみ|esperanza
+望む|のぞむ|desear
+ノック|ノック|tocar la puerta
+伸ばす|のばす|estirar
+延ばす|のばす|prolongar, posponer
+伸びる|のびる|estirarse, crecer
+延びる|のびる|alargarse
+述べる|のべる|exponer, declarar
+上る|のぼる|ascender
+昇る|のぼる|salir (el sol)
+載る|のる|aparecer publicado
+のんびり|のんびり|sin prisas
+パーセント|パーセント|por ciento
+バイオリン|バイオリン|violín
+ハイキング|ハイキング|senderismo
+配達|はいたつ|reparto a domicilio
+パイプ|パイプ|tubería, pipa
+俳優|はいゆう|actor
+パイロット|パイロット|piloto
+生える|はえる|brotar, salir (dientes)
+墓|はか|tumba
+馬鹿|ばか|tonto
+博士|はかせ|doctor (académico)
+計る|はかる|medir (el tiempo)
+測る|はかる|medir (longitud)
+掃く|はく|barrer
+吐く|はく|vomitar
+拍手|はくしゅ|aplausos
+莫大|ばくだい|inmenso
+爆発|ばくはつ|explosión
+博物館|はくぶつかん|museo
+激しい|はげしい|violento, intenso
+はさみ|はさみ|tijeras
+破産|はさん|quiebra (personal)
+端|はし|borde, extremo
+始まり|はじまり|comienzo
+パス|パス|pase
+外す|はずす|quitarse, desabrochar
+パスポート|パスポート|pasaporte
+外れる|はずれる|soltarse, fallar
+旗|はた|bandera
+肌|はだ|piel (humana)
+裸|はだか|desnudo
+畑|はたけ|huerto
+働き|はたらき|funcionamiento, trabajo
+バッグ|バッグ|bolso
+発見|はっけん|descubrimiento
+発行|はっこう|emisión, publicar
+発車|はっしゃ|salida (de un vehículo)
+発射|はっしゃ|lanzamiento, disparo
+罰する|ばっする|castigar
+発達|はったつ|desarrollo
+ばったり|ばったり|de golpe, de improviso
+発展|はってん|crecimiento, expansión
+発表|はっぴょう|anuncio, presentación
+発明|はつめい|invento
+派手|はで|llamativo
+話し合う|はなしあう|dialogar
+離す|はなす|separar
+放す|はなす|liberar
+離れる|はなれる|alejarse
+羽|はね|pluma, ala de ave
+幅|はば|anchura
+母親|ははおや|madre (formal)
+省く|はぶく|omitir
+場面|ばめん|escena
+流行る|はやる|estar de moda
+腹|はら|barriga
+バランス|バランス|equilibrio
+針|はり|aguja
+範囲|はんい|alcance
+反抗|はんこう|rebeldía
+犯罪|はんざい|crimen
+ハンサム|ハンサム|guapo
+反省|はんせい|reflexión, autocrítica
+判断|はんだん|juicio, criterio
+犯人|はんにん|culpable
+販売|はんばい|venta
+被害|ひがい|daño sufrido
+比較|ひかく|comparación
+ピクニック|ピクニック|pícnic
+悲劇|ひげき|tragedia
+飛行|ひこう|vuelo
+膝|ひざ|rodilla
+非常|ひじょう|emergencia
+美人|びじん|mujer hermosa
+日付|ひづけ|fecha
+引っ越し|ひっこし|mudanza
+必死|ひっし|desesperado
+ぴったり|ぴったり|justo, a la medida
+引っ張る|ひっぱる|jalar
+否定|ひてい|negación
+ビデオ|ビデオ|video
+一言|ひとこと|una palabra
+人込み|ひとごみ|multitud
+等しい|ひとしい|igual (equivalente)
+独り|ひとり|solo (sin compañía)
+一人一人|ひとりひとり|cada persona
+批判|ひはん|crítica
+批評|ひひょう|reseña
+秘密|ひみつ|secreto
+微妙|びみょう|sutil, dudoso
+紐|ひも|cordón
+冷やす|ひやす|refrigerar
+費用|ひよう|coste
+秒|びょう|segundo (tiempo)
+評価|ひょうか|evaluación
+表現|ひょうげん|expresión
+表情|ひょうじょう|expresión facial
+平等|びょうどう|igualdad
+評判|ひょうばん|reputación
+表面|ひょうめん|superficie
+広がる|ひろがる|extenderse
+広げる|ひろげる|desplegar
+広める|ひろめる|difundir
+瓶|びん|botella
+便|びん|vuelo, servicio de transporte
+ピン|ピン|alfiler
+不安|ふあん|ansiedad
+風景|ふうけい|panorama
+夫婦|ふうふ|matrimonio (pareja)
+笛|ふえ|flauta, silbato
+深まる|ふかまる|profundizarse
+武器|ぶき|arma
+拭く|ふく|limpiar con un trapo
+服装|ふくそう|indumentaria
+含む|ふくむ|contener
+含める|ふくめる|incluir
+袋|ふくろ|bolsa
+不幸|ふこう|desgracia
+無事|ぶじ|sano y salvo
+不思議|ふしぎ|misterioso
+不自由|ふじゆう|incomodidad, discapacidad
+夫人|ふじん|esposa de alguien (señora)
+婦人|ふじん|dama
+不正|ふせい|fraude
+防ぐ|ふせぐ|impedir
+不足|ふそく|escasez
+舞台|ぶたい|escenario
+双子|ふたご|gemelos
+再び|ふたたび|nuevamente
+普段|ふだん|habitualmente
+物価|ぶっか|costo de vida
+ぶつかる|ぶつかる|chocar
+ぶつける|ぶつける|golpear contra
+物質|ぶっしつ|sustancia
+物理|ぶつり|física
+筆|ふで|pincel
+ふと|ふと|de pronto
+部分|ぶぶん|porción
+不平|ふへい|descontento
+不満|ふまん|insatisfacción
+増やす|ふやす|aumentar algo
+プラス|プラス|más, positivo
+プラスチック|プラスチック|plástico
+プラン|プラン|plan
+不利|ふり|desventaja
+振る|ふる|agitar, sacudir
+震える|ふるえる|temblar de frío o miedo
+ブレーキ|ブレーキ|freno
+触れる|ふれる|rozar, mencionar
+プロ|プロ|profesional
+雰囲気|ふんいき|ambiente
+分析|ぶんせき|análisis
+文明|ぶんめい|civilización
+分野|ぶんや|campo, ámbito
+塀|へい|muro, tapia
+平均|へいきん|promedio
+平和|へいわ|paz
+別に|べつに|no en especial
+減らす|へらす|reducir
+減る|へる|disminuir
+ベルト|ベルト|cinturón
+変化|へんか|variación
+ペンキ|ペンキ|pintura (para pintar)
+変更|へんこう|modificación
+ベンチ|ベンチ|banco (asiento)
+棒|ぼう|palo
+冒険|ぼうけん|aventura
+方向|ほうこう|rumbo
+報告|ほうこく|reporte
+宝石|ほうせき|joya
+包装|ほうそう|empaque
+豊富|ほうふ|abundancia
+方法|ほうほう|método
+訪問|ほうもん|visita formal
+吠える|ほえる|ladrar
+ボート|ボート|bote de remos
+ホーム|ホーム|andén, hogar
+ボール|ボール|pelota
+誇り|ほこり|orgullo
+埃|ほこり|polvo
+保証|ほしょう|garantía
+保存|ほぞん|conservación, guardar
+歩道|ほどう|acera
+仏|ほとけ|Buda
+骨|ほね|hueso
+炎|ほのお|llama
+頬|ほお|mejilla
+ほぼ|ほぼ|casi
+微笑む|ほほえむ|sonreír levemente
+堀|ほり|foso
+本人|ほんにん|la persona en cuestión
+本物|ほんもの|auténtico
+ぼんやり|ぼんやり|distraído, borroso
+まあ|まあ|bueno…, más o menos
+マーケット|マーケット|mercado comercial
+マイク|マイク|micrófono
+迷子|まいご|niño perdido
+マイナス|マイナス|menos, negativo
+任せる|まかせる|confiar (una tarea)
+巻く|まく|enrollar
+蒔く|まく|sembrar
+撒く|まく|rociar
+幕|まく|telón, acto
+負け|まけ|derrota (resultado)
+孫|まご|nieto
+まさか|まさか|¡no puede ser!
+まさに|まさに|precisamente
+混ざる|まざる|mezclarse
+混じる|まじる|entremezclarse
+増す|ます|incrementarse
+貧しい|まずしい|pobre
+マスター|マスター|dueño de bar, maestría
+ますます|ますます|cada vez más
+混ぜる|まぜる|mezclar
+街|まち|calles, zona urbana
+間違い|まちがい|fallo, equivocación
+松|まつ|pino
+真っ赤|まっか|rojo intenso
+全く|まったく|totalmente
+祭り|まつり|fiesta tradicional
+まとまる|まとまる|cuajar, llegar a un acuerdo
+まとめる|まとめる|resumir, recopilar
+学ぶ|まなぶ|estudiar, aprender de
+真似|まね|imitación
+招く|まねく|convocar
+まぶしい|まぶしい|deslumbrante
+柵|さく|cerca de madera
+裂ける|さける|desgarrarse
+裁く|さばく|juzgar
+酸化|さんか|oxidación
+資格|しかく|titulación
+視覚|しかく|vista (sentido)
+指揮|しき|dirección, mando
+磁気|じき|magnetismo
+磁器|じき|porcelana
+自己|じこ|el yo
+字体|じたい|tipo de letra
+辞退|じたい|declinar
+視点|してん|perspectiva
+脂肪|しぼう|grasa corporal
+志望|しぼう|aspiración
+修飾|しゅうしょく|modificación (gramática)
+私用|しよう|asunto personal
+仕様|しよう|especificaciones
+生涯|しょうがい|toda una vida
+上司|じょうし|jefe (superior)
+正体|しょうたい|verdadera identidad
+照明|しょうめい|iluminación
+助詞|じょし|partícula gramatical
+ショック|ショック|conmoción
+進行|しんこう|avance, desarrollo
+振興|しんこう|fomento
+申告|しんこく|declaración (de impuestos)
+真理|しんり|verdad
+ストレス|ストレス|estrés
+正規|せいき|regular, legítimo
+精巧|せいこう|primoroso
+精算|せいさん|ajuste de tarifa
+声明|せいめい|comunicado oficial
+姓名|せいめい|nombre completo
+生理|せいり|fisiología, menstruación
+禅|ぜん|zen
+選挙|せんきょ|elecciones
+先行|せんこう|ir por delante
+選考|せんこう|selección (de candidatos)
+沿う|そう|seguir (a lo largo de)
+添う|そう|acompañar
+僧|そう|monje
+像|ぞう|estatua
+捜査|そうさ|investigación policial
+操縦|そうじゅう|pilotar
+創造|そうぞう|creación
+退学|たいがく|abandonar la escuela
+タイトル|タイトル|título (obra)
+ダウン|ダウン|bajada, caer
+高まる|たかまる|elevarse
+断つ|たつ|cortar (lazos)
+盾|たて|escudo
+例え|たとえ|metáfora
+チャイム|チャイム|timbre musical
+挑戦|ちょうせん|desafío
+治療|ちりょう|tratamiento médico
+継ぐ|つぐ|heredar, suceder
+摘む|つむ|arrancar (flores)
+露|つゆ|rocío
+強まる|つよまる|intensificarse
+強める|つよめる|reforzar
+データ|データ|datos
+デザイン|デザイン|diseño
+デザート|デザート|postre
+転校|てんこう|cambiar de escuela
+伝言|でんごん|recado
+問う|とう|cuestionar
+倒産|とうさん|quiebra (empresa)
+同士|どうし|entre sí
+同志|どうし|camarada
+当然|とうぜん|naturalmente
+動揺|どうよう|perturbación
+説く|とく|predicar, explicar
+綴じる|とじる|encuadernar
+慣らす|ならす|habituar
+馴らす|ならす|domesticar
+脳|のう|cerebro
+臨む|のぞむ|dar a, afrontar
+映える|はえる|lucir
+図る|はかる|intentar, planear
+生やす|はやす|dejarse crecer
+班|はん|equipo, cuadrilla
+版|はん|edición
+非行|ひこう|delincuencia juvenil
+票|ひょう|voto
+広まる|ひろまる|propagarse
+深める|ふかめる|profundizar
+振り|ふり|fingir, gesto
+経る|へる|pasar por (tiempo)
+保護|ほご|protección
+保障|ほしょう|seguro, salvaguarda
+補償|ほしょう|indemnización
+ほっと|ほっと|sentir alivio
+前もって|まえもって|con antelación
+膜|まく|membrana
+マスコミ|マスコミ|medios de comunicación
+マッサージ|マッサージ|masaje
+見掛ける|みかける|ver de pasada
+捲る|めくる|pasar (páginas)
+メッセージ|メッセージ|mensaje
+野党|やとう|oposición (partido)
+有機|ゆうき|orgánico
+良い|よい|bueno (formal)
+予想|よそう|pronóstico personal
+弱まる|よわまる|debilitarse
+弱める|よわめる|debilitar
+ラベル|ラベル|etiqueta
+ルール|ルール|regla
+枠|わく|marco, cupo
+表示|ひょうじ|indicación

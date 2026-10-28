@@ -1,14 +1,15 @@
 // Offline support: app files are cached on install; Google Fonts are cached the first time they load.
 // Bump VERSION whenever any file in APP changes so installed copies pick up the new release.
-const VERSION = "kana-pad-v0.7.0-dev2";
+const VERSION = "kana-pad-v0.7.0-dev3";
 const APP = [
   "./", "index.html", "manifest.webmanifest", "css/styles.css",
   "js/app.js", "js/data.js", "js/srs.js", "js/gamepad.js", "js/scheduler.js", "js/storage.js", "js/strokes.js", "js/progress.js", "js/exam.js", "js/listening.js", "js/stories.js", "js/voices.js",
   "js/vendor/ts-fsrs.mjs", "js/content/vocab-n5.js", "js/content/kanji-n5.js", "js/content/grammar-n5.js", "js/content/reading-n5.js", "js/content/stories-n5.js",
+  "js/placement.js", "js/content/vocab-n4.js", "js/content/kanji-n4.js", "js/content/grammar-n4.js", "js/content/vocab-n3.js", "js/content/kanji-n3.js", "js/content/grammar-n3.js",
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png",
 ];
 // Stroke files for every N5 kanji, listed by the content pipeline.
-const STROKES = "content/kanjivg/n5.json";
+const STROKES = "content/kanjivg/strokes.json";
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION)

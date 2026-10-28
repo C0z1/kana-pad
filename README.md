@@ -1,8 +1,8 @@
 # Kana Pad
 
-Practica japonés con un mando Xbox: hiragana, katakana, gramática N5, 574 palabras de vocabulario N5 y los 103 kanji N5 con orden de trazos. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
+Practica japonés con un mando Xbox: hiragana, katakana y tres niveles JLPT (N5, N4 y N3) con unas 3,000 palabras, 613 kanji con orden de trazos y gramática de cada nivel. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
 
-Incluye un **panel de progreso** (pausa → Y) y un **simulacro N5** de 20 minutos (pausa → X).
+Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye un **panel de progreso** (pausa → Y) y un **simulacro N5** de 20 minutos (pausa → X).
 
 **Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
@@ -48,7 +48,8 @@ npm run content   # regenera js/content desde content/ (descarga JMdict y KANJID
 | Archivo | Contenido |
 | --- | --- |
 | `js/data.js` | Mazos |
-| `content/vocab-n5.txt` | Lista de vocabulario N5 (fuente) |
+| `content/vocab-n5.txt`, `-n4`, `-n3` | Listas de vocabulario, kanji y gramática por nivel (fuente) |
+| `js/placement.js` | Prueba de nivel y punto de partida |
 | `tools/pipeline/` | Genera `js/content/` y valida las lecturas contra JMdict |
 | `js/srs.js` | Práctica libre: selección de cartas y opciones |
 | `js/scheduler.js` | Repaso diario con FSRS (`js/vendor/ts-fsrs.mjs`, MIT) |

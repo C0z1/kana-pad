@@ -1,0 +1,35 @@
+# Gramática N3 de Kana Pad (contenido propio).
+# lección|frase con ＿|respuesta|distractor,distractor,distractor|traducción|explicación
+# Las lecciones agrupan patrones del nivel intermedio (1–6).
+# Regla: cada distractor debe ser incorrecto en esa frase, no solo menos natural.
+
+1|れんしゅうすれば、だれでもできる＿になります。|よう|そう,ため,まま|Si practicas, cualquiera llega a poder hacerlo.|〜ようになる = llegar a (un cambio de capacidad o hábito).
+1|ちいさいときから、ピアノをならわ＿ました。|され|させ,れさせ,れられ|Desde pequeño me hicieron aprender piano.|Causativa pasiva: ならう → ならわされる (me obligaron a…).
+1|こどものころ、よくこのこうえんであそんだ＿だ。|もの|こと,まま,ほど|De niño jugaba mucho en este parque.|Pasado + ものだ = recuerdo nostálgico de un hábito.
+1|ちょうどいま、でかける＿です。|ところ|まま,ほど,うち|Justo estoy por salir.|Forma de diccionario + ところだ = estar a punto de.
+1|にほんにきた＿なので、まだなれていません。|ばかり|ところへ,ほど,ため|Como acabo de llegar a Japón, aún no me acostumbro.|Pasado + ばかり = acabar de (sensación de poco tiempo).
+2|かれはくる＿です。やくそくしましたから。|はず|まま,ほど,うち|Él debería venir. Lo prometió.|〜はずだ = debería (expectativa con fundamento).
+2|あんなにれんしゅうしたのだから、まける＿がない。|わけ|ため,ところ,まま|Después de tanto practicar, es imposible que perdamos.|〜わけがない = es imposible que, no hay manera de.
+2|あのひとはがくせい＿しい。|ら|よう,そう,み|Al parecer esa persona es estudiante.|〜らしい = al parecer (por lo que se oye o se ve).
+2|かのじょはまるでこども＿だ。|みたい|ため,ほど,ところ|Ella es como una niña.|Sustantivo + みたいだ = es como (comparación informal).
+2|このしごとはきょうじゅうにおわる＿がない。|はず|ため,ところ,まま|No hay manera de que este trabajo termine hoy.|〜はずがない = no puede ser que (por lógica).
+3|しけんにごうかくする＿、まいにちべんきょうした。|ために|ほどに,ままに,ことに|Estudié todos los días para aprobar el examen.|Verbo voluntario + ために = con el fin de.
+3|かぜをひかない＿、てをあらいます。|ように|ほどに,までに,ことに|Me lavo las manos para no resfriarme.|Verbo no voluntario o negativo + ように = para que (no).
+3|あめがふった＿、しあいはちゅうしになった。|ため|ように,ほど,まま|Debido a la lluvia, el partido se canceló.|〜ため = debido a (causa, estilo formal).
+3|せんせいの＿で、ごうかくできました。|おかげ|せい,ため,ほう|Gracias al profesor, pude aprobar.|〜おかげで = gracias a (resultado bueno).
+3|ねぼうした＿で、ちこくしてしまった。|せい|おかげ,ほう,まま|Por quedarme dormido, llegué tarde.|〜せいで = por culpa de (resultado malo).
+4|まどをあけた＿ねてしまった。|まま|ながら,うちに,あいだ|Me dormí con la ventana abierta.|Pasado + まま = dejando tal cual, sin cambiar el estado.
+4|わかい＿に、いろいろなくにへいきたい。|うち|ところ,まで,さえ|Mientras sea joven, quiero ir a muchos países.|〜うちに = mientras (antes de que cambie la situación).
+4|かれはしごとを＿ばかりいる。|して|する,した,しない|Él no hace más que trabajar.|て + ばかりいる = no hacer otra cosa que…
+4|かのじょはやさしい＿、あたまもいい。|し|ても,たら,ば|Ella es amable y además inteligente.|〜し = y además (enumera razones o cualidades).
+4|いくらよんでも、いみがわから＿。|ない|なく,なければ,なくて|Por más que lo leo, no entiendo el significado.|いくら〜ても = por más que…
+5|こんどのりょこうは、うみ＿やまにいきたい。|より|ほど,まで,しか|En el próximo viaje quiero ir a la montaña más que al mar.|A より B = B más que A.
+5|きょうはきのう＿さむくない。|ほど|より,まで,だけ|Hoy no hace tanto frío como ayer.|A ほど〜ない = no tan… como A.
+5|このくすりは、こども＿のめます。|でも|しか,ほど,ので|Esta medicina la pueden tomar hasta los niños.|〜でも = incluso, hasta (ejemplo extremo).
+5|おかねが＿あれば、なんでもできると思うのはまちがいだ。|さえ|しか,こそ,ほど|Es un error creer que con solo tener dinero se puede todo.|〜さえ〜ば = con solo que…
+5|かぞくに＿、ほんとうのことをいえなかった。|さえ|ほど,ので,のに|Ni siquiera a mi familia le pude decir la verdad.|〜さえ con negativo = ni siquiera.
+6|このへんはしずかで、すむ＿はいいところだ。|に|を,で,が|Esta zona es tranquila: buen lugar para vivir.|Forma de diccionario + には = para (hacer algo).
+6|かれのはなしによる＿、あしたはやすみだそうだ。|と|ば,まで,ほど|Según lo que dice él, mañana no hay clases.|〜によると = según (fuente de información).
+6|じしんに＿しらべました。|ついて|とって,よると,くらべ|Investigué sobre los terremotos.|〜について = sobre, acerca de.
+6|わたしに＿、かぞくがいちばんたいせつだ。|とって|ついて,よって,たいして|Para mí, la familia es lo más importante.|〜にとって = para (desde el punto de vista de).
+6|このきかいはつかいかた＿よって、あぶなくなる。|に|を,が,で|Esta máquina se vuelve peligrosa según cómo se use.|〜によって = según, dependiendo de.

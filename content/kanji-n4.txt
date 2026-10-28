@@ -1,0 +1,148 @@
+# Kanji N4 de Kana Pad: kanji|lecturas comunes|significado (contenido propio).
+# Conjunto según la lista JLPT de kanji-data (MIT), sin los kanji que ya están en N5.
+# Las lecturas se validan contra KANJIDIC2 con `npm run content`. Lo que va entre paréntesis es okurigana.
+# Cada significado es único y no contiene el kanji.
+同|どう・おな(じ)|igual, mismo
+事|じ・こと|cosa, asunto
+自|じ・し|uno mismo
+発|はつ・ほつ|partir, emitir
+者|しゃ・もの|persona que hace algo
+地|ち・じ|tierra, suelo
+業|ぎょう|negocio, oficio
+方|ほう・かた|dirección, manera
+場|じょう・ば|sitio
+員|いん|miembro, empleado
+開|かい・ひら(く)|abrir
+力|りょく・りき・ちから|fuerza
+問|もん・と(う)|pregunta
+代|だい・か(わる)|reemplazo, época
+明|めい・あか(るい)|brillante, claro
+動|どう・うご(く)|movimiento
+京|きょう・けい|capital (ciudad)
+通|つう・とお(る)|pasar, transitar
+理|り|lógica, razón
+体|たい・からだ|cuerpo
+田|でん・た|arrozal
+主|しゅ・ぬし・おも|principal, dueño
+題|だい|tema, título
+意|い|idea, intención
+不|ふ・ぶ|no, des- (negación)
+作|さく・さ・つく(る)|hacer, producir
+用|よう・もち(いる)|uso, asunto
+度|ど・たび|grado, vez
+強|きょう・つよ(い)|fuerte
+公|こう・おおやけ|público
+持|じ・も(つ)|tener, sostener
+野|や・の|campo abierto
+以|い|desde, por medio de
+思|し・おも(う)|pensar
+家|か・け・いえ・うち|casa, familia
+世|せい・せ・よ|generación, mundo
+正|せい・しょう・ただ(しい)|correcto
+院|いん|institución
+心|しん・こころ|corazón
+界|かい|límite, ámbito
+教|きょう・おし(える)|enseñar
+文|ぶん・もん|frase, texto
+元|げん・がん・もと|origen
+重|じゅう・ちょう・おも(い)|pesado
+近|きん・ちか(い)|cerca
+考|こう・かんが(える)|considerar
+画|が・かく|dibujo, trazo
+海|かい・うみ|mar
+売|ばい・う(る)|vender
+知|ち・し(る)|saber, conocer
+集|しゅう・あつ(まる)|reunir
+別|べつ・わか(れる)|separar
+物|ぶつ・もつ・もの|objeto
+使|し・つか(う)|usar
+品|ひん・しな|artículo, calidad
+計|けい・はか(る)|medir, planear
+死|し・し(ぬ)|morir
+特|とく|especial
+私|し・わたし|yo, privado
+始|し・はじ(める)|comenzar
+朝|ちょう・あさ|mañana (temprano)
+運|うん・はこ(ぶ)|transportar, suerte
+終|しゅう・お(わる)|terminar
+台|だい・たい|plataforma, soporte
+広|こう・ひろ(い)|amplio
+住|じゅう・す(む)|residir
+真|しん・ま|verdad, puro
+有|ゆう・う・あ(る)|poseer, existir
+町|ちょう・まち|pueblo, barrio
+料|りょう|tarifa, materiales
+工|こう・く|obra, artesanía
+建|けん・た(てる)|edificar
+急|きゅう・いそ(ぐ)|prisa
+止|し・と(まる)|detener
+送|そう・おく(る)|mandar
+切|せつ・き(る)|cortar
+転|てん・ころ(ぶ)|rodar, caerse
+研|けん・と(ぐ)|pulir, estudiar a fondo
+究|きゅう|investigar
+楽|がく・らく・たの(しい)|divertido, música
+起|き・お(きる)|levantarse
+着|ちゃく・き(る)・つ(く)|vestir, llegar
+病|びょう・やまい|enfermedad
+質|しつ・しち|calidad, sustancia
+待|たい・ま(つ)|esperar
+試|し・ため(す)|probar, examen
+族|ぞく|tribu, familia (clan)
+銀|ぎん|plata (metal)
+早|そう・はや(い)|temprano
+映|えい・うつ(る)|reflejar, proyectar
+親|しん・おや・した(しい)|padres, íntimo
+験|けん|verificación
+英|えい|Inglaterra, inglés
+医|い|medicina, médico
+仕|し・つか(える)|servir
+去|きょ・こ・さ(る)|irse, pasado
+味|み・あじ|sabor
+写|しゃ・うつ(す)|copiar, fotografiar
+字|じ・あざ|letra
+答|とう・こた(える)|responder
+夜|や・よる・よ|noche
+音|おん・おと|sonido
+注|ちゅう・そそ(ぐ)|verter, atención
+帰|き・かえ(る)|regresar
+歌|か・うた|canción
+悪|あく・わる(い)|malo
+図|ず・と|mapa, diagrama
+室|しつ・むろ|habitación
+歩|ほ・ぶ・ある(く)|caminar
+風|ふう・かぜ|viento
+紙|し・かみ|papel
+黒|こく・くろ(い)|negro
+春|しゅん・はる|primavera
+赤|せき・あか(い)|rojo
+青|せい・あお(い)|azul
+館|かん|edificio grande
+屋|おく・や|tejado, tienda
+色|しょく・しき・いろ|color
+走|そう・はし(る)|correr
+秋|しゅう・あき|otoño
+夏|か・なつ|verano
+習|しゅう・なら(う)|aprender
+洋|よう|océano, occidental
+旅|りょ・たび|viaje
+服|ふく|ropa
+夕|せき・ゆう|atardecer
+借|しゃく・か(りる)|pedir prestado
+曜|よう|día de la semana
+肉|にく|carne
+貸|たい・か(す)|prestar
+堂|どう|salón, templo
+鳥|ちょう・とり|ave
+飯|はん・めし|arroz cocido, comida
+勉|べん|esfuerzo
+冬|とう・ふゆ|invierno
+昼|ちゅう・ひる|mediodía
+茶|ちゃ・さ|té
+弟|てい・だい・おとうと|hermano menor
+牛|ぎゅう・うし|vaca
+兄|けい・きょう・あに|hermano mayor
+犬|けん・いぬ|perro
+妹|まい・いもうと|hermana menor
+姉|し・あね|hermana mayor
+漢|かん|China (dinastía Han)
