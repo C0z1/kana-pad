@@ -173,6 +173,32 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .epause { position: fixed; inset: auto 0 0 0; margin: 0; padding: 16px max(24px, env(safe-area-inset-left, 0px)); background: var(--bg); border-top: 1px solid var(--line); font-size: 22px; }
 #openexam { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; }
 
+/* Main menu (§9.1): skewed bars like the answers; the selected one grows, turns yellow and says "A ENTRAR". */
+.menu-screen { place-items: center; }
+.menu-wrap { width: min(100%, 1060px); display: grid; gap: 16px; }
+.mtop { display: flex; align-items: center; gap: 16px; }
+.mtitle { margin: 0; font: 400 56px/1 var(--font-display); letter-spacing: .04em; background: var(--slab); color: var(--ink); padding: 4px 24px; transform: skewX(var(--skew)); }
+.mlevel { font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.mbody { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 460px); gap: 40px; align-items: center; }
+.menu-list { display: grid; gap: 10px; }
+.menu-item { display: flex; align-items: center; gap: 14px; width: min(100%, 440px); min-height: 56px; box-sizing: border-box; padding: 8px 22px;
+  border: 0; background: var(--dim-bg); color: var(--dim-ink); font: 800 32px/1.1 var(--font-ui); text-align: left; cursor: pointer;
+  transform: skewX(var(--skew)); transition: width .12s ease-out, background-color .12s; }
+.menu-item > * { transform: skewX(calc(var(--skew) * -1)); }
+.menu-item .mlabel { flex: 1; min-width: 0; display: grid; }
+.menu-item .msub { display: none; font: 600 16px var(--font-ui); color: var(--muted); }
+.menu-item .mcount { font: 400 32px var(--font-display); color: var(--hi); font-variant-numeric: tabular-nums; }
+.menu-item .menter { display: none; align-items: center; gap: 6px; font: 400 20px var(--font-display); }
+.menu-item .menter .badge { width: 30px; height: 30px; font-size: 16px; }
+.menu-item.sel, .menu-item:hover { width: min(100%, 520px); background: var(--hi); color: var(--bar-ink); box-shadow: 8px 8px 0 var(--slab); }
+.menu-item.sel .mcount, .menu-item:hover .mcount, .menu-item.sel .msub { color: var(--bar-ink); }
+.menu-item.sel .menter { display: flex; }
+.menu-item[aria-disabled="true"] .mlabel { opacity: .7; }
+.menu-preview { background: #17171f; padding: 22px 24px; display: grid; gap: 8px; font-size: 20px; align-self: center; }
+.menu-preview b { font: 400 40px/1 var(--font-display); color: var(--hi); }
+.menu-preview p { margin: 0; color: var(--muted); }
+.mfoot { margin: 0; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 15px; }
+
 @media (max-width: 860px) {
   body { overflow: auto; }
   .app { height: auto; min-height: 100%; }
@@ -206,6 +232,13 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   .drow { grid-template-columns: 100px minmax(0, 1fr) 80px; gap: 10px; }
   .frow { grid-template-columns: 80px minmax(0, 1fr) 60px; gap: 10px; }
   .tabs kbd { display: none; }
+  .mtitle { font-size: 40px; }
+  .mbody { grid-template-columns: minmax(0, 1fr); }
+  .menu-preview { display: none; }
+  .menu-list { gap: 8px; }
+  .menu-item, .menu-item.sel, .menu-item:hover { width: 100%; font-size: 26px; }
+  .menu-item .msub { display: block; }
+  .mfoot { display: none; }
   .ebody { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .esec { order: 3; flex-basis: 100%; white-space: nowrap; }
   .frow { grid-template-columns: 72px minmax(0, 1fr) 76px; }
