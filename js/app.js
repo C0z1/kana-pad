@@ -1,7 +1,7 @@
 import { DECKS } from "./data.js";
 import { pick, options, speakable } from "./srs.js";
 import { createPad } from "./gamepad.js";
-import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY } from "./scheduler.js";
+import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY, BREATHER_CARDS, BREATHER_MS } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 import { retention, streakDays, deckStats, forecast, backupDue, daysSince } from "./progress.js";
@@ -66,8 +66,11 @@ const pending = () => reviewQueue().length;
 // Every answer is saved right away; the footer says so (or warns if storage failed).
 async function saveCards() {
   const ok = await store.set("kp-cards", cards);
-  $("saved").textContent = ok ? "✓ Guardado" : "No se pudo guardar";
+  const text = ok ? "✓ Guardado" : "No se pudo guardar · exporta tu progreso";
+  if ($("saved").textContent === text) return;
+  $("saved").textContent = text;
   $("saved").classList.toggle("bad", !ok);
+  $("saved").setAttribute("aria-live", ok ? "off" : "assertive");
 }
 
 // ---------- rendering ----------
@@ -302,10 +305,10 @@ function showSummary() {
   clearTimeout(restTimer);
   if (isReview() && resting) {
     // Count down and continue by itself as soon as the first card has rested.
-    const wait = Math.max(1, Math.ceil((Math.min(...recent.map(r => r.t)) + 60000 - Date.now()) / 1000));
+    const wait = Math.max(1, Math.ceil((Math.min(...recent.slice(-BREATHER_CARDS).map(r => r.t)) + BREATHER_MS - Date.now()) / 1000));
     $("sumtitle").textContent = "Un respiro";
     $("score").textContent = done ? `${hits} / ${done}` : "…";
-    $("sumnote").textContent = `Las cartas que quedan acaban de salir. Seguimos solos en ${wait} s, o pulsa A para practicar lo visto mientras.`;
+    $("sumnote").textContent = `Las cartas que quedan acaban de salir. Seguimos solos en ${wait} s. A: practicar lo visto mientras esperas.`;
     restTimer = setTimeout(() => { if (screen === "summary" && isReview()) newRound(); }, wait * 1000);
     reviewDone = true;
   } else if (isReview() && done < ROUND) {
@@ -351,7 +354,8 @@ function continueStudy() {
 }
 function moreNew() {
   if (newLimit() === 0) return;
-  day.bonus = (day.bonus ?? 0) + 5; store.setSync("kp-day", day);
+  const base = day.limit ?? NEW_PER_DAY;
+  day.bonus = Math.max(day.bonus ?? 0, day.fresh - base) + 5; store.setSync("kp-day", day);
   prefs.deck = MODES.indexOf(REVIEW); savePrefs();
   newRound();
 }

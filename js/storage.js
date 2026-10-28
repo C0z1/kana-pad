@@ -33,7 +33,11 @@ export const store = {
   },
   // Resolves true when the value is safely stored (IndexedDB, or localStorage as fallback).
   async set(k, v) {
-    try { await tx("readwrite", s => s.put(v, k)); return true; } catch {
+    try {
+      await tx("readwrite", s => s.put(v, k));
+      try { localStorage.removeItem(k); } catch {}
+      return true;
+    } catch {
       try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; }
     }
   },
