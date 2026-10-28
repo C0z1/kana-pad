@@ -5,7 +5,7 @@
 export const STORIES_N5 = [
   {
     id: "tama", script: "hira", title: "ねこの たま",
-    text: "わたしの いえに ねこが います。なまえは たまです。たまは しろくて、ちいさい ねこです。あさ、たまは わたしの へやに きて、「にゃあ」と いいます。わたしは たまに ごはんを あげます。ひるは にわで ねます。よるは わたしの ふとんで いっしょに ねます。たまは とても かわいいです。",
+    text: "わたしの いえに ねこが います。なまえは たまです。たまは しろくて、ちいさい ねこです。あさ、たまは わたしの へやに きて、「にゃあ」と いいます。ごはんは わたしが あげます。ひるは にわで ねます。よるは わたしの ふとんで いっしょに ねます。たまは とても かわいいです。",
     questions: [
       { q: "¿De qué color es Tama?", a: "Blanca", o: ["Negra", "Café", "Gris"] },
       { q: "¿Qué hace Tama a mediodía?", a: "Duerme en el jardín", o: ["Come en la cocina", "Juega en el cuarto", "Sale a pasear a la calle"] },
@@ -23,7 +23,7 @@ export const STORIES_N5 = [
   },
   {
     id: "tegami", script: "hira", title: "おばあさんの てがみ",
-    text: "きのう、おばあさんから てがみが きました。おばあさんは いなかに すんで います。おばあさんは てがみに「げんきですか。こちらは もう さむいです。にわの きの はが あかく なりました。ふゆやすみに あいに きて ください。」と かきました。わたしは すぐ へんじを かきました。「ふゆやすみに かならず いきます。」",
+    text: "きのう、おばあさんから てがみが きました。おばあさんは いなかに すんで います。おばあさんは てがみに「げんきですか。こちらは もう さむいです。にわの きの はっぱが あかく なりました。ふゆやすみに あいに きて ください。」と かきました。わたしは すぐ へんじを かきました。「ふゆやすみに かならず いきます。」",
     questions: [
       { q: "¿Dónde vive la abuela?", a: "En el campo", o: ["En Tokio", "Cerca de la escuela", "En la misma casa"] },
       { q: "¿Qué pasó con las hojas del árbol del jardín?", a: "Se pusieron rojas", o: ["Se pusieron verdes", "Crecieron mucho", "Se las llevó el viento"] },
@@ -50,7 +50,7 @@ export const STORIES_N5 = [
   },
   {
     id: "depato", script: "kata", title: "デパートで かいもの",
-    text: "きのう デパートへ いきました。まず 3がいで シャツと セーターを みました。セーターは 5000えんでした。ちょっと たかかったです。それから 5かいの レストランで カレーライスを たべました。さいごに 1かいで ハンカチを かいました。エレベーターは とても こんで いました。",
+    text: "きのう デパートへ いきました。まず 3がいで シャツと セーターを みました。セーターは 5000えんでした。ちょっと たかかったです。それから 5かいの レストランで カレーライスを たべました。さいごに 1かいで ハンカチを かいました。エレベーターは ひとが とても おおかったです。",
     questions: [
       { q: "¿Cuánto costaba el suéter?", a: "5000 yenes", o: ["3000 yenes", "1000 yenes", "500 yenes"] },
       { q: "¿Qué comió en el restaurante?", a: "Arroz con curry", o: ["Un sándwich", "Sushi", "Pastel"] },
@@ -77,7 +77,7 @@ export const STORIES_N5 = [
   },
   {
     id: "mise", script: "kanji", title: "新[あたら]しい 店[みせ]",
-    text: "駅[えき]の 北[きた]に 新[あたら]しい 魚[さかな]の 店[みせ]が あります。先月[せんげつ]から あります。きのう、母[はは]と 行[い]きました。店[みせ]の 人[ひと]は とても しんせつでした。魚[さかな]は 安[やす]かったです。母[はは]は 大[おお]きい 魚[さかな]を 二[に]ひき 買[か]いました。よるごはんに 食[た]べました。とても おいしかったです。",
+    text: "駅[えき]の 北[きた]に 新[あたら]しい 魚[さかな]の 店[みせ]が あります。先月[せんげつ] できました。きのう、母[はは]と 行[い]きました。店[みせ]の 人[ひと]は とても しんせつでした。魚[さかな]は 安[やす]かったです。母[はは]は 大[おお]きい 魚[さかな]を 二[に]ひき 買[か]いました。ばんごはんに 食[た]べました。とても おいしかったです。",
     questions: [
       { q: "¿Dónde está la tienda?", a: "Al norte de la estación", o: ["Al sur de la estación", "Frente a la escuela", "Junto al río"] },
       { q: "¿Cómo era el pescado?", a: "Barato", o: ["Caro", "Pequeño", "Viejo"] },
