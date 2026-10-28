@@ -1029,7 +1029,7 @@ const pad = createPad(i => {
   if (i === 6) return toggle("ear");
   if (i === 7) return toggle("reverse");
   if (ANSWER_BUTTONS[i]) answer(ANSWER_BUTTONS[i]);
-});
+}, () => screen === "start" || screen === "pause" || (screen === "stories" && ($("squiz").hidden)));
 
 function storyInput(i) {
   if (!$("slist").hidden) {

@@ -65,3 +65,10 @@ test("readings are spoken without okurigana parentheses", async () => {
   assert.equal(speakable("いち・ひと(つ)"), "いち、ひとつ");
   assert.ok(!/[()]/.test(speakable("み(っつ)")));
 });
+
+test("left stick works as a D-pad past 0.5", async () => {
+  const { stickDirs } = await import("../js/gamepad.js");
+  assert.deepEqual(stickDirs([0, -0.8]), { 12: true, 13: false, 14: false, 15: false });
+  assert.deepEqual(stickDirs([0.6, 0.3]), { 12: false, 13: false, 14: false, 15: true });
+  assert.deepEqual(stickDirs([0.4, -0.4]), { 12: false, 13: false, 14: false, 15: false });
+});
