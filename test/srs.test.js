@@ -72,3 +72,25 @@ test("left stick works as a D-pad past 0.5", async () => {
   assert.deepEqual(stickDirs([0.6, 0.3]), { 12: false, 13: false, 14: false, 15: true });
   assert.deepEqual(stickDirs([0.4, -0.4]), { 12: false, 13: false, 14: false, 15: false });
 });
+
+test("options never offer a distractor that shares a sense with the answer, in both directions", async () => {
+  const { DECKS } = await import("../js/data.js");
+  const { senses } = await import("../js/srs.js");
+  let checked = 0;
+  for (const d of DECKS.filter(x => x.kind === "vocab" || x.kind === "kanji")) {
+    for (const item of d.items.slice(0, 400)) {
+      for (const field of ["a", "q"]) {
+        const opts = options(d.items, item, field, () => 0.5);
+        const mine = senses(item.a);
+        for (const o of opts) {
+          if (o === item[field]) continue;
+          const other = d.items.find(i => i[field] === o);
+          assert.ok(!senses(other.a).some(x => mine.includes(x)), `${d.id}: ${item.q} (${item.a}) vs ${other.q} (${other.a})`);
+        }
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked > 2000);
+  assert.deepEqual(senses("sonar (un timbre), tocar"), ["sonar", "tocar"]);
+});

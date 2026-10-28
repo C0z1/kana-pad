@@ -272,7 +272,8 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .wordpanel small { color: var(--muted); font-size: 18px; }
 .wordpanel span { font-size: 26px; }
 .wordpanel button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
-.reader .mfoot { grid-column: 1 / -1; }
+.reader .mfoot, .reader .rbar { grid-column: 1 / -1; }
+.reader .rbar { justify-content: flex-start; }
 
 @media (max-width: 860px) {
   body { overflow: auto; }

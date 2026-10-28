@@ -11,6 +11,7 @@ import { STORIES_N5 } from "./content/stories-n5.js";
 import { parseWord, parseStory, lookupWord } from "./stories.js";
 import { activeVoices, pickVoice, voiceVariation, buildListening } from "./listening.js";
 import { BUILT_IN, clipUrl } from "./voices.js";
+import { readBackup } from "./backup.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
 import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
@@ -163,7 +164,7 @@ function nextCard() {
 
 function next() {
   clearTimeout(timer);
-  studyCard = false;
+  studyCard = 0;
   rollDay();
   if (round.results.length >= ROUND) return showSummary();
   cur = nextCard();
@@ -218,9 +219,13 @@ function countAnswer() {
 }
 
 // After a miss the card stays on screen as a mini lesson until the student moves on.
-let studyCard = false;
+let studyCard = 0; // when the mini lesson after a miss started (0 = none)
+const STUDY_MIN_MS = 600; // a double press right after missing must not skip the lesson and answer the next card
 function answer(k) {
-  if (screen === "play" && studyCard) { studyCard = false; next(); return; }
+  if (screen === "play" && studyCard) {
+    if (performance.now() - studyCard < STUDY_MIN_MS) return;
+    studyCard = 0; next(); return;
+  }
   if (screen !== "play" || locked || !cur) return;
   const { item, deck } = cur;
   const key = keyOf(deck, item);
@@ -311,7 +316,7 @@ function answer(k) {
     timer = setTimeout(next, Math.max(800, n * STROKE_SECONDS * 1000 + 900));
   });
   if (!ok) {
-    studyCard = true;
+    studyCard = performance.now();
     $("hint").textContent = "Estúdiala un momento · A, o cualquier respuesta, para seguir";
     return;
   }
@@ -505,7 +510,11 @@ function menuRows() {
     { group: "Nivel", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
     { group: "Mando y datos", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
     { group: "Mando y datos", label: "Exportar progreso", sub: "Guarda una copia en un archivo", action: exportProgress },
-    { group: "Mando y datos", label: "Importar progreso", sub: "Recupera una copia", action: () => $("import").click() },
+    ...(pendingImport ? [
+      { group: "Mando y datos", label: "Confirmar importación", sub: `Reemplaza tus ${Object.keys(cards).length} cartas en repaso por las ${Object.keys(pendingImport.r.cards).length} de «${pendingImport.name}»`, action: confirmImport },
+      { group: "Mando y datos", label: "Cancelar importación", sub: "Tu progreso no cambia", action: () => { pendingImport = null; $("msg").textContent = ""; renderMenu(); } },
+    ] : [{ group: "Mando y datos", label: "Importar progreso", sub: "Elige un archivo exportado; antes de reemplazar nada te pide confirmación", action: () => $("import").click() }]),
+    ...(store.getSync("kp-preimport", null) ? [{ group: "Mando y datos", label: "Deshacer la última importación", sub: "Vuelve al progreso que tenías antes", action: undoImport }] : []),
     { group: "Mando y datos", label: "Fuentes y licencias", sub: "KanjiVG, KANJIDIC2, JMdict, Kokoro, ts-fsrs y tipografías", action: () => { $("credits").hidden = !$("credits").hidden; } },
   ];
 }
@@ -634,7 +643,7 @@ function renderProgress() {
   );
   const last = exams.at(-1);
   if (last) $("progress").querySelector(".kpis").append(el("p", "notice pexam",
-    `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per.vocab.join("/")}, gramática ${last.per.gram.join("/")}, lectura ${last.per.read.join("/")}.`));
+    `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per?.vocab?.join("/") ?? "–"}, gramática ${last.per?.gram?.join("/") ?? "–"}, lectura ${last.per?.read?.join("/") ?? "–"}.`));
   const limit = day.limit ?? NEW_PER_DAY;
   if (limit < NEW_PER_DAY) {
     const why = el("p", "notice pbrake");
@@ -784,7 +793,10 @@ function examAnswer(k) {
   exam.answers[exam.i] = q.opts[KEYS.indexOf(k)];
   exam.locked = true;
   $("eopts").querySelector(`[data-k="${k}"]`).classList.add("chosen");
+  // The student may close the exam (or time may run out) before this fires; then it must do nothing.
+  const s = exam;
   setTimeout(() => {
+    if (exam !== s || !$("eresult").hidden) return;
     exam.locked = false;
     exam.i++;
     if (exam.i < exam.qs.length) renderExamQ(); else if (exam.placement) nextPlacementLevel(); else finishExam();
@@ -798,6 +810,7 @@ function setExamPaused(p) {
 }
 
 function finishExam() {
+  if (!exam || !$("eresult").hidden) return; // already finished: never save the same exam twice
   clearInterval(exam.timer);
   const r = scoreExam(exam.qs, exam.answers);
   exams = [...exams, { d: day.d, right: r.right, total: r.total, pass: r.pass, per: Object.fromEntries(Object.entries(r.per).map(([k, v]) => [k, [v.right, v.total]])) }].slice(-20);
@@ -893,7 +906,9 @@ function listenAnswer(k) {
   $("lverdict").className = "verdict " + (ok ? "ok" : "bad");
   if (!ok) { $("lnote").textContent = `Voz: ${listen.voice?.name ?? "—"}`; pad.rumble(); }
   countAnswer();
+  const s = listen;
   setTimeout(() => {
+    if (listen !== s) return; // closed or restarted meanwhile
     listen.i++;
     if (listen.i < listen.qs.length) renderListenQ(); else finishListening();
   }, ok ? 1400 : 2600);
@@ -963,7 +978,12 @@ async function checkDrawing() {
   if (!draw) return;
   if (draw.graded) { draw.i++; return draw.i < draw.pool.length ? renderDraw() : closeDraw(); }
   if (!draw.strokes.length) { $("dnote").textContent = "Dibuja primero."; return; }
-  const paths = await strokePaths(draw.pool[draw.i].item.q);
+  if (draw.checking) return; // A pressed twice: grade once
+  const s = draw;
+  s.checking = true;
+  const paths = await strokePaths(s.pool[s.i].item.q);
+  s.checking = false;
+  if (draw !== s || s.graded) return;
   if (!paths.length) { $("dnote").textContent = "No hay modelo de trazos para este carácter."; return; }
   const r = gradeDrawing(draw.strokes, paths.map(d => pathPoints(d)));
   draw.graded = r;
@@ -1147,7 +1167,9 @@ function storyAnswer(k) {
   $("sverdict").className = "verdict " + (ok ? "ok" : "bad");
   if (!ok) pad.rumble();
   countAnswer();
+  const s = story;
   setTimeout(() => {
+    if (story !== s) return; // closed meanwhile
     story.qi++;
     if (story.qi < story.st.questions.length) renderStoryQ(); else finishStory();
   }, ok ? 1200 : 2400);
@@ -1177,6 +1199,8 @@ function toggleFurigana() {
 $("sclose").addEventListener("click", storyBack);
 $("sagain").addEventListener("click", () => { storyBack(); });
 $("sfuri").addEventListener("click", toggleFurigana);
+$("sline").addEventListener("click", () => story && sayLine());
+$("squizbtn").addEventListener("click", () => story && startStoryQuiz());
 for (const b of $("stabs").querySelectorAll(".tab")) b.addEventListener("click", () => { storyTab = b.dataset.tab; storySel = 0; renderStoryList(); });
 
 // ---------- input ----------
@@ -1248,6 +1272,9 @@ function storyInput(i) {
 
 document.addEventListener("keydown", e => {
   if (e.target.closest?.("input, select, textarea")) return;
+  // A held key repeats; that may scroll a menu but must never answer cards on its own.
+  const answering = !(screen === "start" || screen === "pause" || (screen === "stories" && $("squiz").hidden));
+  if (e.repeat && answering) return;
   const arrows = { ArrowUp: "y", ArrowLeft: "x", ArrowRight: "b", ArrowDown: "a" };
   const key = e.key.toLowerCase();
   if (screen === "exam") {
@@ -1321,10 +1348,7 @@ $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
 
 // ---------- progress backup ----------
-const validStats = s => s && typeof s === "object" &&
-  Object.values(s).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
-
-const backupJson = () => JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs, history, exams }, null, 2);
+const backupJson = () => JSON.stringify({ app: "kana-pad", v: 3, stats, cards, day, prefs, history, exams, stories: storyScores }, null, 2);
 
 // Desktop/Android builds save a weekly copy on disk by themselves; the web asks the student to export.
 const tauri = window.__TAURI__?.core;
@@ -1355,36 +1379,50 @@ function exportProgress() {
   store.setSync("kp-lastexport", new Date().toISOString());
   renderBackupReminder();
 }
+// Importing replaces the whole progress, so it waits for a confirmation in Ajustes and keeps
+// the previous progress for "Deshacer la última importación".
+let pendingImport = null; // { r, name }
+const plural = (k, one, many) => `${k} ${k === 1 ? one : many}`;
 $("import").addEventListener("change", async e => {
   const file = e.target.files?.[0];
   e.target.value = "";
   if (!file) return;
   try {
-    const data = JSON.parse(await file.text());
-    if (data?.app !== "kana-pad" || !validStats(data.stats) || (data.cards !== undefined && (!data.cards || typeof data.cards !== "object"))) throw new Error("bad file");
-    stats = data.stats; store.setSync("kp-stats", stats);
-    const count = v => v === undefined || (Number.isInteger(v) && v >= 0);
-    if (data.history && typeof data.history === "object" &&
-        Object.entries(data.history).every(([d, h]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && h && count(h.reviews) && count(h.correct) && count(h.answers))) {
-      history = data.history; store.setSync("kp-hist", history);
-    }
-    if (Array.isArray(data.exams) && data.exams.every(x => x && Number.isInteger(x.right) && Number.isInteger(x.total))) {
-      exams = data.exams.slice(-20); store.set("kp-exams", exams);
-    }
-    let skipped = 0;
-    if (data.cards) {
-      cards = sanitizeCards(data.cards);
-      skipped = Object.keys(data.cards).length - Object.keys(cards).length;
-      await store.set("kp-cards", cards);
-    }
-    renderTop();
-    const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
-    $("msg").textContent = `Progreso importado: ${n(Object.keys(stats).length, "carta practicada", "cartas practicadas")}, ${Object.keys(cards).length} en repaso.` +
-      (skipped ? ` Se ${skipped === 1 ? "omitió" : "omitieron"} ${n(skipped, "carta dañada", "cartas dañadas")}; ${skipped === 1 ? "volverá como nueva" : "volverán como nuevas"}.` : "");
+    pendingImport = { r: readBackup(JSON.parse(await file.text()), LEVELS.map(l => l.id)), name: file.name };
+    $("msg").textContent = `«${file.name}» está listo. Confírmalo abajo: reemplaza tu progreso actual.`;
   } catch {
+    pendingImport = null;
     $("msg").textContent = "Ese archivo no es una copia de Kana Pad. Exporta uno desde esta pantalla y vuelve a intentarlo.";
   }
+  renderMenu();
 });
+
+async function applyBackup(r) {
+  stats = r.stats; store.setSync("kp-stats", stats);
+  if (r.history) { history = r.history; store.setSync("kp-hist", history); }
+  if (r.exams) { exams = r.exams; store.set("kp-exams", exams); }
+  if (r.stories) { storyScores = r.stories; store.setSync("kp-stories", storyScores); }
+  if (r.prefs) { Object.assign(prefs, r.prefs); if (!MODES[prefs.deck]) prefs.deck = 0; savePrefs(); }
+  cards = r.cards;
+  await store.set("kp-cards", cards);
+  renderTop(); renderMenu();
+}
+async function confirmImport() {
+  if (!pendingImport) return;
+  const { r } = pendingImport;
+  pendingImport = null;
+  store.setSync("kp-preimport", backupJson());
+  await applyBackup(r);
+  $("msg").textContent = `Progreso importado: ${plural(Object.keys(stats).length, "carta practicada", "cartas practicadas")}, ${Object.keys(cards).length} en repaso.` +
+    (r.skipped ? ` Se ${r.skipped === 1 ? "omitió" : "omitieron"} ${plural(r.skipped, "carta dañada", "cartas dañadas")}; ${r.skipped === 1 ? "volverá como nueva" : "volverán como nuevas"}.` : "");
+}
+async function undoImport() {
+  try { await applyBackup(readBackup(JSON.parse(store.getSync("kp-preimport", "")), LEVELS.map(l => l.id))); }
+  catch { $("msg").textContent = "No se pudo recuperar el progreso anterior."; return; }
+  store.setSync("kp-preimport", null);
+  $("msg").textContent = "Volviste al progreso de antes de importar.";
+  renderMenu();
+}
 
 setInterval(() => {
   const s = pad.status();

@@ -19,6 +19,7 @@ function tx(mode, fn) {
     const req = fn(t.objectStore(STORE));
     t.oncomplete = () => resolve(req?.result);
     t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error); // e.g. quota exceeded: fall back to localStorage instead of hanging
   }));
 }
 

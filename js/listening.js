@@ -1,6 +1,6 @@
 // Listening exercise: a Japanese voice says a word or sentence and the student picks its meaning.
 // Each question uses one of the enabled Japanese voices at random, so the ear gets used to several.
-import { shuffle } from "./srs.js";
+import { shuffle, senses } from "./srs.js";
 
 // Japanese voices offered by the system (speechSynthesis.getVoices()).
 export const japaneseVoices = voices => voices.filter(v => v.lang?.toLowerCase().startsWith("ja"));
@@ -27,7 +27,7 @@ export function voiceVariation(voiceCount, rng = Math.random) {
 export function buildListening(vocab, grammar, n = 10, rng = Math.random) {
   const fromVocab = shuffle(vocab, rng).slice(0, Math.ceil(n / 2)).map(it => ({
     say: it.r || it.q, shown: it.q, answer: it.a,
-    opts: shuffle([it.a, ...shuffle(vocab.filter(o => o.a !== it.a), rng).slice(0, 3).map(o => o.a)], rng),
+    opts: shuffle([it.a, ...shuffle(vocab.filter(o => !senses(o.a).some(x => senses(it.a).includes(x))), rng).slice(0, 3).map(o => o.a)], rng),
   }));
   const fromGrammar = shuffle(grammar, rng).slice(0, Math.floor(n / 2)).map(it => ({
     say: it.r, shown: it.r, answer: it.t,
