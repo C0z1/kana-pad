@@ -13,4 +13,5 @@ export function clipHash(text) {
   return h.toString(16).padStart(8, "0");
 }
 
-export const clipUrl = (voice, text) => `audio/${voice.id}/${clipHash(text)}.mp3`;
+export const clipPath = (voice, hash) => `audio/${voice.id}/${hash}.mp3`;
+export const clipUrl = (voice, text) => clipPath(voice, clipHash(text));

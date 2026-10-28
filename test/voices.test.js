@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { clipHash, clipUrl, BUILT_IN } from "../js/voices.js";
-import { allTexts } from "../tools/voices/texts.mjs";
+import { allTexts } from "../js/clips.js";
 
 test("clipHash is stable FNV-1a over UTF-8", () => {
   assert.equal(clipHash(""), "811c9dc5");

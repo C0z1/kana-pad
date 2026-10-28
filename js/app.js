@@ -10,8 +10,9 @@ import { READING_N5 } from "./content/reading-n5.js";
 import { STORIES_N5 } from "./content/stories-n5.js";
 import { parseWord, parseStory, lookupWord } from "./stories.js";
 import { activeVoices, pickVoice, voiceVariation, buildListening } from "./listening.js";
-import { BUILT_IN, clipUrl } from "./voices.js";
+import { BUILT_IN, clipUrl, clipPath } from "./voices.js";
 import { readBackup } from "./backup.js";
+import { allTexts } from "./clips.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
 import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
@@ -506,6 +507,7 @@ function menuRows() {
   return [
     { group: "Voz", label: "Leer cada carta en voz alta", seg: { options: ["SÍ", "NO"], on: prefs.voice ? 0 : 1 }, action: voice, change: voice },
     { group: "Voz", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
+    ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
     { group: "Nivel", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(1), change: setLevel },
     { group: "Nivel", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
     { group: "Mando y datos", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
@@ -543,6 +545,7 @@ function renderMenu() {
     if (it.group && it.group !== group) out.push(el("p", "mgroup", (group = it.group).toUpperCase()));
     const b = el("button", "mrow" + (menu.focus === "panel" && i === menu.sel ? " sel" : ""));
     b.type = "button";
+    if (it.id) b.dataset.row = it.id;
     if (it.disabled) b.setAttribute("aria-disabled", "true");
     const label = el("span", "mlabel"); label.append(el("span", "", it.label));
     if (it.sub) label.append(el("span", "msub", it.sub));
@@ -590,6 +593,55 @@ function closeMenu() { $("overlay").hidden = true; document.querySelector(".app"
 
 function speak(text) {
   if (prefs.voice) say(text, listenVoices()[0], { rate: 0.85 });
+}
+
+// Offline voices: every clip of every built-in voice is downloaded once, in the background, into the
+// cache the service worker answers from (sw.js, AUDIO). Desktop/Android builds ship the files already.
+const AUDIO_CACHE = "kana-pad-audio";
+const voicesDl = { done: 0, total: 0, missed: 0, state: "idle" }; // idle | running | done | offline | full
+function voicesDlText() {
+  const pct = voicesDl.total ? Math.floor((100 * voicesDl.done) / voicesDl.total) : 0;
+  return { idle: "Preparando la descarga…", running: `Descargando: ${pct} % (${voicesDl.done} de ${voicesDl.total})`,
+    done: voicesDl.missed ? `Faltan ${voicesDl.missed} clips; A para reintentar` : "Listas: funcionan sin conexión", offline: `Pausada sin conexión en ${pct} %; sigue al volver a abrir la app`,
+    full: `No hay espacio en el dispositivo; se guardó el ${pct} %` }[voicesDl.state];
+}
+function showVoicesDl() {
+  const row = document.querySelector("#menupanel [data-row='voicesdl'] .msub");
+  if (row) row.textContent = voicesDlText();
+}
+async function downloadVoices() {
+  if (tauri || !("caches" in window) || voicesDl.state === "running") return;
+  navigator.storage?.persist?.().catch(() => {}); // ask the browser not to evict ~73 MB of clips
+  const cache = await caches.open(AUDIO_CACHE);
+  const have = new Set((await cache.keys()).map(r => r.url));
+  const urls = Object.keys(allTexts()).flatMap(h => BUILT_IN.map(v => new URL(clipPath(v, h), location.href).href));
+  const todo = urls.filter(u => !have.has(u));
+  Object.assign(voicesDl, { total: urls.length, done: urls.length - todo.length, missed: 0, state: todo.length ? "running" : "done" });
+  showVoicesDl();
+  let next = 0, shown = 0;
+  const worker = async () => {
+    while (next < todo.length && voicesDl.state === "running") {
+      const u = todo[next++];
+      // A busy server sometimes drops a request: retry with a pause; stop only when the device is offline.
+      let saved = false;
+      for (let attempt = 0; attempt < 3 && !saved && voicesDl.state === "running"; attempt++) {
+        try {
+          const res = await fetch(u, { cache: "no-store" });
+          if (res.status === 200) { await cache.put(u, res); saved = true; }
+        } catch (e) {
+          if (e?.name === "QuotaExceededError") voicesDl.state = "full";
+          else if (!navigator.onLine) voicesDl.state = "offline";
+        }
+        if (!saved) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+      }
+      if (saved) voicesDl.done++;
+      else if (voicesDl.state === "running") voicesDl.missed++; // that clip falls back to the system voice
+      if (voicesDl.done - shown >= 50) { shown = voicesDl.done; showVoicesDl(); }
+    }
+  };
+  await Promise.all(Array.from({ length: 4 }, worker));
+  if (voicesDl.state === "running") voicesDl.state = "done";
+  showVoicesDl();
 }
 
 // Built-in voices play a pre-generated clip; system voices use speechSynthesis.
@@ -1442,6 +1494,7 @@ store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
   ready = true; renderMenu();
+  setTimeout(downloadVoices, 3000);
   autoBackup(); renderBackupReminder();
   rollDay(); store.setSync("kp-day", day);
   renderTop();
