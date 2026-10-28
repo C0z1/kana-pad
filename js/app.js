@@ -95,7 +95,6 @@ function renderTop() {
   $("ear").disabled = grammar || !jaVoice;
   $("ear").title = !jaVoice ? "Instala una voz japonesa: Configuración → Hora e idioma → Voz" : grammar ? "No aplica en gramática" : "";
   $("reverse").disabled = grammar;
-  $("voice").checked = prefs.voice;
 }
 
 function renderPips() {
@@ -386,18 +385,119 @@ function toggle(name) {
   if ((name === "ear" || name === "reverse") && screen === "play") { lastKey = null; next(); }
 }
 function setPaused(p) {
-  if (p && screen === "play") {
+  if (p && (screen === "play" || screen === "summary")) {
+    resumeTo = screen;
     screen = "pause"; clearTimeout(timer);
-    $("starttxt").textContent = "Continuar";
-    $("overlay").hidden = false; document.querySelector(".app").inert = true; $("start").focus();
-    renderBackupReminder();
-  } else if (!p && ready && (screen === "pause" || screen === "start")) {
-    const fresh = screen === "start";
-    screen = "play"; $("overlay").hidden = true; document.querySelector(".app").inert = false;
+    openMenu();
+  } else if (!p && ready && screen === "pause") {
+    screen = resumeTo; closeMenu();
     keepAwake();
-    if (fresh) newRound(); else if (locked) next();
+    if (screen === "play" && locked) next();
   }
 }
+let resumeTo = "play";
+
+// Starts studying a mode from the menu (0 = Repaso de hoy, 1 = Práctica de lo visto, 2.. = decks).
+function startMode(i) {
+  if (!ready) return;
+  prefs.deck = i; savePrefs(); streak = 0; lastKey = null;
+  screen = "play"; closeMenu();
+  keepAwake();
+  newRound();
+}
+
+// ---------- main menu (§9.1) ----------
+const menu = { level: "main", sel: 0, from: 0 };
+const LEVEL_NAMES = { main: "", practice: "Práctica", settings: "Ajustes" };
+
+function accuracyOf(deck) {
+  let h = 0, m = 0;
+  for (const it of deck.items) { const s = stats[keyOf(deck, it)]; if (s) { h += s[0]; m += s[1]; } }
+  return h + m ? `${Math.round((100 * h) / (h + m))}%` : "–";
+}
+
+function menuItems() {
+  const jaVoices = window.speechSynthesis?.getVoices().filter(v => v.lang?.toLowerCase().startsWith("ja")).length ?? 0;
+  const last = exams.at(-1);
+  if (menu.level === "practice") {
+    return [
+      { label: "Práctica de lo visto", count: String(seenEntries().length), sub: "Todo lo que ya viste, sin cartas nuevas", preview: ["Cartas ya vistas de todos los mazos.", "No cambia tu calendario de repasos."], action: () => startMode(1) },
+      ...DECKS.map((d, i) => ({ label: d.name, count: accuracyOf(d), sub: `${d.items.length} cartas · ${accuracyOf(d)} de aciertos`, preview: [`${d.items.length} cartas.`, `Aciertos en práctica libre: ${accuracyOf(d)}.`], action: () => startMode(i + 2) })),
+    ];
+  }
+  if (menu.level === "settings") {
+    return [
+      { label: `Voz japonesa: ${prefs.voice ? "sí" : "no"}`, sub: jaVoice ? "Lee cada carta en voz alta" : "No hay voz japonesa instalada", preview: [jaVoice ? "Lee cada carta en voz alta." : "Instala una voz japonesa: Configuración → Hora e idioma → Voz."], action: () => { toggle("voice"); renderMenu(); } },
+      { label: "Usar otro mando", sub: "Elige el mando con un botón", preview: ["Después pulsa un botón en el mando que quieras usar."], action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
+      { label: "Exportar progreso", sub: "Guarda una copia en un archivo", preview: ["Descarga un archivo con todo tu progreso."], action: exportProgress },
+      { label: "Importar progreso", sub: "Recupera una copia", preview: ["Elige un archivo exportado antes."], action: () => $("import").click() },
+      { label: "Fuentes y licencias", sub: "Datos y tipografías usados", preview: ["KanjiVG, KANJIDIC2, JMdict, ts-fsrs y tipografías."], action: () => { $("credits").hidden = !$("credits").hidden; } },
+    ];
+  }
+  const items = [];
+  if (screen === "pause") items.push({ label: "Continuar", sub: "Volver a donde estabas", preview: ["Vuelve a la ronda en curso."], action: () => setPaused(false) });
+  const limit = day.limit ?? NEW_PER_DAY;
+  items.push(
+    { label: "Repaso de hoy", count: String(pending()), sub: `${pending()} pendientes · ${day.fresh}/${newLimit()} nuevas`,
+      preview: [`${pending()} cartas pendientes.`, `${day.fresh} de ${newLimit()} cartas nuevas hoy.`, ...(limit < NEW_PER_DAY ? ["FRENO: hoy entran menos cartas nuevas. Mira Progreso."] : [])], action: () => startMode(0) },
+    { label: "Práctica", count: String(seenEntries().length), sub: `${seenEntries().length} cartas vistas`, preview: ["Práctica de lo visto o un mazo concreto.", `${seenEntries().length} cartas vistas.`], action: () => openLevel("practice") },
+    { label: "Cuentos", disabled: true, sub: "Próximamente", preview: ["Próximamente: cuentos en hiragana, katakana y kanji."] },
+    { label: "Listening", disabled: true, sub: "Próximamente", preview: ["Próximamente: escucha con varias voces.", `${jaVoices} ${jaVoices === 1 ? "voz japonesa instalada" : "voces japonesas instaladas"}.`] },
+    { label: "Simulacro N5", sub: last ? `Último: ${last.right}/${last.total}` : "20 minutos, 30 preguntas", preview: [last ? `Último: ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"}.` : "Aún no has hecho ninguno.", "20 minutos, 30 preguntas."], action: startExam },
+    { label: "Progreso", sub: `Racha: ${streakDays(history, day.d)} días`, preview: [`Racha: ${streakDays(history, day.d)} días.`, "Retención, mazos y próximos 7 días."], action: openProgress },
+    { label: "Ajustes", sub: "Voz, mando, copias de seguridad", preview: ["Voz, mando, copias de seguridad y licencias."], action: () => openLevel("settings") },
+  );
+  return items;
+}
+
+function renderMenu() {
+  rollDay();
+  const items = menuItems();
+  menu.sel = Math.min(menu.sel, items.length - 1);
+  $("menulevel").textContent = LEVEL_NAMES[menu.level];
+  $("menulist").replaceChildren(...items.map((it, i) => {
+    const b = el("button", "menu-item" + (i === menu.sel ? " sel" : ""));
+    b.type = "button";
+    if (it.disabled) b.setAttribute("aria-disabled", "true");
+    const label = el("span", "mlabel"); label.append(el("span", "", it.label), el("span", "msub", it.sub ?? ""));
+    b.append(label);
+    if (it.count) b.append(el("span", "mcount", it.count));
+    const enter = el("span", "menter"); const badge = el("span", "badge", "A"); badge.dataset.k = "a"; enter.append(badge, it.disabled ? "PRONTO" : "ENTRAR");
+    b.append(enter);
+    b.addEventListener("click", () => { menu.sel = i; activateMenu(); });
+    b.addEventListener("focus", () => { if (menu.sel !== i) { menu.sel = i; renderPreview(items); markSel(); } });
+    return b;
+  }));
+  renderPreview(items);
+  $("menulist").children[menu.sel]?.focus({ preventScroll: true });
+}
+function markSel() { [...$("menulist").children].forEach((b, i) => b.classList.toggle("sel", i === menu.sel)); }
+function renderPreview(items) {
+  const it = items[menu.sel];
+  $("menupreview").replaceChildren(el("b", "", it.label), ...it.preview.map(t => el("p", "", t)));
+}
+function moveMenu(d) {
+  const n = $("menulist").children.length;
+  menu.sel = (menu.sel + d + n) % n;
+  markSel(); renderPreview(menuItems());
+  $("menulist").children[menu.sel].focus({ preventScroll: true });
+}
+function activateMenu() {
+  const it = menuItems()[menu.sel];
+  if (!it || it.disabled) return;
+  it.action();
+}
+function openLevel(level) { menu.from = menu.sel; menu.level = level; menu.sel = 0; $("credits").hidden = true; renderMenu(); }
+function menuBack() {
+  if (menu.level !== "main") { menu.level = "main"; menu.sel = menu.from; $("credits").hidden = true; renderMenu(); }
+  else if (screen === "pause") setPaused(false);
+}
+function openMenu() {
+  menu.level = "main"; menu.sel = 0; $("credits").hidden = true;
+  $("overlay").hidden = false; document.querySelector(".app").inert = true;
+  renderMenu(); renderBackupReminder();
+}
+function closeMenu() { $("overlay").hidden = true; document.querySelector(".app").inert = false; }
 
 function speak(text) {
   if (!prefs.voice || !window.speechSynthesis) return;
@@ -484,9 +584,8 @@ let progressFrom = "start";
 function closeProgress() {
   screen = progressFrom;
   $("progress").hidden = true; $("overlay").hidden = false;
-  $("openprogress").focus();
+  renderMenu();
 }
-$("openprogress").addEventListener("click", openProgress);
 $("closeprogress").addEventListener("click", closeProgress);
 for (const b of $("progress").querySelectorAll(".tab")) b.addEventListener("click", () => setTab(b.dataset.tab));
 
@@ -596,9 +695,8 @@ function closeExam() {
   clearInterval(exam?.timer);
   screen = exam?.from ?? "start"; exam = null;
   $("exam").hidden = true; $("overlay").hidden = false;
-  $("openexam").focus();
+  renderMenu();
 }
-$("openexam").addEventListener("click", startExam);
 $("eback").addEventListener("click", closeExam);
 
 // ---------- input ----------
@@ -617,16 +715,18 @@ const pad = createPad(i => {
     else if (i === 1 || i === 9) closeProgress();
     return;
   }
+  if (screen === "start" || screen === "pause") {
+    if (i === 12) moveMenu(-1);
+    else if (i === 13) moveMenu(1);
+    else if (i === 0) activateMenu();
+    else if (i === 1 || i === 9) menuBack();
+    else if (i === 8) { toggle("voice"); renderMenu(); }
+    return;
+  }
   if (i === 4) return setDeck(prefs.deck - 1);
   if (i === 5) return setDeck(prefs.deck + 1);
   if (i === 8) return toggle("voice");
-  if (screen === "start" || screen === "pause") {
-    if (i === 0 || i === 9) setPaused(false);
-    else if (i === 3) openProgress();
-    else if (i === 2) startExam();
-    return;
-  }
-  if (screen === "summary") { if (i === 0) continueStudy(); else if (i === 2 && !$("morenew").hidden) moreNew(); return; }
+  if (screen === "summary") { if (i === 0) continueStudy(); else if (i === 2 && !$("morenew").hidden) moreNew(); else if (i === 9) setPaused(true); return; }
   if (i === 9) return setPaused(true);
   if (i === 6) return toggle("ear");
   if (i === 7) return toggle("reverse");
@@ -651,27 +751,31 @@ document.addEventListener("keydown", e => {
     else if (e.key === "Escape" || key === "b") closeProgress();
     return;
   }
-  if (key === "p" && (screen === "pause" || screen === "start")) return openProgress();
-  if (key === "x" && (screen === "pause" || screen === "start")) return startExam();
+  if (screen === "start" || screen === "pause") {
+    if (e.key === "ArrowUp") { e.preventDefault(); moveMenu(-1); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); moveMenu(1); }
+    else if (e.key === "Enter") { e.preventDefault(); activateMenu(); }
+    else if (e.key === "Escape" || key === "b") menuBack();
+    else if (key === "p") openProgress();
+    else if (key === "x") startExam();
+    return;
+  }
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }
   else if (key === "q") setDeck(prefs.deck - 1);
   else if (key === "e") setDeck(prefs.deck + 1);
   else if (key === "s") toggle("voice");
   else if (key === "o") toggle("ear");
   else if (key === "i") toggle("reverse");
-  else if (e.key === "Escape" && (screen === "play" || screen === "pause")) setPaused(screen === "play");
+  else if (e.key === "Escape" && (screen === "play" || screen === "summary")) setPaused(true);
   else if (e.key === "Enter" && screen === "summary") { e.preventDefault(); continueStudy(); }
   else if (key === "n" && screen === "summary" && !$("morenew").hidden) moreNew();
 });
 
-$("start").addEventListener("click", () => setPaused(false));
 $("again").addEventListener("click", continueStudy);
 $("morenew").addEventListener("click", moreNew);
 $("decktag").addEventListener("click", () => setDeck(prefs.deck + 1));
 $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
-$("voice").addEventListener("change", () => toggle("voice"));
-$("repad").addEventListener("click", () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; });
 
 // ---------- progress backup ----------
 const validStats = s => s && typeof s === "object" &&
@@ -697,7 +801,7 @@ function renderBackupReminder() {
     : "Todavía no has exportado tu progreso. Exportarlo te protege si se borran los datos del navegador.";
 }
 
-$("export").addEventListener("click", () => {
+function exportProgress() {
   const blob = new Blob([backupJson()], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -707,7 +811,7 @@ $("export").addEventListener("click", () => {
   $("msg").textContent = "Progreso exportado.";
   store.setSync("kp-lastexport", new Date().toISOString());
   renderBackupReminder();
-});
+}
 $("import").addEventListener("change", async e => {
   const file = e.target.files?.[0];
   e.target.value = "";
@@ -753,14 +857,13 @@ function checkVoices() {
 window.speechSynthesis?.addEventListener?.("voiceschanged", checkVoices);
 checkVoices();
 document.querySelector(".app").inert = true;
-$("start").disabled = true;
 store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
-  ready = true; $("start").disabled = false;
+  ready = true; renderMenu();
   autoBackup(); renderBackupReminder();
   rollDay(); store.setSync("kp-day", day);
   renderTop();
 });
 renderTop();
-$("start").focus();
+openMenu();

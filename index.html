@@ -64,28 +64,16 @@
   </footer>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="card">
-    <h1>KANA PAD</h1>
-    <p>Responde con el botón del color que ves en cada opción. Las cartas que fallas vuelven más seguido. Cada acierto suma al combo.</p>
-    <button type="button" class="bar primary" id="start"><span class="badge" data-k="a">A</span><span id="starttxt">Empezar</span></button>
-    <button type="button" class="link" id="openprogress"><span class="badge" data-k="y">Y</span>Ver progreso</button>
-    <button type="button" class="link" id="openexam"><span class="badge" data-k="x">X</span>Simulacro N5 (20 min)</button>
-    <div class="settings">
-      <label for="voice">Voz en japonés</label>
-      <input type="checkbox" id="voice">
-      <span>Mando</span>
-      <button type="button" class="link" id="repad">Usar otro mando</button>
-      <span>Progreso</span>
-      <span class="row">
-        <button type="button" class="link" id="export">Exportar</button>
-        <label class="link" for="import">Importar</label>
-        <input type="file" id="import" accept="application/json" hidden>
-      </span>
+<div class="overlay menu-screen" id="overlay">
+  <div class="menu-wrap">
+    <header class="mtop"><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span></header>
+    <div class="mbody">
+      <nav class="menu-list" id="menulist" aria-label="Menú principal"></nav>
+      <aside class="menu-preview" id="menupreview" aria-live="polite"></aside>
     </div>
     <p class="notice pexam" id="backupmsg" hidden></p>
     <p class="small" id="msg" aria-live="polite"></p>
-    <details class="credits">
+    <details class="credits" id="credits" open hidden>
       <summary>Fuentes y licencias</summary>
       <ul>
         <li>Orden de trazos: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, © Ulrich Apel, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. Los archivos derivados en <code>content/kanjivg</code> se comparten con la misma licencia.</li>
@@ -96,6 +84,8 @@
         <li>Lista de vocabulario, significados en español, frases de gramática y explicaciones: contenido propio de Kana Pad.</li>
       </ul>
     </details>
+    <input type="file" id="import" accept="application/json" hidden>
+    <p class="mfoot">↑↓ elegir · A entrar · B atrás · Menú vuelve aquí</p>
   </div>
 </div>
 
