@@ -10,6 +10,7 @@ import { READING_N5 } from "./content/reading-n5.js";
 import { STORIES_N5 } from "./content/stories-n5.js";
 import { parseWord, parseStory, lookupWord } from "./stories.js";
 import { activeVoices, pickVoice, voiceVariation, buildListening } from "./listening.js";
+import { BUILT_IN, clipUrl } from "./voices.js";
 import { shuffle } from "./srs.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
@@ -399,7 +400,7 @@ function toggle(name) {
   if ((name === "ear" || name === "reverse") && (cur?.deck ?? mode()).kind === "grammar") return;
   prefs[name] = !prefs[name];
   savePrefs(); renderTop();
-  if (name === "voice" && !prefs.voice) speechSynthesis?.cancel();
+  if (name === "voice" && !prefs.voice) stopVoice();
   if ((name === "ear" || name === "reverse") && screen === "play") { lastKey = null; next(); }
 }
 function setPaused(p) {
@@ -435,7 +436,7 @@ function accuracyOf(deck) {
 }
 
 function menuItems() {
-  const jaVoices = window.speechSynthesis?.getVoices().filter(v => v.lang?.toLowerCase().startsWith("ja")).length ?? 0;
+  const jaVoices = allVoices().filter(v => v.lang?.toLowerCase().startsWith("ja")).length;
   const last = exams.at(-1);
   if (menu.level === "practice") {
     return [
@@ -537,13 +538,30 @@ function openMenu() {
 function closeMenu() { $("overlay").hidden = true; document.querySelector(".app").inert = false; }
 
 function speak(text) {
-  if (!prefs.voice || !window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(speakable(text));
-  u.lang = "ja-JP"; u.rate = 0.85;
-  const v = speechSynthesis.getVoices().find(v => v.lang.startsWith("ja"));
-  if (v) u.voice = v;
-  speechSynthesis.speak(u);
+  if (prefs.voice) say(text, listenVoices()[0], { rate: 0.85 });
+}
+
+// Built-in voices play a pre-generated clip; system voices use speechSynthesis.
+// A clip that isn't there (text added after the last generate) falls back to a system voice.
+const clip = new Audio();
+function stopVoice() { clip.pause(); window.speechSynthesis?.cancel(); }
+function say(text, voice, { rate = 1, pitch = 1, wave = false } = {}) {
+  stopVoice();
+  const on = () => wave && $("lwave").classList.add("on"), off = () => wave && $("lwave").classList.remove("on");
+  const system = v => {
+    if (!window.speechSynthesis) return off();
+    const u = new SpeechSynthesisUtterance(speakable(text));
+    u.lang = "ja-JP"; u.rate = rate; u.pitch = pitch;
+    try { if (v) u.voice = v; } catch {} // a voice that went away falls back to the default Japanese one
+    u.onstart = on; u.onend = u.onerror = off;
+    speechSynthesis.speak(u);
+  };
+  if (!voice?.builtin) return system(voice);
+  clip.src = clipUrl(voice, speakable(text));
+  clip.playbackRate = rate < 0.8 ? 0.75 : 1; // the clips are already at a learner's pace
+  clip.onplaying = on; clip.onended = off;
+  clip.onerror = () => system(window.speechSynthesis?.getVoices().find(v => v.lang.startsWith("ja")));
+  clip.play().catch(() => {}); // autoplay refusals and aborted loads are reported via onerror or ignored
 }
 
 // Keeps the screen on during cardio; the browser may refuse, which is fine.
@@ -739,7 +757,7 @@ $("epausebtn").addEventListener("click", () => setExamPaused(!exam?.paused));
 $("equit").addEventListener("click", closeExam);
 
 // ---------- listening (§9.2) ----------
-const allVoices = () => window.speechSynthesis?.getVoices() ?? [];
+const allVoices = () => [...BUILT_IN, ...(window.speechSynthesis?.getVoices() ?? [])];
 const listenVoices = () => activeVoices(allVoices(), prefs.listenVoices ?? []);
 let listen = null; // { qs, i, results, voice, locked }
 
@@ -753,16 +771,9 @@ function startListening() {
 }
 
 function sayWith(text, voice, slow = false) {
-  if (!window.speechSynthesis || !voice) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(speakable(text));
-  u.lang = "ja-JP";
-  try { u.voice = voice; } catch {} // a voice that went away falls back to the default Japanese one
+  if (!voice) return;
   const v = voiceVariation(listenVoices().length);
-  u.pitch = v.pitch; u.rate = slow ? 0.7 : v.rate;
-  u.onstart = () => $("lwave").classList.add("on");
-  u.onend = u.onerror = () => $("lwave").classList.remove("on");
-  speechSynthesis.speak(u);
+  say(text, voice, { pitch: v.pitch, rate: slow ? 0.7 : v.rate, wave: true });
 }
 
 function renderListenQ() {
@@ -816,7 +827,7 @@ function finishListening() {
   $("lagain").focus({ preventScroll: true });
 }
 function closeListening() {
-  speechSynthesis?.cancel(); listen = null;
+  stopVoice(); listen = null;
   screen = "start"; $("listen").hidden = true; $("overlay").hidden = false;
   menu.level = "main"; renderMenu();
 }
@@ -974,7 +985,7 @@ function finishStory() {
 }
 function storyBack() {
   if (!$("slist").hidden) { closeStories(); return; }
-  speechSynthesis?.cancel(); story = null; showStoryPart("list"); renderStoryList();
+  stopVoice(); story = null; showStoryPart("list"); renderStoryList();
 }
 function closeStories() {
   screen = "start"; $("stories").hidden = true; $("overlay").hidden = false;
@@ -1189,7 +1200,7 @@ setInterval(() => {
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 function checkVoices() {
-  jaVoice = !!window.speechSynthesis?.getVoices().some(v => v.lang.startsWith("ja"));
+  jaVoice = allVoices().some(v => v.lang.startsWith("ja"));
   renderTop();
 }
 window.speechSynthesis?.addEventListener?.("voiceschanged", checkVoices);

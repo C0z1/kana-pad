@@ -56,13 +56,28 @@ npm run content   # regenera js/content desde content/ (descarga JMdict y KANJID
 | `js/strokes.js` | Animación de trazos con KanjiVG (`content/kanjivg`, CC BY-SA 3.0) |
 | `sw.js`, `manifest.webmanifest` | App instalable y sin conexión |
 | `js/gamepad.js` | Lectura del mando |
+| `js/voices.js`, `audio/` | Voces japonesas incluidas (Kokoro-82M, Apache 2.0) |
 | `js/app.js` | Pantalla y estado |
+
+### Voces incluidas
+
+La app trae tres voces japonesas (Alpha, Kumo y Gongitsune) en `audio/`, generadas sin conexión con [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) (Apache 2.0). Funcionan en cualquier sistema, también en Android y Linux, donde no suele haber voz japonesa. Si el sistema tiene más voces japonesas, aparecen junto a ellas en Ajustes → Voces del listening.
+
+Después de cambiar el contenido, genera los audios que falten (`npm test` avisa si faltan):
+
+```sh
+py -3.12 -m venv tools/.cache/voices-venv
+tools/.cache/voices-venv/Scripts/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+tools/.cache/voices-venv/Scripts/python -m pip install kokoro pyopenjtalk-plus fugashi jaconv mojimoji unidic-lite soundfile
+node tools/voices/texts.mjs > tools/.cache/texts.json
+tools/.cache/voices-venv/Scripts/python tools/voices/generate.py tools/.cache/texts.json
+```
 
 ## Limitaciones conocidas
 
 - El navegador no detecta el mando hasta que pulsas un botón con la página visible.
 - Si un juego usa el mismo mando, recibe también tus pulsaciones. Usa un segundo mando o pausa el juego.
-- La voz depende de que el sistema tenga una voz en japonés instalada. En Windows: Configuración → Hora e idioma → Voz.
+- Las voces incluidas solo dicen el contenido de la app. Si añades contenido sin regenerar el audio, esa frase usa la voz japonesa del sistema, si hay una.
 
 ## Licencia
 
