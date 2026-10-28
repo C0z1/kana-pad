@@ -18,6 +18,7 @@
 <div class="app">
   <header class="top">
     <div class="deckbar">
+      <button type="button" class="link back" id="playback"><kbd>MENÚ</kbd>Volver</button>
       <kbd>LB</kbd>
       <button type="button" class="deck-tag" id="decktag">HIRAGANA</button>
       <kbd>RB</kbd>
@@ -66,7 +67,7 @@
 
 <div class="overlay menu-screen" id="overlay">
   <div class="menu-wrap">
-    <header class="mtop"><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span></header>
+    <header class="mtop"><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span><button type="button" class="link back" id="mback" hidden><span class="badge" data-k="b">B</span>Volver</button></header>
     <div class="mbody">
       <nav class="menu-list" id="menulist" aria-label="Menú principal"></nav>
       <aside class="menu-preview" id="menupreview" aria-live="polite"></aside>
@@ -94,6 +95,7 @@
     <span class="deck-tag">SIMULACRO N5</span>
     <span class="esec" id="esec"></span>
     <b class="etimer" id="etimer">20:00</b>
+    <button type="button" class="link back" id="epausebtn"><kbd>MENÚ</kbd>Pausa</button>
   </header>
   <div class="ebody" id="ebody">
     <div class="prompt" id="eprompt"><div class="glyph" id="eq"></div><p class="hint" id="ehint"></p></div>
@@ -111,13 +113,14 @@
     <div id="emissed"></div>
     <button type="button" class="bar primary" id="eback"><span class="badge" data-k="a">A</span><span>Volver</span></button>
   </div>
-  <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> El reloj está detenido. Pulsa A o Menú para seguir.</p>
+  <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> El reloj está detenido. Pulsa A o Menú para seguir. <button type="button" class="link" id="equit"><span class="badge" data-k="b">B</span>Salir del simulacro</button></p>
 </section>
 
 <section class="exam" id="listen" hidden aria-label="Listening">
   <header class="etop">
     <span class="deck-tag">LISTENING</span>
     <span class="esec" id="lsec"></span>
+    <button type="button" class="link back" id="lclose"><kbd>MENÚ</kbd>Volver</button>
   </header>
   <div class="ebody" id="lbody">
     <div class="prompt" id="lprompt">

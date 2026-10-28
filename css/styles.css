@@ -123,6 +123,10 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .row { display: flex; gap: 16px; }
 .link { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; justify-self: start; font-weight: 600; }
 .small { font-size: 15px; min-height: 1.2em; }
+/* Visible way back on every screen, for touch and mouse (the pad uses B or Menú). */
+.back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
+.mtop .back { margin-left: auto; }
+.deckbar .back { margin-right: 12px; }
 
 /* Progress panel: flat tiles, Anton figures, skewed bars like the answer bars. */
 .panel { width: min(100%, 1100px); box-sizing: border-box; display: grid; gap: 24px; align-content: start; }

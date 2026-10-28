@@ -490,6 +490,7 @@ function renderMenu() {
   const items = menuItems();
   menu.sel = Math.min(menu.sel, items.length - 1);
   $("menulevel").textContent = LEVEL_NAMES[menu.level];
+  $("mback").hidden = menu.level === "main" && screen !== "pause";
   $("menulist").replaceChildren(...items.map((it, i) => {
     const b = el("button", "menu-item" + (i === menu.sel ? " sel" : ""));
     b.type = "button";
@@ -734,6 +735,8 @@ function closeExam() {
   renderMenu();
 }
 $("eback").addEventListener("click", closeExam);
+$("epausebtn").addEventListener("click", () => setExamPaused(!exam?.paused));
+$("equit").addEventListener("click", closeExam);
 
 // ---------- listening (§9.2) ----------
 const allVoices = () => window.speechSynthesis?.getVoices() ?? [];
@@ -819,6 +822,7 @@ function closeListening() {
 }
 $("lagain").addEventListener("click", startListening);
 $("lback").addEventListener("click", closeListening);
+$("lclose").addEventListener("click", closeListening);
 $("lrepeat").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice));
 $("lslow").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice, true));
 
@@ -993,7 +997,7 @@ const pad = createPad(i => {
   if (screen === "exam") {
     if (!$("eresult").hidden) { if (i === 0 || i === 1) closeExam(); return; }
     if (i === 9) return setExamPaused(!exam.paused);
-    if (exam.paused) { if (i === 0) setExamPaused(false); return; }
+    if (exam.paused) { if (i === 0) setExamPaused(false); else if (i === 1) closeExam(); return; }
     if (ANSWER_BUTTONS[i]) examAnswer(ANSWER_BUTTONS[i]);
     return; // LB/RB and the modes stay locked during the exam
   }
@@ -1055,7 +1059,7 @@ document.addEventListener("keydown", e => {
     // preventDefault: otherwise the same Enter also "clicks" the button that just got focus.
     if (!$("eresult").hidden) { if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); closeExam(); } return; }
     if (e.key === "Escape") return setExamPaused(!exam.paused);
-    if (exam.paused) { if (e.key === "Enter") { e.preventDefault(); setExamPaused(false); } return; }
+    if (exam.paused) { if (e.key === "Enter") { e.preventDefault(); setExamPaused(false); } else if (key === "b") closeExam(); return; }
     if (arrows[e.key]) { e.preventDefault(); examAnswer(arrows[e.key]); }
     return;
   }
@@ -1106,6 +1110,8 @@ document.addEventListener("keydown", e => {
 $("again").addEventListener("click", continueStudy);
 $("morenew").addEventListener("click", moreNew);
 $("decktag").addEventListener("click", () => setDeck(prefs.deck + 1));
+$("playback").addEventListener("click", () => setPaused(true));
+$("mback").addEventListener("click", menuBack);
 $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
 
