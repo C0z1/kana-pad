@@ -19,6 +19,7 @@ export function createPad(onPress, canRepeat = () => false) {
   const pads = () => (navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : []);
 
   function frame(now) {
+    if (active !== null && !pads().some(gp => gp.index === active)) active = null;
     for (const gp of pads()) {
       const was = prev.get(gp.index) || [];
       const stick = stickDirs(gp.axes);

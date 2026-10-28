@@ -3,7 +3,7 @@
 # Las lecciones siguen el orden habitual de los libros de nivel elemental (1–8).
 # Regla: cada distractor debe ser incorrecto en esa frase, no solo menos natural.
 
-1|わたしはにほんごが＿。|はなせます|はなします,はなさせます,はなされます|Puedo hablar japonés.|Forma potencial: はなす → はなせる (poder hablar). Lo que se puede hacer lleva が.
+1|わたしはにほんごが＿。|はなせます|はなします,はなさせます,はなせれます|Puedo hablar japonés.|Forma potencial: はなす → はなせる (poder hablar). Lo que se puede hacer lleva が.
 1|あしたは＿ません。|こられ|こい,きられ,くられ|Mañana no puedo venir.|Potencial de くる: こられる.
 1|ここからふじさんが＿。|みえます|みます,みせます,みさせます|Desde aquí se ve el monte Fuji.|みえる = verse por sí solo, sin intención.
 1|となりのへやからおんがくが＿。|きこえます|ききます,きこえります,きかせます|Se oye música del cuarto de al lado.|きこえる = oírse sin querer.
@@ -15,8 +15,8 @@
 3|まどがあけて＿。|あります|おきます,いきます,しまいます|La ventana está abierta (alguien la abrió).|Verbo transitivo + てある = estado que alguien dejó hecho. Va con が.
 3|しゅくだいをぜんぶやって＿。|しまいました|なりました,すぎました,できました|Terminé toda la tarea por completo.|て + しまう = acabar de hacer algo por completo (o sin querer).
 3|このくつをはいて＿もいいですか。|みて|なって,あって,すぎて|¿Puedo probarme estos zapatos?|て + みる = intentar, probar a hacer.
-4|ともだちがわたしにほんを＿。|くれました|あげました,さしあげました,いただきました|Un amigo me dio un libro.|くれる = alguien me da a mí (o a los míos).
-4|わたしはいもうとにペンを＿。|あげました|くれました,くださいました,おくれました|Le di una pluma a mi hermana menor.|あげる = yo doy a otro. くれる y くださる solo cuando me dan a mí.
+4|ともだちがわたしにほんを＿。|くれました|あげました,さしあげました,やりました|Un amigo me dio un libro.|くれる = alguien me da a mí (o a los míos).
+4|わたしはいもうとにペンを＿。|あげました|くれました,くださいました,あげれました|Le di una pluma a mi hermana menor.|あげる = yo doy a otro. くれる y くださる solo cuando me dan a mí.
 4|わたしはせんせいにじしょを＿。|いただきました|くださいました,くれました,もらわれました|El profesor me dio un diccionario (recibí).|いただく = recibir (humilde) de alguien superior; el que da va con に.
 4|ははがわたしにおべんとうをつくって＿。|くれました|あげました,やりました,さしあげました|Mi madre me hizo el almuerzo.|て + くれる = alguien hace algo por mí.
 5|やすみの＿、うみへいきます。|とき|ながら,たら,ので|En las vacaciones voy al mar.|Sustantivo + の + とき = cuando…
@@ -27,12 +27,12 @@
 6|はるに＿ば、さくらがさきます。|なれ|なら,なる,なって|Cuando llega la primavera, florecen los cerezos.|Forma ば: なる → なれば (condición general).
 6|やすけれ＿、かいます。|ば|と,たら,なら|Si es barato, lo compro.|Adjetivo い: やすい → やすければ.
 6|このボタンをおす＿、きっぷがでます。|と|ば,たら,ても|Si aprietas este botón, sale el boleto.|Forma de diccionario + と = siempre que… (resultado automático).
-7|にほんごがはなせる＿に、まいにちれんしゅうします。|よう|ため,そう,こと|Practico todos los días para poder hablar japonés.|Potencial + ように = para que / para poder.
+7|にほんごがはなせる＿に、まいにちれんしゅうします。|よう|ところ,そう,こと|Practico todos los días para poder hablar japonés.|Potencial + ように = para que / para poder.
 7|りゅうがくする＿に、おかねをためています。|ため|よう,こと,もの|Ahorro dinero para estudiar en el extranjero.|Forma de diccionario + ために = con el fin de (meta voluntaria).
 7|まいにちうんどうする＿にしています。|よう|そう,ため,もの|Procuro hacer ejercicio todos los días.|〜ようにしている = procurar hacer algo como hábito.
-7|らいげつ、ひっこす＿になりました。|こと|もの,ばかり,ところ|Quedó decidido que me mudo el mes que viene.|〜ことになる = se decide (por otros o por las circunstancias).
+7|らいげつ、ひっこす＿になりました。|こと|もの,そう,ところ|Quedó decidido que me mudo el mes que viene.|〜ことになる = se decide (por otros o por las circunstancias).
 8|せんせいに＿ました。|しかられ|しかりられ,しかれ,しかり|El profesor me regañó.|Pasiva: しかる → しかられる. Quien hace la acción va con に.
 8|おとうとにケーキを＿。|たべられました|たべらせました,たべせました,たべました|Mi hermano se comió mi pastel (y me molestó).|Pasiva de molestia: me pasó algo que no quería.
-8|ははは、わたしにやさいを＿。|たべさせます|たべられます,たべます,たべれます|Mi madre me hace comer verduras.|Causativa: たべる → たべさせる (hacer o dejar que alguien coma).
+8|ははは、わたしにやさいを＿。|たべさせます|たべさせれます,たべます,たべれます|Mi madre me hace comer verduras.|Causativa: たべる → たべさせる (hacer o dejar que alguien coma).
 8|しゃちょうは、もうおかえりに＿。|なりました|しました,いたしました,まいりました|El presidente ya se fue a casa.|お + raíz ます + になる = forma honorífica para acciones de otros.
 8|わたしがおもちし＿。|ます|られます,になります,なさいます|Yo se lo llevo.|お + raíz ます + する = forma humilde para mis acciones hacia otros.

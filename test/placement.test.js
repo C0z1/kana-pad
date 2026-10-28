@@ -30,3 +30,9 @@ test("starting at a level skips new cards before it but keeps what was already s
   assert.equal(fromLevel(entries, {}, "kana").length, 4);
   assert.equal(fromLevel(entries, {}, undefined).length, 4);
 });
+
+test("edge cases: no answers yet, unknown level", () => {
+  assert.equal(startLevel(LEVELS, []), null);
+  const entries = [{ key: "a", deck: { level: "kana" } }];
+  assert.equal(fromLevel(entries, {}, "n9").length, 1);
+});

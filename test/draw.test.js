@@ -35,3 +35,9 @@ test("a shaky but right drawing still passes", () => {
   assert.equal(verdict(90), "Excelente");
   assert.equal(verdict(10), "Inténtalo de nuevo");
 });
+
+test("an empty model or degenerate strokes never give NaN", () => {
+  assert.equal(grade(JU, []).score, 0);
+  const dot = grade([[[50, 50]], [[50, 50], [50, 50]]], JU);
+  assert.ok(Number.isFinite(dot.score), String(dot.score));
+});

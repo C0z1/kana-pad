@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { grade, queue, nextDue, ratingFor, SLOW_MS } from "../js/scheduler.js";
+import { grade, queue, nextDue, ratingFor, SLOW_MS, interleave, studyDay } from "../js/scheduler.js";
 import { Rating } from "../js/vendor/ts-fsrs.mjs";
 
 const now = new Date("2026-10-27T10:00:00Z");
@@ -115,4 +115,14 @@ test("brake values: 70% retention threshold, 10 new when retention is low, stric
   assert.equal(newCardsToday(250, weak, "2026-10-27"), 0);
   assert.equal(newCardsToday(10, { "2026-10-26": { reviews: 60, correct: 43 } }, "2026-10-27"), NEW_PER_DAY); // 71.7%
   assert.equal(newCardsToday(10, { "2026-10-27": { reviews: 60, correct: 0 } }, "2026-10-27"), NEW_PER_DAY); // today doesn't count
+});
+
+test("interleave terminates even with a weight of 0", () => {
+  assert.deepEqual(interleave([[1, 2], ["a"]], [0, 1]), [1, "a", 2]);
+});
+
+test("the study day changes at 4:00 local time", () => {
+  assert.equal(studyDay(new Date(2026, 9, 28, 3, 59)), "2026-10-27");
+  assert.equal(studyDay(new Date(2026, 9, 28, 4, 0)), "2026-10-28");
+  assert.equal(studyDay(new Date(2026, 0, 1, 1, 0)), "2025-12-31");
 });

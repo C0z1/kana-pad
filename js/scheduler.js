@@ -57,7 +57,11 @@ export function seededRng(seed) {
 
 // The study day ends at 4:00 (like Anki), so a late-night session still counts as "today".
 export const DAY_START_HOUR = 4;
-export const studyDay = (now = new Date()) => new Date(now.getTime() - DAY_START_HOUR * 3600e3).toLocaleDateString("sv");
+export function studyDay(now = new Date()) {
+  const d = new Date(now);
+  if (d.getHours() < DAY_START_HOUR) d.setDate(d.getDate() - 1); // not "minus 4 h": DST days have 23 or 25 hours
+  return d.toLocaleDateString("sv");
+}
 export function dayEnd(now = new Date()) {
   const end = new Date(now);
   end.setHours(DAY_START_HOUR, 0, 0, 0);
@@ -111,6 +115,7 @@ export function pickNext(q, recent, now, isNew) {
 // Merges lists by taking weights[i] items from list i per turn, so new cards mix
 // vocabulary, grammar and kanji instead of exhausting one deck before the next.
 export function interleave(lists, weights) {
+  weights = weights.map(w => Math.max(1, w)); // a 0 weight would never advance and loop forever
   const pos = lists.map(() => 0), out = [];
   while (lists.some((l, i) => pos[i] < l.length)) {
     lists.forEach((l, i) => {

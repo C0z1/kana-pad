@@ -60,7 +60,7 @@
 計|けい・はか(る)|medir, planear
 死|し・し(ぬ)|morir
 特|とく|especial
-私|し・わたし|yo, privado
+私|わたし|yo, privado
 始|し・はじ(める)|comenzar
 朝|ちょう・あさ|mañana (temprano)
 運|うん・はこ(ぶ)|transportar, suerte
@@ -109,7 +109,7 @@
 歌|か・うた|canción
 悪|あく・わる(い)|malo
 図|ず・と|mapa, diagrama
-室|しつ・むろ|habitación
+室|しつ|habitación
 歩|ほ・ぶ・ある(く)|caminar
 風|ふう・かぜ|viento
 紙|し・かみ|papel

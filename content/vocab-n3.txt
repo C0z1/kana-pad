@@ -92,7 +92,7 @@
 集中|しゅうちゅう|concentración
 収入|しゅうにゅう|ingresos
 住民|じゅうみん|habitantes
-重要|じゅうよう|primordial
+重要|じゅうよう|importante
 修理|しゅうり|reparación
 主義|しゅぎ|principio, -ismo
 宿泊|しゅくはく|hospedaje
@@ -398,7 +398,7 @@
 梅|うめ|ciruelo
 埋める|うめる|enterrar, rellenar
 裏切る|うらぎる|traicionar
-羨ましい|うらやましい|envidiable
+うらやましい|うらやましい|envidiable
 売れる|うれる|venderse
 噂|うわさ|rumor
 運|うん|suerte
@@ -902,7 +902,7 @@
 無視|むし|ignorar
 蒸し暑い|むしあつい|bochornoso
 虫歯|むしば|caries
-寧ろ|むしろ|más bien
+むしろ|むしろ|más bien
 蒸す|むす|cocer al vapor
 結ぶ|むすぶ|atar
 無駄|むだ|inútil, desperdicio
@@ -1240,11 +1240,11 @@
 騙す|だます|engañar
 偶々|たまたま|casualmente
 たまらない|たまらない|insoportable, irresistible
-溜まる|たまる|acumularse
+たまる|たまる|acumularse
 黙る|だまる|callarse
 試し|ためし|prueba, intento
 試す|ためす|poner a prueba
-溜める|ためる|acumular, ahorrar
+ためる|ためる|acumular, ahorrar
 便り|たより|noticias, carta
 頼る|たよる|depender de
 段|だん|peldaño
@@ -1496,7 +1496,7 @@
 農民|のうみん|campesinos
 能力|のうりょく|habilidad
 軒|のき|alero
-残す|のこす|dejar (sin terminar)
+残す|のこす|dejar atrás, dejar sin terminar
 残り|のこり|lo que queda
 乗せる|のせる|subir (a un vehículo)
 載せる|のせる|poner encima, publicar
@@ -1838,7 +1838,7 @@
 マスコミ|マスコミ|medios de comunicación
 マッサージ|マッサージ|masaje
 見掛ける|みかける|ver de pasada
-捲る|めくる|pasar (páginas)
+めくる|めくる|pasar (páginas)
 メッセージ|メッセージ|mensaje
 野党|やとう|oposición (partido)
 有機|ゆうき|orgánico

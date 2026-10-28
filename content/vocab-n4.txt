@@ -3,7 +3,7 @@
 # Las lecturas se validan contra JMdict con `npm run content`. Cada significado es único en el mazo.
 
 踏む|ふむ|pisar
-すっと|すっと|de golpe, con suavidad
+すっと|すっと|suavemente, sin ruido
 盗む|ぬすむ|robar
 大抵|たいてい|por lo general
 とうとう|とうとう|al final (tras mucho)
@@ -42,7 +42,7 @@
 拾う|ひろう|recoger del suelo
 気|き|ánimo, espíritu
 比べる|くらべる|comparar
-ほとんど|ほとんど|casi todo
+ほとんど|ほとんど|casi, en su mayoría
 つもり|つもり|intención
 郊外|こうがい|afueras
 だめ|だめ|no vale, prohibido
@@ -219,7 +219,6 @@
 驚く|おどろく|sorprenderse
 頂く|いただく|recibir (humilde)
 場所|ばしょ|lugar
-答え|こたえ|respuesta
 もちろん|もちろん|por supuesto
 漬ける|つける|remojar, encurtir
 受付|うけつけ|recepción

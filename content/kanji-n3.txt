@@ -140,7 +140,7 @@
 神|しん・じん・かみ|dios, espíritu
 番|ばん|turno, número de orden
 規|き|norma
-術|じゅつ・すべ|técnica, arte
+術|じゅつ|técnica, arte
 備|び・そな(える)|preparar, equipar
 宅|たく|residencia
 害|がい|daño

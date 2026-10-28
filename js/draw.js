@@ -40,7 +40,7 @@ const strokeScore = (a, b) => {
 
 // Returns { score, strokes: [{ score, reversed }], count: [drawn, expected] }.
 export function grade(drawn, model) {
-  if (!drawn.length) return { score: 0, strokes: [], count: [0, model.length] };
+  if (!drawn.length || !model.length) return { score: 0, strokes: [], count: [drawn.length, model.length] };
   const ref = model.map(s => resample(s));
   const mine = fit(drawn.map(s => resample(s)), ref);
   const strokes = ref.map((r, i) => {
