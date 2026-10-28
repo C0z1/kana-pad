@@ -114,6 +114,73 @@
   <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> El reloj está detenido. Pulsa A o Menú para seguir.</p>
 </section>
 
+<section class="exam" id="listen" hidden aria-label="Listening">
+  <header class="etop">
+    <span class="deck-tag">LISTENING</span>
+    <span class="esec" id="lsec"></span>
+  </header>
+  <div class="ebody" id="lbody">
+    <div class="prompt" id="lprompt">
+      <div class="glyph ear" id="lq"></div>
+      <span class="voice-chip" id="lchip"></span>
+      <span class="wave" id="lwave" aria-hidden="true"><i></i><i></i><i></i></span>
+      <p class="reading" id="lreading" lang="ja"></p>
+      <p class="hint" id="lhint">¿Qué escuchaste?</p>
+    </div>
+    <section class="answers">
+      <div class="opts" id="lopts"></div>
+      <p class="verdict" id="lverdict" aria-live="polite"></p>
+      <p class="note" id="lnote"></p>
+      <div class="pips" id="lpips"></div>
+      <div class="modes">
+        <button type="button" class="mode" id="lrepeat"><kbd>VIEW</kbd>Repetir</button>
+        <button type="button" class="mode" id="lslow"><kbd>RT</kbd>Más lento</button>
+      </div>
+    </section>
+  </div>
+  <div class="eresult" id="lresult" hidden>
+    <p class="hint">Listening terminado</p>
+    <p class="score" id="lscore"></p>
+    <button type="button" class="bar primary" id="lagain"><span class="badge" data-k="a">A</span><span>Otra ronda</span></button>
+    <button type="button" class="link" id="lback"><span class="badge" data-k="b">B</span>Volver al menú</button>
+  </div>
+</section>
+
+<section class="exam" id="stories" hidden aria-label="Cuentos">
+  <header class="etop">
+    <span class="deck-tag" id="stitle">CUENTOS</span>
+    <div class="tabs" id="stabs" role="tablist" aria-label="Escritura">
+      <kbd>LB</kbd>
+      <button type="button" role="tab" class="tab" data-tab="hira" aria-selected="true">Hiragana</button>
+      <button type="button" role="tab" class="tab" data-tab="kata" aria-selected="false">Katakana</button>
+      <button type="button" role="tab" class="tab" data-tab="kanji" aria-selected="false">Kanji N5</button>
+      <kbd>RB</kbd>
+    </div>
+    <button type="button" class="mode" id="sfuri" aria-pressed="true" hidden><kbd>Y</kbd>Furigana</button>
+    <button type="button" class="link" id="sclose"><span class="badge" data-k="b">B</span>Volver</button>
+  </header>
+  <nav class="menu-list" id="slist" aria-label="Cuentos"></nav>
+  <div class="reader" id="sreader" hidden>
+    <div class="stext" id="stext" lang="ja"></div>
+    <aside class="wordpanel" id="sword" aria-live="polite"></aside>
+    <p class="mfoot">←→ palabra · ↑↓ línea · A guardar · X escuchar · LT frase · RB preguntas · B salir</p>
+  </div>
+  <div class="ebody" id="squiz" hidden>
+    <div class="prompt"><div class="glyph latin" id="sq"></div><p class="hint" id="shint"></p></div>
+    <section class="answers">
+      <div class="opts" id="sopts"></div>
+      <p class="verdict" id="sverdict" aria-live="polite"></p>
+      <div class="pips" id="spips"></div>
+    </section>
+  </div>
+  <div class="eresult" id="sresult" hidden>
+    <p class="hint">Cuento terminado</p>
+    <p class="score" id="sscore"></p>
+    <ul class="missed" id="smissed"></ul>
+    <button type="button" class="bar primary" id="sagain"><span class="badge" data-k="a">A</span><span>Otro cuento</span></button>
+  </div>
+</section>
+
 <div class="overlay" id="progress" hidden>
   <div class="panel">
     <header class="ptop">
