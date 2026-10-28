@@ -101,10 +101,10 @@ function renderTop() {
   $("streak").textContent = "×" + streak;
   $("today").textContent = day.n;
   const grammar = (cur?.deck ?? m).kind === "grammar";
-  $("ear").setAttribute("aria-pressed", prefs.ear);
+  $("ear").setAttribute("aria-pressed", earOn(cur?.deck ?? m));
   $("reverse").setAttribute("aria-pressed", prefs.reverse);
-  $("ear").disabled = grammar || !jaVoice;
-  $("ear").title = !jaVoice ? "Instala una voz japonesa: Configuración → Hora e idioma → Voz" : grammar ? "No aplica en gramática" : "";
+  $("ear").disabled = grammar || !jaVoice || !prefs.voice;
+  $("ear").title = !jaVoice ? "Instala una voz japonesa: Configuración → Hora e idioma → Voz" : !prefs.voice ? "Activa la voz (View) para usar el modo oído" : grammar ? "No aplica en gramática" : "";
   $("reverse").disabled = grammar;
 }
 
@@ -170,11 +170,16 @@ function next() {
   if (round.results.length >= ROUND) return showSummary();
   cur = nextCard();
   if (!cur) return showSummary();
-  const { item, deck } = cur;
-  lastKey = keyOf(deck, item);
-  opts = options(deck.items, item, answerField(deck));
+  lastKey = keyOf(cur.deck, cur.item);
   teaching = isReview() && !cards[lastKey];
   recent = [...recent.slice(-4), { key: lastKey, t: Date.now(), taught: teaching }];
+  renderCard();
+}
+
+// Draws the current card in the current mode (also when ear or reverse change mid-question).
+function renderCard() {
+  const { item, deck } = cur;
+  opts = options(deck.items, item, answerField(deck));
   showPrompt(teaching);
   $("hint").textContent = teaching ? "Carta nueva: pulsa la respuesta marcada" : hintFor(deck);
   $("reading").textContent = teaching && deck.kind !== "grammar" ? (item.r ?? "") : "";
@@ -309,6 +314,7 @@ function answer(k) {
     combo.classList.remove("bump"); void combo.offsetWidth; combo.classList.add("bump");
   }
   if (field === "q" || deck.kind === "grammar") speak(item.r || item.q);
+  $("verdict").scrollIntoView({ block: "nearest" }); // on short phones it sits below the fold
   renderTop(); renderPips();
 
   if (deck.kind === "kanji") showStrokes(item.q).then(n => {
@@ -403,7 +409,8 @@ function setDeck(i) {
   if (screen === "play" || screen === "summary") newRound();
 }
 function toggle(name) {
-  if (name === "ear" && !jaVoice) {
+  if (name === "ear" && (!jaVoice || !prefs.voice)) {
+    if (jaVoice) { $("note").textContent = "El modo oído necesita la voz: actívala con View (o S)."; return; }
     $("note").textContent = "El modo oído necesita una voz japonesa. En Windows: Configuración → Hora e idioma → Voz → Agregar voces → Japonés.";
     return;
   }
@@ -411,20 +418,23 @@ function toggle(name) {
   prefs[name] = !prefs[name];
   savePrefs(); renderTop();
   if (name === "voice" && !prefs.voice) stopVoice();
-  if ((name === "ear" || name === "reverse") && screen === "play") { lastKey = null; next(); }
+  if ((name === "ear" || name === "reverse") && screen === "play" && cur && !locked && !studyCard) renderCard();
 }
 function setPaused(p) {
   if (p && (screen === "play" || screen === "summary")) {
-    resumeTo = screen;
-    screen = "pause"; clearTimeout(timer);
+    resumeTo = screen; pausedAt = performance.now();
+    screen = "pause"; clearTimeout(timer); clearTimeout(restTimer);
     openMenu();
   } else if (!p && ready && screen === "pause") {
     screen = resumeTo; closeMenu();
+    shownAt += performance.now() - pausedAt; // a pause is not thinking time (it would grade the answer "Hard")
     keepAwake();
     if (screen === "play" && locked) next();
+    else if (screen === "summary") showSummary(); // restarts the breather countdown
+    else if (screen === "play") $("opts").querySelector(".bar")?.focus({ preventScroll: true });
   }
 }
-let resumeTo = "play";
+let resumeTo = "play", pausedAt = 0;
 
 // Starts studying a mode from the menu (0 = Repaso de hoy, 1 = Práctica de lo visto, 2.. = decks).
 function startMode(i) {
@@ -770,6 +780,8 @@ function showExam(title) {
   $("overlay").hidden = true; $("exam").hidden = false;
   $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
   $("etitle").textContent = title; $("etimer").hidden = !!exam.placement;
+  $("eresulttitle").textContent = exam.placement ? "Resultado de la prueba de nivel" : "Resultado del simulacro";
+  $("epausetxt").textContent = exam.placement ? "La prueba está en pausa." : "El reloj está detenido.";
 }
 
 // ---------- placement test (same screen as the mock exam, no clock) ----------
@@ -859,6 +871,7 @@ function setExamPaused(p) {
   if (!exam || !$("eresult").hidden) return;
   exam.paused = p;
   $("epause").hidden = !p;
+  $("ebody").hidden = p; // the clock stops, so the question can't stay visible to think about
 }
 
 function finishExam() {
@@ -908,7 +921,7 @@ let listen = null; // { qs, i, results, voice, locked }
 
 function startListening() {
   if (!listenVoices().length) { openVoices(); return; }
-  listen = { qs: buildListening(deckOf("vocab").items, deckOf("gram5").items, 10), i: 0, results: [] };
+  listen = { qs: buildListening(deckOf("vocab").items, deckOf("gram5").items, 10), i: 0, results: [], from: listen?.from ?? screen };
   screen = "listen";
   $("overlay").hidden = true; $("listen").hidden = false;
   $("lbody").hidden = false; $("lresult").hidden = true;
@@ -974,8 +987,7 @@ function finishListening() {
   $("lagain").focus({ preventScroll: true });
 }
 function closeListening() {
-  stopVoice(); listen = null;
-  screen = "start"; $("listen").hidden = true; $("overlay").hidden = false;
+  stopVoice(); screen = listen?.from ?? "start"; listen = null; $("listen").hidden = true; $("overlay").hidden = false;
   menu.sub = null; renderMenu();
 }
 $("lagain").addEventListener("click", startListening);
@@ -993,7 +1005,7 @@ function drawPool() {
   return seen.length >= 5 ? seen : ENTRIES.filter(e => drawable(e) && e.deck.level === (prefs.level ?? "kana"));
 }
 function startDraw() {
-  draw = { pool: shuffle(drawPool()).slice(0, 10), i: 0 };
+  draw = { pool: shuffle(drawPool()).slice(0, 10), i: 0, from: screen };
   screen = "draw";
   $("overlay").hidden = true; $("draw").hidden = false;
   renderDraw();
@@ -1054,7 +1066,7 @@ async function checkDrawing() {
   countAnswer();
 }
 function closeDraw() {
-  draw = null; screen = "start";
+  screen = draw?.from ?? "start"; draw = null;
   $("draw").hidden = true; $("overlay").hidden = false;
   menu.sub = null; renderMenu();
 }
@@ -1093,7 +1105,9 @@ let storyScores = store.getSync("kp-stories", {});
 const storiesOf = tab => STORIES_N5.filter(s => s.script === tab);
 const newStories = () => STORIES_N5.filter(s => !storyScores[s.id]).length;
 
+let storiesFrom = "start";
 function openStories() {
+  storiesFrom = screen;
   screen = "stories";
   $("overlay").hidden = true; $("stories").hidden = false;
   showStoryPart("list"); renderStoryList();
@@ -1239,7 +1253,7 @@ function storyBack() {
   stopVoice(); story = null; showStoryPart("list"); renderStoryList();
 }
 function closeStories() {
-  screen = "start"; $("stories").hidden = true; $("overlay").hidden = false;
+  screen = storiesFrom; $("stories").hidden = true; $("overlay").hidden = false;
   menu.sub = null; renderMenu();
 }
 function toggleFurigana() {
@@ -1275,8 +1289,8 @@ const pad = createPad(i => {
   }
   if (screen === "stories") { storyInput(i); return; }
   if (screen === "draw") {
-    if (i === 0) checkDrawing(); else if (i === 1) drawAction.clear(); else if (i === 2) drawAction.undo();
-    else if (i === 3) drawAction.show(); else if (i === 9) closeDraw();
+    if (i === 0) checkDrawing(); else if (i === 4) drawAction.clear(); else if (i === 2) drawAction.undo();
+    else if (i === 3) drawAction.show(); else if (i === 1 || i === 9) closeDraw();
     return;
   }
   if (screen === "progress") {
@@ -1292,6 +1306,7 @@ const pad = createPad(i => {
     else if (i === 14) menuSide(-1);
     else if (i === 15) menuSide(1);
     else if (i === 2 && menu.sub === "voices") menuRows()[menu.sel]?.test?.();
+    else if (i === 9 && screen === "pause") setPaused(false);
     else if (i === 1 || i === 9) menuBack();
     else if (i === 8) { toggle("voice"); renderMenu(); }
     return;
@@ -1375,9 +1390,10 @@ document.addEventListener("keydown", e => {
     else if (e.key === "ArrowLeft") { e.preventDefault(); menuSide(-1); }
     else if (e.key === "ArrowRight") { e.preventDefault(); menuSide(1); }
     else if (e.key === "Enter") { e.preventDefault(); activateMenu(); }
-    else if (e.key === "Escape" || key === "b") menuBack();
+    else if (e.key === "Escape" && screen === "pause") setPaused(false);
+    else if (e.key === "Escape" || key === "b" || e.key === "Backspace") menuBack();
     else if (key === "p") openProgress();
-    else if (key === "x") { if (menu.sub === "voices") menuRows()[menu.sel]?.test?.(); else startExam(); }
+    else if (key === "x" && menu.sub === "voices") menuRows()[menu.sel]?.test?.();
     return;
   }
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }

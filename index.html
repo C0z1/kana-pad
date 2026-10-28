@@ -109,13 +109,13 @@
     </section>
   </div>
   <div class="eresult" id="eresult" hidden>
-    <p class="hint">Resultado del simulacro</p>
+    <p class="hint" id="eresulttitle">Resultado del simulacro</p>
     <div class="escores" id="escores"></div>
     <p class="epass" id="epass"></p>
     <div id="emissed"></div>
     <button type="button" class="bar primary" id="eback"><span class="badge" data-k="a">A</span><span>Volver</span></button>
   </div>
-  <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> El reloj está detenido. Pulsa A o Menú para seguir. <button type="button" class="link" id="equit"><span class="badge" data-k="b">B</span>Salir del simulacro</button></p>
+  <p class="epause" id="epause" hidden><span class="tag-brake">PAUSA</span> <span id="epausetxt">El reloj está detenido.</span> Pulsa A o Menú para seguir. <button type="button" class="link" id="equit"><span class="badge" data-k="b">B</span>Salir del simulacro</button></p>
 </section>
 
 <section class="exam" id="listen" hidden aria-label="Listening">
@@ -169,7 +169,7 @@
       <div class="dpad"><canvas id="dcanvas" width="600" height="600" aria-label="Lienzo para dibujar"></canvas><div class="dmodel" id="dmodel"></div></div>
       <div class="modes">
         <button type="button" class="mode" id="dundo"><kbd>X</kbd>Deshacer</button>
-        <button type="button" class="mode" id="dclear"><kbd>B</kbd>Borrar</button>
+        <button type="button" class="mode" id="dclear"><kbd>LB</kbd>Borrar</button>
         <button type="button" class="mode" id="dshow" aria-pressed="false"><kbd>Y</kbd>Ver modelo</button>
       </div>
       <button type="button" class="bar primary" id="dcheck"><span class="badge" data-k="a">A</span><span id="dchecktxt">Revisar</span></button>
