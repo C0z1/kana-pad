@@ -14,7 +14,9 @@ const $ = id => document.getElementById(id);
 
 // "Repaso de hoy" mixes every deck through FSRS; the other entries are free practice per deck.
 const REVIEW = { id: "review", name: "Repaso de hoy", kind: "review" };
-const MODES = [REVIEW, ...DECKS];
+// Free practice over everything already seen; it never touches the FSRS schedule.
+const PRACTICE = { id: "seen", name: "Práctica de lo visto", kind: "practice" };
+const MODES = [REVIEW, PRACTICE, ...DECKS];
 const entriesOf = id => { const deck = DECKS.find(d => d.id === id); return deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })); };
 // New cards: all kana first, then 3 words : 1 grammar point : 1 kanji.
 const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
@@ -55,8 +57,18 @@ function rollDay() {
   if (ready) day.limit = newCardsToday(dueNow(), history, day.d); // live: the brake lifts as the backlog clears
 }
 rollDay();
-const reviewQueue = () => queue(ENTRIES, cards, new Date(), (day.limit ?? NEW_PER_DAY) - day.fresh, day.d);
+// Extra new cards the student asked for today ("5 nuevas más"); the brake still wins at 0.
+const newLimit = () => (day.limit === 0 ? 0 : (day.limit ?? NEW_PER_DAY) + (day.bonus ?? 0));
+const reviewQueue = () => queue(ENTRIES, cards, new Date(), newLimit() - day.fresh, day.d);
+const seenEntries = () => ENTRIES.filter(e => cards[e.key]);
 const pending = () => reviewQueue().length;
+
+// Every answer is saved right away; the footer says so (or warns if storage failed).
+async function saveCards() {
+  const ok = await store.set("kp-cards", cards);
+  $("saved").textContent = ok ? "✓ Guardado" : "No se pudo guardar";
+  $("saved").classList.toggle("bad", !ok);
+}
 
 // ---------- rendering ----------
 function renderTop() {
@@ -65,6 +77,8 @@ function renderTop() {
   $("decktag").textContent = m.name.toUpperCase();
   if (isReview()) {
     $("acc").textContent = `${pending()} pendientes`;
+  } else if (m === PRACTICE) {
+    $("acc").textContent = `${seenEntries().length} cartas vistas`;
   } else {
     let h = 0, mi = 0;
     for (const it of m.items) { const s = stats[keyOf(m, it)]; if (s) { h += s[0]; mi += s[1]; } }
@@ -123,6 +137,13 @@ function nextCard() {
     const e = pickNext(q, recent, Date.now(), x => !cards[x.key]);
     resting = !e && q.length > 0;
     return e ? { item: e.item, deck: e.deck } : null;
+  }
+  if (mode() === PRACTICE) {
+    const seen = seenEntries();
+    if (!seen.length) return null;
+    const prev = seen.find(e => e.key === lastKey);
+    const e = pick(seen, x => stats[x.key], Math.random, prev);
+    return { item: e.item, deck: e.deck };
   }
   const deck = mode();
   const prev = deck.items.find(i => keyOf(deck, i) === lastKey);
@@ -196,7 +217,7 @@ function answer(k) {
     locked = true;
     day.fresh++; day.n++; countAnswer();
     cards[key] = grade(undefined, true, 0);
-    store.set("kp-cards", cards); store.setSync("kp-day", day);
+    saveCards(); store.setSync("kp-day", day);
     renderTop();
     timer = setTimeout(next, 300);
     return;
@@ -216,7 +237,7 @@ function answer(k) {
       store.setSync("kp-hist", history);
     }
     cards[key] = grade(cards[key], ok, ms);
-    store.set("kp-cards", cards);
+    saveCards();
   }
   streak = ok ? streak + 1 : 0;
   day.n++; countAnswer();
@@ -277,17 +298,23 @@ function showSummary() {
   $("stage").hidden = true; $("summary").hidden = false;
   const hits = round.results.filter(Boolean).length;
   const done = round.results.length;
+  reviewDone = false;
+  clearTimeout(restTimer);
   if (isReview() && resting) {
+    // Count down and continue by itself as soon as the first card has rested.
+    const wait = Math.max(1, Math.ceil((Math.min(...recent.map(r => r.t)) + 60000 - Date.now()) / 1000));
     $("sumtitle").textContent = "Un respiro";
     $("score").textContent = done ? `${hits} / ${done}` : "…";
-    $("sumnote").textContent = "Las cartas que quedan acaban de salir. Vuelve en un minuto para repasarlas otra vez.";
+    $("sumnote").textContent = `Las cartas que quedan acaban de salir. Seguimos solos en ${wait} s, o pulsa A para practicar lo visto mientras.`;
+    restTimer = setTimeout(() => { if (screen === "summary" && isReview()) newRound(); }, wait * 1000);
+    reviewDone = true;
   } else if (isReview() && done < ROUND) {
     const nd = nextDue(cards);
     $("sumtitle").textContent = "¡Todo al día!";
     $("score").textContent = done ? `${hits} / ${done}` : "0 pendientes";
-    $("sumnote").textContent = nd
-      ? `Próximo repaso: ${nd.toLocaleString("es", { weekday: "long", hour: "2-digit", minute: "2-digit" })}. Mientras, practica un mazo con LB/RB.`
-      : "Practica un mazo con LB/RB.";
+    $("sumnote").textContent = (nd ? `Próximo repaso: ${nd.toLocaleString("es", { weekday: "long", hour: "2-digit", minute: "2-digit" })}. ` : "") +
+      "Puedes seguir: A practica lo que ya viste (no cambia tu calendario)" + (newLimit() > 0 ? " y X agrega 5 cartas nuevas." : ".");
+    reviewDone = true;
   } else {
     $("sumtitle").textContent = "Ronda terminada";
     $("score").textContent = `${hits} / ${done}`;
@@ -309,8 +336,24 @@ function showSummary() {
     li.append(inner);
     return li;
   }));
+  $("again").querySelector("span:last-child").textContent = reviewDone ? "Practicar lo visto" : "Otra ronda";
+  $("morenew").hidden = !(reviewDone && !resting && newLimit() > 0);
   renderTop();
   $("again").focus();
+}
+
+let reviewDone = false, restTimer = 0;
+// Summary buttons: A continues (another round, or practice once today's review is done).
+function continueStudy() {
+  clearTimeout(restTimer);
+  if (reviewDone) { prefs.deck = MODES.indexOf(PRACTICE); savePrefs(); lastKey = null; }
+  newRound();
+}
+function moreNew() {
+  if (newLimit() === 0) return;
+  day.bonus = (day.bonus ?? 0) + 5; store.setSync("kp-day", day);
+  prefs.deck = MODES.indexOf(REVIEW); savePrefs();
+  newRound();
 }
 
 function newRound() {
@@ -579,7 +622,7 @@ const pad = createPad(i => {
     else if (i === 2) startExam();
     return;
   }
-  if (screen === "summary") { if (i === 0) newRound(); return; }
+  if (screen === "summary") { if (i === 0) continueStudy(); else if (i === 2 && !$("morenew").hidden) moreNew(); return; }
   if (i === 9) return setPaused(true);
   if (i === 6) return toggle("ear");
   if (i === 7) return toggle("reverse");
@@ -613,11 +656,13 @@ document.addEventListener("keydown", e => {
   else if (key === "o") toggle("ear");
   else if (key === "i") toggle("reverse");
   else if (e.key === "Escape" && (screen === "play" || screen === "pause")) setPaused(screen === "play");
-  else if (e.key === "Enter" && screen === "summary") { e.preventDefault(); newRound(); }
+  else if (e.key === "Enter" && screen === "summary") { e.preventDefault(); continueStudy(); }
+  else if (key === "n" && screen === "summary" && !$("morenew").hidden) moreNew();
 });
 
 $("start").addEventListener("click", () => setPaused(false));
-$("again").addEventListener("click", newRound);
+$("again").addEventListener("click", continueStudy);
+$("morenew").addEventListener("click", moreNew);
 $("decktag").addEventListener("click", () => setDeck(prefs.deck + 1));
 $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));

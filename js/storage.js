@@ -31,8 +31,11 @@ export const store = {
   async get(k, d) {
     try { return (await tx("readonly", s => s.get(k))) ?? ls.get(k, d); } catch { return ls.get(k, d); }
   },
+  // Resolves true when the value is safely stored (IndexedDB, or localStorage as fallback).
   async set(k, v) {
-    try { await tx("readwrite", s => s.put(v, k)); } catch { ls.set(k, v); }
+    try { await tx("readwrite", s => s.put(v, k)); return true; } catch {
+      try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; }
+    }
   },
   // Small, synchronous settings stay in localStorage so the first frame renders with them.
   getSync: ls.get,
