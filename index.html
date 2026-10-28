@@ -151,6 +151,32 @@
   </div>
 </section>
 
+<section class="exam" id="draw" hidden aria-label="Dibujar">
+  <header class="etop">
+    <span class="deck-tag">DIBUJAR</span>
+    <span class="esec" id="dsec"></span>
+    <button type="button" class="link back" id="dclose"><kbd>MENÚ</kbd>Volver</button>
+  </header>
+  <div class="ebody">
+    <div class="prompt" id="dprompt">
+      <p class="hint">Dibuja con el dedo o el ratón, en orden de trazos</p>
+      <div class="glyph latin" id="dmeaning"></div>
+      <p class="reading" id="dreading" lang="ja"></p>
+      <p class="verdict" id="dverdict" aria-live="polite"></p>
+      <p class="note" id="dnote"></p>
+    </div>
+    <section class="answers">
+      <div class="dpad"><canvas id="dcanvas" width="600" height="600" aria-label="Lienzo para dibujar"></canvas><div class="dmodel" id="dmodel"></div></div>
+      <div class="modes">
+        <button type="button" class="mode" id="dundo"><kbd>X</kbd>Deshacer</button>
+        <button type="button" class="mode" id="dclear"><kbd>B</kbd>Borrar</button>
+        <button type="button" class="mode" id="dshow" aria-pressed="false"><kbd>Y</kbd>Ver modelo</button>
+      </div>
+      <button type="button" class="bar primary" id="dcheck"><span class="badge" data-k="a">A</span><span id="dchecktxt">Revisar</span></button>
+    </section>
+  </div>
+</section>
+
 <section class="exam" id="stories" hidden aria-label="Cuentos">
   <header class="etop">
     <span class="deck-tag" id="stitle">CUENTOS</span>

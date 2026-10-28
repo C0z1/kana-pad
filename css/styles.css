@@ -123,6 +123,18 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .row { display: flex; gap: 16px; }
 .link { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; justify-self: start; font-weight: 600; }
 .small { font-size: 15px; min-height: 1.2em; }
+/* Drawing practice: a square pad with a faint cross guide; the model sits on top after "Revisar". */
+.dpad { position: relative; width: min(100%, 62vh, 520px); aspect-ratio: 1; justify-self: center; background: var(--dim-bg);
+  background-image: linear-gradient(var(--line) 0 0), linear-gradient(var(--line) 0 0); background-size: 100% 1px, 1px 100%;
+  background-position: center; background-repeat: no-repeat; touch-action: none; }
+.dpad canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+.dmodel { position: absolute; inset: 0; pointer-events: none; }
+.dmodel .strokes { width: 100%; height: 100%; }
+.dmodel .strokes path { stroke: var(--ink); opacity: .35; animation: none; stroke-dashoffset: 0; filter: none; }
+.dmodel.graded .strokes path { opacity: .8; }
+.dmodel .strokes path.ok { stroke: var(--btn-a); }
+.dmodel .strokes path.meh { stroke: var(--btn-y); }
+.dmodel .strokes path.bad { stroke: var(--bad); }
 /* Visible way back on every screen, for touch and mouse (the pad uses B or Menú). */
 .back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
 .mtop .back { margin-left: auto; }

@@ -5,7 +5,7 @@ const APP = [
   "./", "index.html", "manifest.webmanifest", "css/styles.css",
   "js/app.js", "js/data.js", "js/srs.js", "js/gamepad.js", "js/scheduler.js", "js/storage.js", "js/strokes.js", "js/progress.js", "js/exam.js", "js/listening.js", "js/stories.js", "js/voices.js",
   "js/vendor/ts-fsrs.mjs", "js/content/vocab-n5.js", "js/content/kanji-n5.js", "js/content/grammar-n5.js", "js/content/reading-n5.js", "js/content/stories-n5.js",
-  "js/placement.js", "js/content/vocab-n4.js", "js/content/kanji-n4.js", "js/content/grammar-n4.js", "js/content/vocab-n3.js", "js/content/kanji-n3.js", "js/content/grammar-n3.js",
+  "js/placement.js", "js/draw.js", "js/content/vocab-n4.js", "js/content/kanji-n4.js", "js/content/grammar-n4.js", "js/content/vocab-n3.js", "js/content/kanji-n3.js", "js/content/grammar-n3.js",
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png",
 ];
 // Stroke files for every N5 kanji, listed by the content pipeline.

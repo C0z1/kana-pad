@@ -12,6 +12,7 @@ import { parseWord, parseStory, lookupWord } from "./stories.js";
 import { activeVoices, pickVoice, voiceVariation, buildListening } from "./listening.js";
 import { BUILT_IN, clipUrl } from "./voices.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
+import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
@@ -482,6 +483,7 @@ function menuItems() {
       preview: [`${pending()} cartas pendientes.`, `${day.fresh} de ${newLimit()} cartas nuevas hoy.`, ...(limit < NEW_PER_DAY ? ["FRENO: hoy entran menos cartas nuevas. Mira Progreso."] : [])], action: () => startMode(0) },
     { label: "Práctica", count: String(seenEntries().length), sub: `${seenEntries().length} cartas vistas`, preview: ["Práctica de lo visto o un mazo concreto.", `${seenEntries().length} cartas vistas.`], action: () => openLevel("practice") },
     { label: "Cuentos", count: newStories() ? String(newStories()) : "", sub: `${STORIES_N5.length} cuentos · ${newStories()} nuevos`, preview: ["Cuentos en hiragana, katakana y kanji N5.", `${newStories()} sin leer.`, "Guarda palabras en tu Repaso mientras lees."], action: openStories },
+    { label: "Dibujar", sub: "Kana y kanji, con calificación", preview: ["Dibuja con el dedo o el ratón.", "La app compara cada trazo con el modelo: forma, orden y dirección.", "Califica de 0 a 100."], action: startDraw },
     { label: "Listening", sub: jaVoices ? `${listenVoices().length} de ${jaVoices} voces activas` : "Instala una voz japonesa",
       preview: jaVoices ? ["Escucha y elige qué dijo la voz.", `${listenVoices().length} ${listenVoices().length === 1 ? "voz activa" : "voces activas"}.`, ...(jaVoices === 1 ? ["Con más voces instaladas, el listening varía más."] : [])]
         : ["SIN VOZ: Configuración → Hora e idioma → Voz → Agregar voces → Japonés."], action: startListening },
@@ -881,6 +883,103 @@ $("lclose").addEventListener("click", closeListening);
 $("lrepeat").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice));
 $("lslow").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice, true));
 
+// ---------- drawing practice ----------
+// Kana and kanji already seen in the review; before that, the start level's own characters.
+let draw = null; // { pool, i, strokes, graded }
+const drawable = e => e.deck.kind === "kana" || e.deck.kind === "kanji";
+function drawPool() {
+  const seen = ENTRIES.filter(e => drawable(e) && cards[e.key]);
+  return seen.length >= 5 ? seen : ENTRIES.filter(e => drawable(e) && e.deck.level === (prefs.level ?? "kana"));
+}
+function startDraw() {
+  draw = { pool: shuffle(drawPool()).slice(0, 10), i: 0 };
+  screen = "draw";
+  $("overlay").hidden = true; $("draw").hidden = false;
+  renderDraw();
+}
+function renderDraw() {
+  const { item, deck } = draw.pool[draw.i];
+  Object.assign(draw, { strokes: [], graded: null });
+  $("dsec").textContent = `${deck.name} · ${draw.i + 1} de ${draw.pool.length}`;
+  $("dmeaning").textContent = item.a;
+  $("dreading").textContent = deck.kind === "kana" ? deck.name : item.r ?? "";
+  $("dverdict").textContent = ""; $("dverdict").className = "verdict"; $("dnote").textContent = "";
+  $("dchecktxt").textContent = "Revisar";
+  $("dmodel").replaceChildren(); $("dmodel").className = "dmodel"; $("dshow").setAttribute("aria-pressed", "false");
+  paintDrawing();
+}
+function paintDrawing() {
+  const c = $("dcanvas"), g = c.getContext("2d"), k = c.width / 109;
+  g.clearRect(0, 0, c.width, c.height);
+  g.strokeStyle = getComputedStyle(c).getPropertyValue("--hi").trim() || "#ffe600";
+  g.lineWidth = 5 * k; g.lineCap = g.lineJoin = "round";
+  for (const s of draw.strokes) {
+    g.beginPath();
+    s.forEach(([x, y], i) => (i ? g.lineTo(x * k, y * k) : g.moveTo(x * k, y * k)));
+    if (s.length === 1) g.lineTo(s[0][0] * k + 0.1, s[0][1] * k);
+    g.stroke();
+  }
+}
+async function showModel(colors) {
+  const svg = strokeSvg(await strokePaths(draw.pool[draw.i].item.q));
+  if (colors) [...svg.children].forEach((p, i) => p.classList.add(colors[i]));
+  $("dmodel").replaceChildren(svg);
+}
+async function checkDrawing() {
+  if (!draw) return;
+  if (draw.graded) { draw.i++; return draw.i < draw.pool.length ? renderDraw() : closeDraw(); }
+  if (!draw.strokes.length) { $("dnote").textContent = "Dibuja primero."; return; }
+  const paths = await strokePaths(draw.pool[draw.i].item.q);
+  if (!paths.length) { $("dnote").textContent = "No hay modelo de trazos para este carácter."; return; }
+  const r = gradeDrawing(draw.strokes, paths.map(d => pathPoints(d)));
+  draw.graded = r;
+  await showModel(r.strokes.map(s => (s.score >= 0.7 ? "ok" : s.score >= 0.4 ? "meh" : "bad")));
+  $("dmodel").classList.add("graded");
+  $("dverdict").textContent = `${r.score} · ${verdict(r.score).toUpperCase()}`;
+  $("dverdict").className = "verdict " + (r.score >= 65 ? "ok" : "bad");
+  const notes = [];
+  if (r.count[0] !== r.count[1]) notes.push(`Hiciste ${r.count[0]} trazo${r.count[0] === 1 ? "" : "s"}; lleva ${r.count[1]}.`);
+  const rev = r.strokes.map((s, i) => (s.reversed ? i + 1 : 0)).filter(Boolean);
+  if (rev.length) notes.push(`Al revés: trazo ${rev.join(", ")}.`);
+  notes.push("Verde: bien · amarillo: casi · rojo: revisa forma u orden.");
+  $("dnote").textContent = notes.join(" ");
+  $("dchecktxt").textContent = draw.i + 1 < draw.pool.length ? "Siguiente" : "Terminar";
+  if (r.score < 40) pad.rumble();
+  countAnswer();
+}
+function closeDraw() {
+  draw = null; screen = "start";
+  $("draw").hidden = true; $("overlay").hidden = false;
+  menu.level = "main"; renderMenu();
+}
+const drawAction = {
+  undo: () => { if (draw && !draw.graded) { draw.strokes.pop(); paintDrawing(); } },
+  clear: () => { if (draw && !draw.graded) { draw.strokes = []; paintDrawing(); } },
+  show: () => {
+    if (!draw || draw.graded) return;
+    const on = !$("dmodel").children.length;
+    if (on) showModel(); else $("dmodel").replaceChildren();
+    $("dshow").setAttribute("aria-pressed", on);
+  },
+};
+{
+  const c = $("dcanvas");
+  const at = e => { const b = c.getBoundingClientRect(); return [((e.clientX - b.left) * 109) / b.width, ((e.clientY - b.top) * 109) / b.height]; };
+  c.addEventListener("pointerdown", e => {
+    if (!draw || draw.graded) return;
+    c.setPointerCapture(e.pointerId); draw.strokes.push([at(e)]); paintDrawing();
+  });
+  c.addEventListener("pointermove", e => {
+    if (!draw || draw.graded || !c.hasPointerCapture(e.pointerId)) return;
+    draw.strokes.at(-1).push(at(e)); paintDrawing();
+  });
+}
+$("dundo").addEventListener("click", drawAction.undo);
+$("dclear").addEventListener("click", drawAction.clear);
+$("dshow").addEventListener("click", drawAction.show);
+$("dcheck").addEventListener("click", checkDrawing);
+$("dclose").addEventListener("click", closeDraw);
+
 // ---------- stories (§9.3) ----------
 const SCRIPTS = ["hira", "kata", "kanji"];
 let storyTab = "hira", storySel = 0, story = null; // { st, lines, flat, w, qi, results, missed }
@@ -1065,6 +1164,11 @@ const pad = createPad(i => {
     return;
   }
   if (screen === "stories") { storyInput(i); return; }
+  if (screen === "draw") {
+    if (i === 0) checkDrawing(); else if (i === 1) drawAction.clear(); else if (i === 2) drawAction.undo();
+    else if (i === 3) drawAction.show(); else if (i === 9) closeDraw();
+    return;
+  }
   if (screen === "progress") {
     if (i === 4) setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
     else if (i === 5) setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
@@ -1124,6 +1228,14 @@ document.addEventListener("keydown", e => {
     if (key === "r") return $("lrepeat").click();
     if (key === "l") return $("lslow").click();
     if (arrows[e.key]) { e.preventDefault(); listenAnswer(arrows[e.key]); }
+    return;
+  }
+  if (screen === "draw") {
+    if (e.key === "Enter") { e.preventDefault(); checkDrawing(); }
+    else if (e.key === "Escape") closeDraw();
+    else if (e.key === "Backspace") { e.preventDefault(); drawAction.undo(); }
+    else if (key === "c") drawAction.clear();
+    else if (key === "m") drawAction.show();
     return;
   }
   if (screen === "stories") {
