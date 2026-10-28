@@ -20,7 +20,10 @@
         "backgroundColor": "#0e0e14"
       }
     ],
-    "security": { "csp": null }
+    "security": {
+      "csp": null
+    },
+    "withGlobalTauri": true
   },
   "bundle": {
     "active": true,

@@ -4,7 +4,7 @@ import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
-import { retention, streakDays, deckStats, forecast } from "./progress.js";
+import { retention, streakDays, deckStats, forecast, backupDue, daysSince } from "./progress.js";
 import { buildExam, scoreExam, clock, SECTIONS, EXAM_SECONDS } from "./exam.js";
 import { READING_N5 } from "./content/reading-n5.js";
 
@@ -343,6 +343,7 @@ function setPaused(p) {
     screen = "pause"; clearTimeout(timer);
     $("starttxt").textContent = "Continuar";
     $("overlay").hidden = false; document.querySelector(".app").inert = true; $("start").focus();
+    renderBackupReminder();
   } else if (!p && ready && (screen === "pause" || screen === "start")) {
     const fresh = screen === "start";
     screen = "play"; $("overlay").hidden = true; document.querySelector(".app").inert = false;
@@ -627,14 +628,36 @@ $("repad").addEventListener("click", () => { pad.reset(); $("msg").textContent =
 const validStats = s => s && typeof s === "object" &&
   Object.values(s).every(v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n) && n >= 0));
 
+const backupJson = () => JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs, history, exams }, null, 2);
+
+// Desktop/Android builds save a weekly copy on disk by themselves; the web asks the student to export.
+const tauri = window.__TAURI__?.core;
+async function autoBackup() {
+  if (!tauri || !backupDue(store.getSync("kp-lastbackup", null))) return;
+  try {
+    await tauri.invoke("save_backup", { name: `KanaPad-respaldo-${todayKey()}.json`, json: backupJson() });
+    store.setSync("kp-lastbackup", new Date().toISOString());
+  } catch {}
+}
+function renderBackupReminder() {
+  const last = store.getSync("kp-lastexport", null);
+  const show = !tauri && Object.keys(cards).length >= 20 && backupDue(last);
+  $("backupmsg").hidden = !show;
+  if (show) $("backupmsg").textContent = last
+    ? `Hace ${daysSince(last)} días que no exportas tu progreso. Exportarlo te protege si se borran los datos del navegador.`
+    : "Todavía no has exportado tu progreso. Exportarlo te protege si se borran los datos del navegador.";
+}
+
 $("export").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify({ app: "kana-pad", v: 2, stats, cards, day, prefs }, null, 2)], { type: "application/json" });
+  const blob = new Blob([backupJson()], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `kana-pad-${todayKey()}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   $("msg").textContent = "Progreso exportado.";
+  store.setSync("kp-lastexport", new Date().toISOString());
+  renderBackupReminder();
 });
 $("import").addEventListener("change", async e => {
   const file = e.target.files?.[0];
@@ -644,6 +667,14 @@ $("import").addEventListener("change", async e => {
     const data = JSON.parse(await file.text());
     if (data?.app !== "kana-pad" || !validStats(data.stats) || (data.cards !== undefined && (!data.cards || typeof data.cards !== "object"))) throw new Error("bad file");
     stats = data.stats; store.setSync("kp-stats", stats);
+    const count = v => v === undefined || (Number.isInteger(v) && v >= 0);
+    if (data.history && typeof data.history === "object" &&
+        Object.entries(data.history).every(([d, h]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && h && count(h.reviews) && count(h.correct) && count(h.answers))) {
+      history = data.history; store.setSync("kp-hist", history);
+    }
+    if (Array.isArray(data.exams) && data.exams.every(x => x && Number.isInteger(x.right) && Number.isInteger(x.total))) {
+      exams = data.exams.slice(-20); store.set("kp-exams", exams);
+    }
     let skipped = 0;
     if (data.cards) {
       cards = sanitizeCards(data.cards);
@@ -678,6 +709,7 @@ store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
   ready = true; $("start").disabled = false;
+  autoBackup(); renderBackupReminder();
   rollDay(); store.setSync("kp-day", day);
   renderTop();
 });

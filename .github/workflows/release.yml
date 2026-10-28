@@ -35,6 +35,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libxdo-dev libssl-dev build-essential
       - run: npm test
+      - name: Rust tests
+        if: runner.os == 'Linux'
+        run: cargo test --manifest-path src-tauri/Cargo.toml
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,9 +86,27 @@ jobs:
       - run: ${{ env.TAURI_CLI }} android init --ci
       # shortcut: debug-signed APK (installable, not for Play Store); switch to a release keystore in secrets before publishing to a store.
       # Most phones are arm64; one ABI keeps the APK small.
-      - run: ${{ env.TAURI_CLI }} android build --apk --debug --target aarch64
-      - name: Collect APK
-        run: cp "$(find src-tauri/gen/android -name '*debug*.apk' | head -1)" kana-pad-android.apk && ls -lh kana-pad-android.apk
+      # With the release keystore in secrets (see tools/android-keystore.ps1) the APK is a signed
+      # release that installs over the previous one; without it, a debug build as before.
+      - name: Build APK
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KS_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            ${{ env.TAURI_CLI }} android build --apk --target aarch64
+            unsigned="$(find src-tauri/gen/android -name '*release-unsigned.apk' | head -1)"
+            echo "$KS_B64" | base64 -d > release.jks
+            bt="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+            "$bt/zipalign" -f 4 "$unsigned" aligned.apk
+            "$bt/apksigner" sign --ks release.jks --ks-key-alias "$KS_ALIAS" --ks-pass env:KS_PASS --key-pass env:KS_PASS --out kana-pad-android.apk aligned.apk
+            rm -f release.jks
+          else
+            ${{ env.TAURI_CLI }} android build --apk --debug --target aarch64
+            cp "$(find src-tauri/gen/android -name '*debug*.apk' | head -1)" kana-pad-android.apk
+          fi
+          ls -lh kana-pad-android.apk
       - uses: actions/upload-artifact@v4
         with:
           name: kana-pad-android

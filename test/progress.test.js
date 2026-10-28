@@ -37,3 +37,12 @@ test("deck stats and 7-day forecast from 20 seeded cards", () => {
   assert.equal(f.reduce((a, b) => a + b, 0), 20);
   assert.deepEqual(f, [3, 3, 3, 3, 3, 3, 2]);
 });
+
+test("backup reminder after more than 7 days", async () => {
+  const { backupDue, daysSince } = await import("../js/progress.js");
+  const now = new Date("2026-10-27T12:00:00Z");
+  assert.equal(backupDue(undefined, now), true);
+  assert.equal(backupDue("2026-10-21T12:00:00Z", now), false); // 6 days
+  assert.equal(backupDue("2026-10-19T12:00:00Z", now), true);  // 8 days
+  assert.equal(daysSince("2026-10-19T12:00:00Z", now), 8);
+});

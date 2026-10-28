@@ -44,3 +44,10 @@ export function forecast(cards, dayEnds) {
   }
   return counts;
 }
+
+// Whole days since an ISO date (null = never); a backup or export is due after `days`.
+export function daysSince(iso, now = new Date()) {
+  if (!iso) return null;
+  return Math.floor((now.getTime() - Date.parse(iso)) / DAY_MS);
+}
+export const backupDue = (iso, now = new Date(), days = 7) => iso === null || iso === undefined || daysSince(iso, now) > days;
