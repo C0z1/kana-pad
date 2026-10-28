@@ -429,9 +429,13 @@ function startMode(i) {
   newRound();
 }
 
-// ---------- main menu (§9.1) ----------
-const menu = { level: "main", sel: 0, from: 0 };
-const LEVEL_NAMES = { main: "", practice: "Práctica", settings: "Ajustes", voices: "Voces del listening" };
+// ---------- main menu: category column + panel (§9.1, layout "columna y panel") ----------
+// ↑↓ move, A or → enter the panel, B or ← go back to the column; ←→ change a row's value (Ajustes).
+const CATS = [
+  { id: "hoy", name: "Hoy" }, { id: "practicar", name: "Practicar" }, { id: "leer", name: "Leer y oír" },
+  { id: "retos", name: "Retos" }, { id: "progreso", name: "Progreso" }, { id: "ajustes", name: "Ajustes" },
+];
+const menu = { cat: 0, sel: 0, focus: "panel", sub: null }; // sub: "voices", a page inside Ajustes
 
 function accuracyOf(deck) {
   let h = 0, m = 0;
@@ -439,107 +443,137 @@ function accuracyOf(deck) {
   return h + m ? `${Math.round((100 * h) / (h + m))}%` : "–";
 }
 
-function menuItems() {
-  const jaVoices = allVoices().filter(v => v.lang?.toLowerCase().startsWith("ja")).length;
-  const last = exams.at(-1);
-  if (menu.level === "practice") {
+const catCount = id => (id === "hoy" ? pending() : id === "leer" ? newStories() : 0) || "";
+
+// A row: { label, sub, count, group, action, seg: { options, on }, change(d), test, disabled }.
+function voiceRows() {
+  const ja = allVoices().filter(v => v.lang?.toLowerCase().startsWith("ja"));
+  const active = listenVoices();
+  return ja.map(v => ({
+    group: "Voces del listening", label: `${active.includes(v) ? "✓" : "○"} ${v.name}`, sub: "A: activar o quitar · X: probar",
+    action: () => {
+      const on = active.includes(v);
+      if (on && active.length === 1) { $("msg").textContent = "Debe quedar al menos una voz activa."; return; }
+      prefs.listenVoices = (on ? active.filter(a => a !== v) : [...active, v]).map(a => a.voiceURI); savePrefs(); renderMenu();
+    },
+    test: () => sayWith("こんにちは。カナパッドです。", v),
+  }));
+}
+
+function menuRows() {
+  if (menu.sub === "voices") return voiceRows();
+  const id = CATS[menu.cat].id, last = exams.at(-1), start = prefs.level ?? "kana";
+  if (id === "hoy") {
+    const limit = day.limit ?? NEW_PER_DAY;
     return [
-      { label: "Práctica de lo visto", count: String(seenEntries().length), sub: "Todo lo que ya viste, sin cartas nuevas", preview: ["Cartas ya vistas de todos los mazos.", "No cambia tu calendario de repasos."], action: () => startMode(1) },
-      ...DECKS.map((d, i) => ({ label: d.name, count: accuracyOf(d), sub: `${d.items.length} cartas · ${accuracyOf(d)} de aciertos`, preview: [`${d.items.length} cartas.`, `Aciertos en práctica libre: ${accuracyOf(d)}.`], action: () => startMode(i + 2) })),
+      ...(screen === "pause" ? [{ label: "Continuar", sub: "Volver a donde estabas", action: () => setPaused(false) }] : []),
+      { label: "Repaso de hoy", count: String(pending()), action: () => startMode(0),
+        sub: `${pending()} pendientes · ${day.fresh} de ${newLimit()} nuevas · desde ${levelName(start)}` + (limit < NEW_PER_DAY ? " · FRENO: hoy entran menos nuevas" : "") },
+      ...(!prefs.level ? [{ label: "Prueba de nivel", sub: "Unas preguntas para saber desde dónde empezar", action: startPlacement }] : []),
     ];
   }
-  if (menu.level === "voices") {
-    const ja = allVoices().filter(v => v.lang?.toLowerCase().startsWith("ja"));
-    if (!ja.length) return [{ label: "Sin voz japonesa", disabled: true, sub: "Configuración → Hora e idioma → Voz", preview: ["SIN VOZ: Configuración → Hora e idioma → Voz → Agregar voces → Japonés."] }];
-    const active = listenVoices();
-    return ja.map(v => ({
-      label: `${active.includes(v) ? "✓" : "○"} ${v.name}`, sub: "A: activar o quitar · X: probar", preview: [v.name, "X para escucharla."],
-      action: () => {
-        const on = active.includes(v);
-        if (on && active.length === 1) { $("msg").textContent = "Debe quedar al menos una voz activa."; return; }
-        prefs.listenVoices = (on ? active.filter(a => a !== v) : [...active, v]).map(a => a.voiceURI); savePrefs(); renderMenu();
-      },
-      test: () => sayWith("こんにちは。カナパッドです。", v),
-    }));
-  }
-  if (menu.level === "settings") {
+  if (id === "practicar") {
+    const order = [start, ...LEVELS.map(l => l.id).filter(l => l !== start)];
     return [
-      { label: `Voz japonesa: ${prefs.voice ? "sí" : "no"}`, sub: jaVoice ? "Lee cada carta en voz alta" : "No hay voz japonesa instalada", preview: [jaVoice ? "Lee cada carta en voz alta." : "Instala una voz japonesa: Configuración → Hora e idioma → Voz."], action: () => { toggle("voice"); renderMenu(); } },
-      { label: `Punto de partida: ${levelName(prefs.level ?? "kana")}`, sub: "A: cambiar · o repite la prueba de nivel", preview: ["Nivel desde el que entran cartas nuevas al repaso.", "Lo que ya viste se sigue repasando."], action: () => { const i = LEVELS.findIndex(l => l.id === (prefs.level ?? "kana")); prefs.level = LEVELS[(i + 1) % LEVELS.length].id; savePrefs(); renderMenu(); } },
-      { label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", preview: ["Vuelve a calcular tu punto de partida."], action: startPlacement },
-      { label: "Voces del listening", sub: `${listenVoices().length} activas`, preview: ["Elige qué voces japonesas usa el listening."], action: () => openLevel("voices") },
-      { label: "Usar otro mando", sub: "Elige el mando con un botón", preview: ["Después pulsa un botón en el mando que quieras usar."], action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
-      { label: "Exportar progreso", sub: "Guarda una copia en un archivo", preview: ["Descarga un archivo con todo tu progreso."], action: exportProgress },
-      { label: "Importar progreso", sub: "Recupera una copia", preview: ["Elige un archivo exportado antes."], action: () => $("import").click() },
-      { label: "Fuentes y licencias", sub: "Datos y tipografías usados", preview: ["KanjiVG, KANJIDIC2, JMdict, ts-fsrs y tipografías."], action: () => { $("credits").hidden = !$("credits").hidden; } },
+      { label: "Todo lo visto", count: String(seenEntries().length), sub: "Sin cartas nuevas · no cambia tu calendario", action: () => startMode(1) },
+      { label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
+      ...order.flatMap(lv => DECKS.flatMap((d, i) => {
+        if (d.level !== lv) return [];
+        const acc = accuracyOf(d), tried = acc !== "–";
+        return [{ group: levelName(lv) + (lv === start ? " · tu nivel" : ""), label: d.name, count: tried ? acc : "",
+          sub: `${d.items.length} cartas` + (tried ? ` · ${acc} de aciertos` : " · sin practicar"), action: () => startMode(i + 2) }];
+      })),
     ];
   }
-  const items = [];
-  if (!prefs.level && screen !== "pause") items.push({ label: "Prueba de nivel", sub: "Encuentra tu punto de partida", preview: ["Unas preguntas de kana, N5, N4 y N3.", "El repaso empieza en el primer nivel que no domines.", "Si empiezas de cero, elige Repaso de hoy."], action: startPlacement });
-  if (screen === "pause") items.push({ label: "Continuar", sub: "Volver a donde estabas", preview: ["Vuelve a la ronda en curso."], action: () => setPaused(false) });
-  const limit = day.limit ?? NEW_PER_DAY;
-  items.push(
-    { label: "Repaso de hoy", count: String(pending()), sub: `${pending()} pendientes · ${day.fresh}/${newLimit()} nuevas`,
-      preview: [`${pending()} cartas pendientes.`, `${day.fresh} de ${newLimit()} cartas nuevas hoy.`, ...(limit < NEW_PER_DAY ? ["FRENO: hoy entran menos cartas nuevas. Mira Progreso."] : [])], action: () => startMode(0) },
-    { label: "Práctica", count: String(seenEntries().length), sub: `${seenEntries().length} cartas vistas`, preview: ["Práctica de lo visto o un mazo concreto.", `${seenEntries().length} cartas vistas.`], action: () => openLevel("practice") },
-    { label: "Cuentos", count: newStories() ? String(newStories()) : "", sub: `${STORIES_N5.length} cuentos · ${newStories()} nuevos`, preview: ["Cuentos en hiragana, katakana y kanji N5.", `${newStories()} sin leer.`, "Guarda palabras en tu Repaso mientras lees."], action: openStories },
-    { label: "Dibujar", sub: "Kana y kanji, con calificación", preview: ["Dibuja con el dedo o el ratón.", "La app compara cada trazo con el modelo: forma, orden y dirección.", "Califica de 0 a 100."], action: startDraw },
-    { label: "Listening", sub: jaVoices ? `${listenVoices().length} de ${jaVoices} voces activas` : "Instala una voz japonesa",
-      preview: jaVoices ? ["Escucha y elige qué dijo la voz.", `${listenVoices().length} ${listenVoices().length === 1 ? "voz activa" : "voces activas"}.`, ...(jaVoices === 1 ? ["Con más voces instaladas, el listening varía más."] : [])]
-        : ["SIN VOZ: Configuración → Hora e idioma → Voz → Agregar voces → Japonés."], action: startListening },
-    { label: "Simulacro N5", sub: last ? `Último: ${last.right}/${last.total}` : "20 minutos, 30 preguntas", preview: [last ? `Último: ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"}.` : "Aún no has hecho ninguno.", "20 minutos, 30 preguntas."], action: startExam },
-    { label: "Progreso", sub: `Racha: ${streakDays(history, day.d)} días`, preview: [`Racha: ${streakDays(history, day.d)} días.`, "Retención, mazos y próximos 7 días."], action: openProgress },
-    { label: "Ajustes", sub: "Voz, mando, copias de seguridad", preview: ["Voz, mando, copias de seguridad y licencias."], action: () => openLevel("settings") },
-  );
-  return items;
+  if (id === "leer") return [
+    { label: "Cuentos", count: newStories() ? String(newStories()) : "", sub: `${STORIES_N5.length} cuentos · ${newStories()} sin leer · guarda palabras mientras lees`, action: openStories },
+    { label: "Listening", sub: `Escucha y elige qué dijo la voz · ${listenVoices().length} voces activas`, action: startListening },
+  ];
+  if (id === "retos") return [
+    { label: "Simulacro N5", sub: (last ? `Último: ${last.right}/${last.total} · ${last.pass ? "aprobado" : "no aprobado"} · ` : "") + "20 minutos, 30 preguntas", action: startExam },
+  ];
+  if (id === "progreso") return [
+    { label: "Ver progreso", count: String(streakDays(history, day.d)), sub: "Días seguidos · retención, mazos y próximos 7 días", action: openProgress },
+  ];
+  const lv = Math.max(0, LEVELS.findIndex(l => l.id === start));
+  const setLevel = d => { prefs.level = LEVELS[(lv + d + LEVELS.length) % LEVELS.length].id; savePrefs(); renderMenu(); };
+  const voice = () => { toggle("voice"); renderMenu(); };
+  return [
+    { group: "Voz", label: "Leer cada carta en voz alta", seg: { options: ["SÍ", "NO"], on: prefs.voice ? 0 : 1 }, action: voice, change: voice },
+    { group: "Voz", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
+    { group: "Nivel", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(1), change: setLevel },
+    { group: "Nivel", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
+    { group: "Mando y datos", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
+    { group: "Mando y datos", label: "Exportar progreso", sub: "Guarda una copia en un archivo", action: exportProgress },
+    { group: "Mando y datos", label: "Importar progreso", sub: "Recupera una copia", action: () => $("import").click() },
+    { group: "Mando y datos", label: "Fuentes y licencias", sub: "KanjiVG, KANJIDIC2, JMdict, Kokoro, ts-fsrs y tipografías", action: () => { $("credits").hidden = !$("credits").hidden; } },
+  ];
 }
 
 function renderMenu() {
   rollDay();
-  const items = menuItems();
-  menu.sel = Math.min(menu.sel, items.length - 1);
-  $("menulevel").textContent = LEVEL_NAMES[menu.level];
-  $("mback").hidden = menu.level === "main" && screen !== "pause";
-  $("menulist").replaceChildren(...items.map((it, i) => {
-    const b = el("button", "menu-item" + (i === menu.sel ? " sel" : ""));
+  const rows = menuRows();
+  menu.sel = Math.max(0, Math.min(menu.sel, rows.length - 1));
+  const meta = el("span"); const days = streakDays(history, day.d);
+  meta.append("Nivel ", el("b", "", levelName(prefs.level ?? "kana")), ` · ${days} ${days === 1 ? "día seguido" : "días seguidos"}`);
+  $("menulevel").replaceChildren(meta);
+  $("mback").hidden = menu.focus === "rail" && screen !== "pause";
+  $("menurail").replaceChildren(...CATS.map((c, i) => {
+    const b = el("button", "menu-item" + (i !== menu.cat ? "" : menu.focus === "rail" ? " sel" : " on"));
     b.type = "button";
-    if (it.disabled) b.setAttribute("aria-disabled", "true");
-    const label = el("span", "mlabel"); label.append(el("span", "", it.label), el("span", "msub", it.sub ?? ""));
-    b.append(label);
-    if (it.count) b.append(el("span", "mcount", it.count));
-    const enter = el("span", "menter"); const badge = el("span", "badge", "A"); badge.dataset.k = "a"; enter.append(badge, it.disabled ? "PRONTO" : "ENTRAR");
-    b.append(enter);
-    b.addEventListener("click", () => { menu.sel = i; activateMenu(); });
-    b.addEventListener("focus", () => { if (menu.sel !== i) { menu.sel = i; renderPreview(items); markSel(); } });
+    b.append(el("span", "mlabel", c.name));
+    const n = catCount(c.id);
+    if (n) b.append(el("span", "mcount", String(n)));
+    b.addEventListener("click", () => { menu.cat = i; menu.sel = 0; menu.sub = null; menu.focus = "rail"; $("credits").hidden = true; renderMenu(); });
     return b;
   }));
-  renderPreview(items);
-  $("menulist").children[menu.sel]?.focus({ preventScroll: true });
-}
-function markSel() { [...$("menulist").children].forEach((b, i) => b.classList.toggle("sel", i === menu.sel)); }
-function renderPreview(items) {
-  const it = items[menu.sel];
-  $("menupreview").replaceChildren(el("b", "", it.label), ...it.preview.map(t => el("p", "", t)));
+  $("menupanel").classList.toggle("active", menu.focus === "panel");
+  let group = null;
+  $("menupanel").replaceChildren(...rows.flatMap((it, i) => {
+    const out = [];
+    if (it.group && it.group !== group) out.push(el("p", "mgroup", (group = it.group).toUpperCase()));
+    const b = el("button", "mrow" + (menu.focus === "panel" && i === menu.sel ? " sel" : ""));
+    b.type = "button";
+    if (it.disabled) b.setAttribute("aria-disabled", "true");
+    const label = el("span", "mlabel"); label.append(el("span", "", it.label));
+    if (it.sub) label.append(el("span", "msub", it.sub));
+    b.append(label);
+    if (it.seg) { const s = el("span", "seg"); s.append(...it.seg.options.map((o, k) => el("span", k === it.seg.on ? "on" : "", o))); b.append(s); }
+    if (it.count) b.append(el("span", "mcount", it.count));
+    b.addEventListener("click", () => { menu.focus = "panel"; menu.sel = i; activateMenu(); });
+    out.push(b);
+    return out;
+  }));
+  const focused = menu.focus === "rail" ? $("menurail").children[menu.cat] : $("menupanel").querySelectorAll(".mrow")[menu.sel];
+  focused?.focus({ preventScroll: true });
+  focused?.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 function moveMenu(d) {
-  const n = $("menulist").children.length;
-  menu.sel = (menu.sel + d + n) % n;
-  markSel(); renderPreview(menuItems());
-  $("menulist").children[menu.sel].focus({ preventScroll: true });
+  if (menu.focus === "rail") { menu.cat = (menu.cat + d + CATS.length) % CATS.length; menu.sel = 0; menu.sub = null; $("credits").hidden = true; }
+  else { const n = menuRows().length; menu.sel = (menu.sel + d + n) % n; }
+  renderMenu();
 }
+function menuSide(d) {
+  if (menu.focus === "rail") { if (d > 0) enterPanel(); return; }
+  const it = menuRows()[menu.sel];
+  if (it?.change) it.change(d);
+  else if (d < 0) menuBack();
+}
+function enterPanel() { menu.focus = "panel"; menu.sel = 0; renderMenu(); }
 function activateMenu() {
-  const it = menuItems()[menu.sel];
+  if (menu.focus === "rail") return enterPanel();
+  const it = menuRows()[menu.sel];
   if (!it || it.disabled) return;
   it.action();
 }
-function openLevel(level) { menu.from = menu.sel; menu.level = level; menu.sel = 0; $("credits").hidden = true; renderMenu(); }
+function openVoices() { menu.cat = CATS.findIndex(c => c.id === "ajustes"); menu.focus = "panel"; menu.sub = "voices"; menu.sel = 0; renderMenu(); }
 function menuBack() {
-  if (menu.level === "voices") { menu.level = "settings"; menu.sel = 3; renderMenu(); }
-  else if (menu.level !== "main") { menu.level = "main"; menu.sel = menu.from; $("credits").hidden = true; renderMenu(); }
+  if (menu.sub) { menu.sub = null; menu.sel = 1; renderMenu(); } // back onto "Voces del listening"
+  else if (menu.focus === "panel") { menu.focus = "rail"; $("credits").hidden = true; renderMenu(); }
   else if (screen === "pause") setPaused(false);
 }
 function openMenu() {
-  menu.level = "main"; menu.sel = 0; $("credits").hidden = true;
+  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
   $("overlay").hidden = false; document.querySelector(".app").inert = true;
   renderMenu(); renderBackupReminder();
 }
@@ -808,7 +842,7 @@ const listenVoices = () => activeVoices(allVoices(), prefs.listenVoices ?? []);
 let listen = null; // { qs, i, results, voice, locked }
 
 function startListening() {
-  if (!listenVoices().length) { openLevel("voices"); return; }
+  if (!listenVoices().length) { openVoices(); return; }
   listen = { qs: buildListening(deckOf("vocab").items, deckOf("gram5").items, 10), i: 0, results: [] };
   screen = "listen";
   $("overlay").hidden = true; $("listen").hidden = false;
@@ -875,7 +909,7 @@ function finishListening() {
 function closeListening() {
   stopVoice(); listen = null;
   screen = "start"; $("listen").hidden = true; $("overlay").hidden = false;
-  menu.level = "main"; renderMenu();
+  menu.sub = null; renderMenu();
 }
 $("lagain").addEventListener("click", startListening);
 $("lback").addEventListener("click", closeListening);
@@ -950,7 +984,7 @@ async function checkDrawing() {
 function closeDraw() {
   draw = null; screen = "start";
   $("draw").hidden = true; $("overlay").hidden = false;
-  menu.level = "main"; renderMenu();
+  menu.sub = null; renderMenu();
 }
 const drawAction = {
   undo: () => { if (draw && !draw.graded) { draw.strokes.pop(); paintDrawing(); } },
@@ -1132,7 +1166,7 @@ function storyBack() {
 }
 function closeStories() {
   screen = "start"; $("stories").hidden = true; $("overlay").hidden = false;
-  menu.level = "main"; renderMenu();
+  menu.sub = null; renderMenu();
 }
 function toggleFurigana() {
   if (!story || story.st.script !== "kanji") return;
@@ -1179,7 +1213,9 @@ const pad = createPad(i => {
     if (i === 12) moveMenu(-1);
     else if (i === 13) moveMenu(1);
     else if (i === 0) activateMenu();
-    else if (i === 2 && menu.level === "voices") menuItems()[menu.sel]?.test?.();
+    else if (i === 14) menuSide(-1);
+    else if (i === 15) menuSide(1);
+    else if (i === 2 && menu.sub === "voices") menuRows()[menu.sel]?.test?.();
     else if (i === 1 || i === 9) menuBack();
     else if (i === 8) { toggle("voice"); renderMenu(); }
     return;
@@ -1257,10 +1293,12 @@ document.addEventListener("keydown", e => {
   if (screen === "start" || screen === "pause") {
     if (e.key === "ArrowUp") { e.preventDefault(); moveMenu(-1); }
     else if (e.key === "ArrowDown") { e.preventDefault(); moveMenu(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); menuSide(-1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); menuSide(1); }
     else if (e.key === "Enter") { e.preventDefault(); activateMenu(); }
     else if (e.key === "Escape" || key === "b") menuBack();
     else if (key === "p") openProgress();
-    else if (key === "x") { if (menu.level === "voices") menuItems()[menu.sel]?.test?.(); else startExam(); }
+    else if (key === "x") { if (menu.sub === "voices") menuRows()[menu.sel]?.test?.(); else startExam(); }
     return;
   }
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }

@@ -61,7 +61,7 @@
   <footer class="bottom">
     <span class="pad"><span class="dot" id="dot"></span><span id="padtxt">Sin mando</span></span>
     <span class="saved" id="saved" aria-live="off"></span>
-    <span class="help">Cruceta: ↑Y ←X →B ↓A · LB/RB mazo · View voz · Menú pausa · Teclado: flechas, Q/E, O, I, S</span>
+    <span class="legend help"><span><kbd>LB</kbd><kbd>RB</kbd>Mazo</span><span><kbd>VIEW</kbd>Voz</span><span><kbd>MENÚ</kbd>Pausa</span><span>Cruceta ↑Y ←X →B ↓A</span></span>
   </footer>
 </div>
 
@@ -69,8 +69,8 @@
   <div class="menu-wrap">
     <header class="mtop"><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span><button type="button" class="link back" id="mback" hidden><span class="badge" data-k="b">B</span>Volver</button></header>
     <div class="mbody">
-      <nav class="menu-list" id="menulist" aria-label="Menú principal"></nav>
-      <aside class="menu-preview" id="menupreview" aria-live="polite"></aside>
+      <nav class="mrail" id="menurail" aria-label="Categorías"></nav>
+      <section class="mpanel" id="menupanel" aria-live="polite"></section>
     </div>
     <p class="notice pexam" id="backupmsg" hidden></p>
     <p class="small" id="msg" aria-live="polite"></p>
@@ -88,7 +88,7 @@
       </ul>
     </details>
     <input type="file" id="import" accept="application/json" hidden>
-    <p class="mfoot">↑↓ elegir · A entrar · B atrás · Menú vuelve aquí</p>
+    <p class="mfoot">↑↓ elegir · A o → entrar · B o ← volver · ←→ cambian los valores de Ajustes</p>
   </div>
 </div>
 
