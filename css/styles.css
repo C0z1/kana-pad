@@ -19,6 +19,8 @@ button { font: inherit; color: inherit; }
 kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; }
 :focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; }
 [hidden] { display: none !important; }
+/* Stroke icons (js/icons.js): same weight as the back/home arrows, always next to their text. */
+.ico { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
 .app { position: relative; height: 100%; box-sizing: border-box; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 12px;
   padding-block: 20px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
@@ -236,7 +238,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 /* Mock exam: same answer bars as study, no feedback until the end. */
 .exam { position: fixed; inset: 0; z-index: 6; background: var(--bg); overflow-y: auto; box-sizing: border-box;
   display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 16px;
-  padding-block: 20px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+  padding-block: 20px; padding-left: max(24px, env(safe-area-inset-left, 0px), calc((100% - 1400px) / 2)); padding-right: max(24px, env(safe-area-inset-right, 0px), calc((100% - 1400px) / 2)); }
 .etop { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 @media (max-height: 800px) and (min-width: 861px) {
   #listen .glyph { font-size: min(22vh, 180px); }
@@ -252,12 +254,16 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .equestion { margin: 0; font-weight: 800; font-size: 24px; width: min(100%, 480px); }
 .bar.chosen { box-shadow: 0 0 0 4px var(--hi); }
 .epips { width: min(100%, 480px); flex: none; }
+/* Listening and story quizzes put the pips straight in the answer column, which would shrink them to nothing. */
+#lpips, #spips { width: min(100%, 480px); flex: none; }
 .epips i.done { background: var(--ink); } .epips i.now { background: var(--hi); }
 .eresult { display: grid; justify-items: center; gap: 16px; text-align: center; align-content: start; }
 .escores { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
 .escore { display: grid; gap: 4px; background: #17171f; padding: 16px 24px; min-width: 180px; }
 .escore b { font: 400 96px/1 var(--font-display); color: var(--ink); font-variant-numeric: tabular-nums; }
 .escore span { color: var(--muted); font-weight: 600; }
+.escore.best b { color: var(--hi); }
+.deck-tag:lang(ja) { font: 700 22px var(--font-jp-text); letter-spacing: 0; }
 .epass { margin: 0; font: 400 48px var(--font-display); letter-spacing: .04em; }
 .epass.ok { color: var(--hi); } .epass.bad { color: var(--bad); }
 .emsection { margin: 0 0 6px; color: var(--muted); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
@@ -267,6 +273,10 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 /* Main menu: categories in a left column (skewed bars like the answers); the right panel shows what is inside.
    The bar or row the pad is on is yellow; the open category stays blue while you move inside its panel. */
 .menu-screen { place-items: center; }
+/* Decorative watermark behind the menu; the alt text after "/" keeps screen readers from reading it. */
+.menu-screen::before { content: "かな" / ""; position: fixed; right: -3vw; bottom: -12vh; z-index: 0; pointer-events: none;
+  font: 400 min(62vh, 44vw)/1 var(--font-jp); color: var(--ink); opacity: .025; white-space: nowrap; }
+.menu-wrap { position: relative; z-index: 1; }
 .menu-wrap { width: min(100%, 1640px); display: grid; gap: 16px; }
 .mtop { display: flex; align-items: center; gap: 16px; }
 .mtitle { margin: 0; font: 400 56px/1 var(--font-display); letter-spacing: .04em; background: var(--slab); color: var(--ink); padding: 4px 24px; transform: skewX(var(--skew)); }
@@ -284,6 +294,11 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .menu-item .mlabel { flex: 1; min-width: 0; display: grid; }
 .menu-item .msub { display: none; font: 600 16px var(--font-ui); color: var(--muted); }
 .menu-item .mcount { font: 400 32px var(--font-display); color: var(--hi); font-variant-numeric: tabular-nums; }
+.menu-item .ico { width: 30px; height: 30px; }
+.mrow .ico { width: 28px; height: 28px; color: var(--muted); }
+.mrow.sel .ico { color: var(--bar-ink); }
+.tab { display: inline-flex; align-items: center; gap: 8px; }
+.tab .ico, .mode .ico { width: 20px; height: 20px; }
 .menu-item.on { width: min(100%, 380px); background: var(--slab); color: var(--ink); }
 .menu-item.sel { width: min(100%, 380px); background: var(--hi); color: var(--bar-ink); box-shadow: 8px 8px 0 var(--slab); }
 .menu-item.sel .mcount, .menu-item.sel .msub { color: var(--bar-ink); }
@@ -312,8 +327,17 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .legend > span { display: inline-flex; align-items: center; gap: 6px; }
 /* Today's slab heads the Hoy page: big number on the left, the rest beside it. The header no longer repeats it. */
 .mhero { grid-column: auto; grid-row: auto; align-self: start; grid-template-columns: auto minmax(0, 1fr); column-gap: 32px; align-items: center; padding: 18px 12% 18px 36px; }
-.mhero > :first-child { display: none; }
-.mhero .mbig { grid-row: 1 / span 3; }
+.mhero .mhello { grid-column: 1 / -1; margin: 0 0 6px; font: 400 36px/1 var(--font-display); letter-spacing: .03em; }
+.mhero .mbig { grid-row: 2 / span 4; }
+.mhero .pmeta .ico { width: 18px; height: 18px; vertical-align: -3px; color: var(--hi); }
+/* This week, Monday first: white = studied, outlined = today. White, not yellow: yellow stays for the focused row. */
+.mweek { display: flex; gap: 8px; margin: 2px 0; }
+.mweek i { display: grid; place-items: center; width: 34px; height: 30px; font: 800 15px var(--font-ui); font-style: normal;
+  background: rgba(14, 14, 20, .45); color: var(--ink); transform: skewX(var(--skew)); }
+.mweek i > span { transform: skewX(calc(var(--skew) * -1)); }
+.mweek i.on { background: var(--ink); color: var(--bar-ink); }
+.mweek i.today { outline: 2px solid var(--ink); outline-offset: 2px; }
+.mweek i.future { opacity: .45; }
 .mpanel { order: 1; }
 .mlevel { display: none; }
 .mhero .mbig { display: grid; font-weight: 800; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; }
@@ -336,24 +360,41 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 @keyframes wave { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
 .vrow { justify-content: space-between; }
 .vrow .vcheck { font: 400 26px var(--font-display); width: 1.6em; }
-/* Stories (§9.3) */
-.story-item .jp { font: 700 26px var(--font-jp-text); }
+/* Stories (§9.3): list of cards with a preview of the open one; the reader keeps the word card on a blue slab. */
+#slist { align-content: start; gap: 10px; }
+#slist .menu-item, #slist .menu-item.sel { width: 100%; min-height: 76px; }
+.story-item .jp { font: 700 28px var(--font-jp-text); }
 .story-item .msub { display: block; }
-.story-state { font: 400 20px var(--font-display); padding: 2px 10px; background: var(--dim-bg); color: var(--dim-ink); }
+.story-item .ico { width: 28px; height: 28px; }
+.story-state { font: 400 20px var(--font-display); letter-spacing: .04em; padding: 2px 10px; background: rgba(14, 14, 20, .5); color: var(--ink); }
 .story-state.new { background: var(--hi); color: var(--bar-ink); }
-.reader { display: grid; grid-template-columns: minmax(0, 760px) minmax(0, 1fr); gap: 32px; align-items: start; min-height: 0; }
-.stext { background: #17171f; padding: 32px; font: 500 32px/2.1 var(--font-jp-text); white-space: pre-line; overflow-y: auto; max-height: 64vh; }
+.menu-item.sel .story-state { background: var(--bar-ink); color: var(--hi); }
+.spreview { display: none; background: #17171f; border-top: 6px solid var(--slab); padding: 28px 32px; gap: 16px; align-content: start; align-self: start; }
+.spreview .sptitle { margin: 0; font: 400 56px/1.15 var(--font-jp); text-shadow: 4px 4px 0 var(--bg); }
+.spreview .splines { margin: 0; font: 500 28px/1.9 var(--font-jp-text); color: var(--dim-ink); white-space: pre-line; }
+.spreview .spmeta { margin: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; color: var(--muted); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.spreview .spmeta b { font: 400 28px var(--font-display); color: var(--ink); letter-spacing: .02em; }
+@media (min-width: 1200px) {
+  #stories { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); column-gap: 48px; align-content: start; }
+  #stories > * { grid-column: 1 / -1; }
+  #stories > #slist { grid-column: 1; }
+  #stories > #spreview { grid-column: 2; display: grid; }
+}
+.reader { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 32px; align-items: start; align-content: start; min-height: 0; }
+.stext { background: #17171f; border-top: 6px solid var(--slab); padding: 32px 40px; font: 500 34px/2.2 var(--font-jp-text); white-space: pre-line; overflow-y: auto; max-height: 64vh; }
 .stext rt { font-size: .5em; color: var(--muted); }
 .stext.nofuri rt { visibility: hidden; }
-.word { all: unset; cursor: pointer; padding: 0 .12em; }
+.word { all: unset; cursor: pointer; padding: 0 .12em; transition: background-color .12s; }
 .word.sel { background: var(--hi); color: var(--bar-ink); outline: 3px solid var(--hi); }
 .word.sel rt { color: var(--bar-ink); }
-.word.saved { text-decoration: underline dotted var(--slab) 2px; text-underline-offset: .3em; }
-.wordpanel { background: #17171f; padding: 24px; display: grid; gap: 10px; align-content: start; }
-.wordpanel b { font: 700 40px var(--font-jp-text); }
-.wordpanel small { color: var(--muted); font-size: 18px; }
-.wordpanel span { font-size: 26px; }
-.wordpanel button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
+.word.saved { text-decoration: underline dotted var(--slab) 3px; text-underline-offset: .3em; }
+.wordpanel { background: var(--slab); color: var(--ink); padding: 28px; display: grid; gap: 12px; align-content: start; }
+.wordpanel b { font: 400 60px/1.1 var(--font-jp); text-shadow: 4px 4px 0 var(--bg); overflow-wrap: anywhere; }
+.wordpanel small { font: 500 20px var(--font-jp-text); }
+.wordpanel span { font-size: 28px; font-weight: 800; }
+.wordpanel .mode { justify-self: start; color: var(--ink); border-color: rgba(244, 244, 246, .55); background: rgba(14, 14, 20, .35); font-size: 20px; }
+.wordpanel .mode:disabled { opacity: 1; cursor: default; }
+.wordpanel .mode .badge { width: 32px; height: 32px; font-size: 17px; }
 .reader .mfoot, .reader .rbar { grid-column: 1 / -1; }
 .reader .rbar { justify-content: flex-start; }
 
@@ -405,7 +446,8 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   /* The category column becomes a row of chips above the panel. */
   .mrail { display: flex; gap: 6px; overflow-x: auto; padding: 4px 4px 10px; scrollbar-width: none; }
   .mrail .menu-item, .mrail .menu-item.on, .mrail .menu-item.sel { flex: none; width: auto; min-height: 44px; padding: 4px 16px; font-size: 22px; box-shadow: none; }
-  .mrail .mcount { font-size: 22px; }
+  .mrail .mcount { font-size: 22px; } .mrail .ico { width: 22px; height: 22px; }
+  .mhero .mhello { font-size: 28px; } .mweek { gap: 6px; } .mweek i { width: 30px; }
   .mpanel { max-height: none; padding: 12px; border-left-width: 4px; }
   .mrow { font-size: 22px; }
   .seg span { font-size: 18px; padding: 0 6px; }
@@ -417,13 +459,14 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   .reader { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .stext { font-size: 24px; padding: 16px; max-height: none; }
   .wordpanel { position: sticky; bottom: 0; min-height: 128px; border-top: 1px solid var(--line); padding: 12px 16px; }
-  .wordpanel b { font-size: 28px; }
+  .wordpanel b { font-size: 32px; } .wordpanel { padding: 12px 16px; gap: 6px; } .wordpanel span { font-size: 22px; }
+  .stext { padding: 16px; font-size: 24px; }
   .ebody { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .esec { order: 3; flex-basis: 100%; white-space: nowrap; }
   .frow { grid-template-columns: 72px minmax(0, 1fr) 76px; }
   .etimer { font-size: 36px; }
   .passage { font-size: 18px; max-height: 34vh; padding: 14px; }
-  .escore b { font-size: 64px; }
+  .escore b { font-size: 64px; } .escore { min-width: 130px; padding: 12px 18px; } .epass { font-size: 34px; }
   .answers, .opts { gap: 8px; }
   .bar { padding-block: 6px; }
   .note { font-size: 18px; min-height: 0; }
@@ -478,6 +521,9 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .intro .menu-item:nth-child(4), .intro .mrow:nth-child(4) { animation-delay: .09s; }
 .intro .menu-item:nth-child(5), .intro .mrow:nth-child(n+5) { animation-delay: .12s; }
 .intro .menu-item:nth-child(6), .intro .mhero { animation-delay: .15s; }
+.intro .mweek i { animation: rise-skew .2s ease-out backwards .18s; }
+.intro .mweek i:nth-child(n+3) { animation-delay: .22s; } .intro .mweek i:nth-child(n+5) { animation-delay: .26s; }
+#spreview, .wordpanel { animation: rise .2s ease-out backwards; } /* not the list cards: they are rebuilt on every move */
 .mpanel.swap { animation: enter .18s ease-out; }
 .mhero .meter i { animation: none; } .intro .mhero .meter i { animation: grow .35s ease-out backwards .15s; }
 .tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .12s; }

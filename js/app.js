@@ -19,6 +19,8 @@ import * as cloud from "./cloud.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
 import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
+import { icon } from "./icons.js";
+import { CHALLENGES, MIN_POOL, challengeQuestion, runOver, recordRun } from "./challenges.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
 const ROUND = 10;
@@ -43,6 +45,7 @@ let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correc
 const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
+let records = store.getSync("kp-records", {}); // Retos: best score per challenge id
 let kinds = store.getSync("kp-kinds", {}); // listening/reading: [hits, misses]; draw: [sum of scores, drawings]
 let profile = { name: "", goal: 20, target: null, targetDate: null, updatedAt: null, ...store.getSync("kp-profile", {}) };
 function bumpKind(kind, ok) { const k = (kinds[kind] ??= [0, 0]); k[ok ? 0 : 1]++; store.setSync("kp-kinds", kinds); }
@@ -473,8 +476,8 @@ function startMode(i) {
 // ---------- main menu: category column + panel (§9.1, layout "columna y panel") ----------
 // ↑↓ move, A or → enter the panel, B or ← go back to the column; ←→ change a row's value (Ajustes).
 const CATS = [
-  { id: "hoy", name: "Hoy" }, { id: "practicar", name: "Practicar" }, { id: "leer", name: "Leer y oír" },
-  { id: "retos", name: "Retos" }, { id: "progreso", name: "Mi panel" }, { id: "ajustes", name: "Ajustes" },
+  { id: "hoy", name: "Hoy", icon: "today" }, { id: "practicar", name: "Practicar", icon: "practice" }, { id: "leer", name: "Leer y oír", icon: "read" },
+  { id: "retos", name: "Retos", icon: "trophy" }, { id: "progreso", name: "Mi panel", icon: "chart" }, { id: "ajustes", name: "Ajustes", icon: "settings" },
 ];
 const menu = { cat: 0, sel: 0, focus: "panel", sub: null }; // sub: "voices", a page inside Ajustes
 let menuPage = null; // category (and sub page) the panel last showed
@@ -504,21 +507,21 @@ function voiceRows() {
 
 function menuRows() {
   if (menu.sub === "voices") return voiceRows();
-  const id = CATS[menu.cat].id, last = exams.at(-1), start = prefs.level ?? "kana";
+  const id = CATS[menu.cat].id, start = prefs.level ?? "kana";
   if (id === "hoy") {
     const limit = day.limit ?? NEW_PER_DAY;
     return [
-      ...(screen === "pause" ? [{ label: "Continuar", sub: "Volver a donde estabas", action: () => setPaused(false) }] : []),
-      { label: "Repaso de hoy", count: String(pending()), action: () => startMode(0),
+      ...(screen === "pause" ? [{ icon: "play", label: "Continuar", sub: "Volver a donde estabas", action: () => setPaused(false) }] : []),
+      { icon: "layers", label: "Repaso de hoy", count: String(pending()), action: () => startMode(0),
         sub: `${pending()} pendientes · ${day.fresh} de ${newLimit()} nuevas · desde ${levelName(start)}` + (limit < NEW_PER_DAY ? " · FRENO: hoy entran menos nuevas" : "") },
-      ...(!prefs.level ? [{ label: "Prueba de nivel", sub: "Unas preguntas para saber desde dónde empezar", action: startPlacement }] : []),
+      ...(!prefs.level ? [{ icon: "stairs", label: "Prueba de nivel", sub: "Unas preguntas para saber desde dónde empezar", action: startPlacement }] : []),
     ];
   }
   if (id === "practicar") {
     const order = [start, ...LEVELS.map(l => l.id).filter(l => l !== start)];
     return [
-      { label: "Todo lo visto", count: String(seenEntries().length), sub: "Sin cartas nuevas · no cambia tu calendario", action: () => startMode(1) },
-      { label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
+      { icon: "layers", label: "Todo lo visto", count: String(seenEntries().length), sub: "Sin cartas nuevas · no cambia tu calendario", action: () => startMode(1) },
+      { icon: "pen", label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
       ...order.flatMap(lv => DECKS.flatMap((d, i) => {
         if (d.level !== lv) return [];
         const acc = accuracyOf(d), tried = acc !== "–";
@@ -528,17 +531,27 @@ function menuRows() {
     ];
   }
   if (id === "leer") return [
-    { label: "Cuentos", count: newStories() ? String(newStories()) : "", sub: `${STORIES_N5.length} cuentos · ${newStories()} sin leer · guarda palabras mientras lees`, action: openStories },
-    { label: "Listening", sub: `Escucha y elige qué dijo la voz · ${listenVoices().length} voces activas`, action: startListening },
+    { icon: "book", label: "Cuentos", count: newStories() ? String(newStories()) : "", sub: `${STORIES_N5.length} cuentos · ${newStories()} sin leer · guarda palabras mientras lees`, action: openStories },
+    { icon: "headphones", label: "Listening", sub: `Escucha y elige qué dijo la voz · ${listenVoices().length} voces activas`, action: startListening },
   ];
-  if (id === "retos") return [
-    { label: "Simulacro N5", sub: (last ? `Último: ${last.right}/${last.total} · ${last.pass ? "aprobado" : "no aprobado"} · ` : "") + "20 minutos, 30 preguntas", action: startExam },
-  ];
+  if (id === "retos") {
+    const best = id => (records[id] ? `Récord: ${records[id]}` : "Sin récord todavía");
+    const sim = lv => {
+      const prev = exams.findLast(x => (x.lv ?? "n5") === lv), n = lv === "n5" ? 30 : 20;
+      return { group: "Simulacros", icon: "exam", label: `Simulacro ${levelName(lv)}`, action: () => startExam(lv),
+        sub: (prev ? `Último: ${prev.right}/${prev.total} · ${prev.pass ? "aprobado" : "no aprobado"} · ` : "") + `${examMinutes(n)} minutos, ${n} preguntas` + (lv === "n5" ? "" : " · sin lectura") };
+    };
+    return [
+      { group: "Retos rápidos", icon: "timer", label: "Contrarreloj", sub: `${best("time")} · 60 segundos: todas las que puedas`, action: () => startChallenge("time") },
+      { group: "Retos rápidos", icon: "heart", label: "Supervivencia", sub: `${best("survival")} · hasta el primer fallo`, action: () => startChallenge("survival") },
+      sim("n5"), sim("n4"), sim("n3"),
+    ];
+  }
   if (id === "progreso") {
     const u = cloud.user();
     return [
-      { label: "Ver mi panel", count: String(streakDays(history, day.d)), sub: "Racha y calendario, niveles, precisión y próximos 7 días", action: () => openProgress("resumen") },
-      { label: "Perfil y cuenta", sub: u ? `Sincronizado con ${u.email}` : "Nombre, meta diaria, nivel objetivo y sincronizar entre dispositivos", action: () => openProgress("cuenta") },
+      { icon: "chart", label: "Ver mi panel", count: String(streakDays(history, day.d)), sub: "Racha y calendario, niveles, precisión y próximos 7 días", action: () => openProgress("resumen") },
+      { icon: "user", label: "Perfil y cuenta", sub: u ? `Sincronizado con ${u.email}` : "Nombre, meta diaria, nivel objetivo y sincronizar entre dispositivos", action: () => openProgress("cuenta") },
     ];
   }
   const lv = Math.max(0, LEVELS.findIndex(l => l.id === start));
@@ -550,19 +563,19 @@ function menuRows() {
   const voice = () => { toggle("voice"); renderMenu(); };
   const voiceTo = d => { if ((d < 0) === prefs.voice) return false; voice(); }; // ← SÍ, → NO
   return [
-    { group: "Voz", label: "Leer cada carta en voz alta", seg: { options: ["SÍ", "NO"], on: prefs.voice ? 0 : 1 }, action: voice, change: voiceTo },
-    { group: "Voz", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
-    ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
-    { group: "Nivel", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
-    { group: "Nivel", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
-    { group: "Mando y datos", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
-    { group: "Mando y datos", label: "Exportar progreso", sub: "Guarda una copia en un archivo", action: exportProgress },
+    { group: "Voz", icon: "speaker", label: "Leer cada carta en voz alta", seg: { options: ["SÍ", "NO"], on: prefs.voice ? 0 : 1 }, action: voice, change: voiceTo },
+    { group: "Voz", icon: "headphones", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
+    ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", icon: "download", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
+    { group: "Nivel", icon: "stairs", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
+    { group: "Nivel", icon: "exam", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
+    { group: "Mando y datos", icon: "pad", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
+    { group: "Mando y datos", icon: "download", label: "Exportar progreso", sub: "Guarda una copia en un archivo", action: exportProgress },
     ...(pendingImport ? [
-      { group: "Mando y datos", label: "Confirmar importación", sub: `Reemplaza tus ${Object.keys(cards).length} cartas en repaso por las ${Object.keys(pendingImport.r.cards).length} de «${pendingImport.name}»`, action: confirmImport },
-      { group: "Mando y datos", label: "Cancelar importación", sub: "Tu progreso no cambia", action: () => { pendingImport = null; $("msg").textContent = ""; renderMenu(); } },
-    ] : [{ group: "Mando y datos", label: "Importar progreso", sub: "Elige un archivo exportado; antes de reemplazar nada te pide confirmación", action: () => $("import").click() }]),
-    ...(store.getSync("kp-preimport", null) ? [{ group: "Mando y datos", label: "Deshacer la última importación", sub: "Vuelve al progreso que tenías antes", action: undoImport }] : []),
-    { group: "Mando y datos", label: "Fuentes y licencias", sub: "KanjiVG, KANJIDIC2, JMdict, Kokoro, ts-fsrs y tipografías", action: () => { $("credits").hidden = !$("credits").hidden; } },
+      { group: "Mando y datos", icon: "check", label: "Confirmar importación", sub: `Reemplaza tus ${Object.keys(cards).length} cartas en repaso por las ${Object.keys(pendingImport.r.cards).length} de «${pendingImport.name}»`, action: confirmImport },
+      { group: "Mando y datos", icon: "close", label: "Cancelar importación", sub: "Tu progreso no cambia", action: () => { pendingImport = null; $("msg").textContent = ""; renderMenu(); } },
+    ] : [{ group: "Mando y datos", icon: "upload", label: "Importar progreso", sub: "Elige un archivo exportado; antes de reemplazar nada te pide confirmación", action: () => $("import").click() }]),
+    ...(store.getSync("kp-preimport", null) ? [{ group: "Mando y datos", icon: "undo", label: "Deshacer la última importación", sub: "Vuelve al progreso que tenías antes", action: undoImport }] : []),
+    { group: "Mando y datos", icon: "info", label: "Fuentes y licencias", sub: "KanjiVG, KANJIDIC2, JMdict, Kokoro, ts-fsrs y tipografías", action: () => { $("credits").hidden = !$("credits").hidden; } },
   ];
 }
 
@@ -579,6 +592,7 @@ function renderMenu() {
   $("menurail").replaceChildren(...CATS.map((c, i) => {
     const b = el("button", "menu-item" + (i !== menu.cat ? "" : menu.focus === "rail" ? " sel" : " on"));
     b.type = "button";
+    b.insertAdjacentHTML("beforeend", icon(c.icon));
     b.append(el("span", "mlabel", c.name));
     const n = catCount(c.id);
     if (n) b.append(el("span", "mcount", String(n)));
@@ -597,6 +611,7 @@ function renderMenu() {
     b.type = "button";
     if (it.id) b.dataset.row = it.id;
     if (it.disabled) b.setAttribute("aria-disabled", "true");
+    if (it.icon) b.insertAdjacentHTML("beforeend", icon(it.icon));
     const label = el("span", "mlabel"); label.append(el("span", "", it.label));
     if (it.sub) label.append(el("span", "msub", it.sub));
     b.append(label);
@@ -610,9 +625,17 @@ function renderMenu() {
   const goal = profile.goal || 20, today = el("div", "meter"), fill = el("i");
   fill.style.width = `${Math.min(100, (100 * day.n) / goal)}%`; today.append(fill);
   const big = el("p", "mbig"); big.append(el("b", "", String(pending())), pending() === 1 ? "repaso pendiente" : "repasos pendientes");
-  const streakLine = el("p", "pmeta"); streakLine.append("Racha ", el("b", "", String(days)), " · nuevas ", el("b", "", `${day.fresh}/${newLimit()}`));
-  streakLine.prepend("Nivel ", el("b", "", prefs.level ? levelName(prefs.level) : "—"), " · ");
-  $("menuhero").replaceChildren(el("p", "pmeta", "HOY"), big, streakLine, el("p", "peta", `Hoy: ${day.n} de ${goal} respuestas`), today);
+  const streakLine = el("p", "pmeta"); streakLine.append("Nivel ", el("b", "", prefs.level ? levelName(prefs.level) : "—"), " · ");
+  streakLine.insertAdjacentHTML("beforeend", icon("flame"));
+  streakLine.append(" Racha ", el("b", "", String(days)), " · nuevas ", el("b", "", `${day.fresh}/${newLimit()}`));
+  // This week at a glance (Monday first): which days had answers; the streak number is the line above.
+  const week = el("p", "mweek"); week.setAttribute("aria-label", "Esta semana");
+  week.append(...heatmap(history, day.d, 1).map((c, i) => {
+    const d = el("i", c.n === null ? "future" : c.n ? "on" : ""); if (c.d === day.d) d.classList.add("today");
+    d.append(el("span", "", "LMXJVSD"[i])); d.title = fmtDate(c.d); return d;
+  }));
+  const h = new Date().getHours(), hello = h >= 6 && h < 12 ? "Buenos días" : h >= 12 && h < 20 ? "Buenas tardes" : "Buenas noches";
+  $("menuhero").replaceChildren(el("p", "mhello", profile.name ? `${hello}, ${profile.name}` : hello), big, streakLine, week, el("p", "peta", `Hoy: ${day.n} de ${goal} respuestas`), today);
   $("menuhero").hidden = CATS[menu.cat].id !== "hoy" || !!menu.sub; // the slab belongs to Hoy, not to every page
   const focused = menu.focus === "rail" ? $("menurail").children[menu.cat] : $("menupanel").querySelectorAll(".mrow")[menu.sel];
   focused?.focus({ preventScroll: true });
@@ -790,7 +813,7 @@ function renderProgress() {
   const notes = [];
   const last = exams.at(-1);
   if (last) notes.push(el("p", "notice pexam",
-    `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per?.vocab?.join("/") ?? "–"}, gramática ${last.per?.gram?.join("/") ?? "–"}, lectura ${last.per?.read?.join("/") ?? "–"}.`));
+    `Último simulacro ${levelName(last.lv ?? "n5")} (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per?.vocab?.join("/") ?? "–"}, gramática ${last.per?.gram?.join("/") ?? "–"}` + (last.per?.read?.[1] ? `, lectura ${last.per.read.join("/")}.` : ".")));
   const limit = day.limit ?? NEW_PER_DAY;
   if (limit < NEW_PER_DAY) {
     const why = el("p", "notice pbrake");
@@ -947,10 +970,15 @@ let exam = null; // { qs, answers, i, left, paused, timer, from }
 let exams = []; // past results, newest last
 const deckOf = id => DECKS.find(d => d.id === id);
 
-function startExam() {
+// Mock exams per level: N4 and N3 have no reading passages yet, so they are 20 questions with the clock scaled down.
+const EXAM_DECKS = { n5: ["vocab", "gram5", READING_N5], n4: ["vocab4", "gram4", []], n3: ["vocab3", "gram3", []] };
+const examMinutes = n => Math.round((EXAM_SECONDS * n) / 30 / 60);
+function startExam(lv = "n5") {
   if (screen !== "pause" && screen !== "start") return;
-  exam = { qs: buildExam(deckOf("vocab").items, deckOf("gram5").items, READING_N5), answers: [], i: 0, left: EXAM_SECONDS, paused: false, from: screen };
-  showExam("SIMULACRO N5");
+  const [v, g, r] = EXAM_DECKS[lv];
+  const qs = buildExam(deckOf(v).items, deckOf(g).items, r);
+  exam = { lv, qs, answers: [], i: 0, left: examMinutes(qs.length) * 60, paused: false, from: screen };
+  showExam(`SIMULACRO ${levelName(lv).toUpperCase()}`);
   exam.timer = setInterval(() => {
     if (exam.paused) return;
     exam.left--;
@@ -964,9 +992,9 @@ function showExam(title) {
   screen = "exam";
   $("overlay").hidden = true; $("exam").hidden = false;
   $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
-  $("etitle").textContent = title; $("etimer").hidden = !!exam.placement;
-  $("eresulttitle").textContent = exam.placement ? "Resultado de la prueba de nivel" : "Resultado del simulacro";
-  $("epausetxt").textContent = exam.placement ? "La prueba está en pausa." : "El reloj está detenido.";
+  $("etitle").textContent = title; $("etimer").hidden = !!exam.placement || exam.challenge === "survival";
+  $("eresulttitle").textContent = exam.placement ? "Resultado de la prueba de nivel" : exam.challenge ? "Resultado del reto" : "Resultado del simulacro";
+  $("epausetxt").textContent = exam.placement || exam.challenge === "survival" ? "El reto está en pausa." : "El reloj está detenido.";
 }
 
 // ---------- placement test (same screen as the mock exam, no clock) ----------
@@ -1003,13 +1031,14 @@ function nextPlacementLevel() {
 
 function renderClock() {
   $("etimer").textContent = clock(Math.max(0, exam.left));
-  $("etimer").classList.toggle("low", exam.left < 60);
+  $("etimer").classList.toggle("low", exam.left < (exam.challenge ? 10 : 60));
 }
 
 function renderExamQ() {
   const q = exam.qs[exam.i];
   const n = SECTIONS.findIndex(s => s.id === q.section);
-  $("esec").textContent = exam.placement ? `${levelName(LEVELS[exam.lv].id)} · pregunta ${exam.i + 1} de ${exam.qs.length}`
+  $("esec").textContent = exam.challenge ? `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "")
+    : exam.placement ? `${levelName(LEVELS[exam.lv].id)} · pregunta ${exam.i + 1} de ${exam.qs.length}`
     : `${n + 1} · ${SECTIONS[n].name} · pregunta ${exam.i + 1} de ${exam.qs.length}`;
   const reading = q.section === "read";
   $("eprompt").hidden = reading; $("epassage").hidden = !reading;
@@ -1033,11 +1062,12 @@ function renderExamQ() {
     b.addEventListener("click", () => examAnswer(k));
     return b;
   }));
-  $("epips").replaceChildren(...exam.qs.map((_, i) => el("i", i < exam.i ? "done" : i === exam.i ? "now" : "")));
+  $("epips").replaceChildren(...(exam.challenge ? [] : exam.qs.map((_, i) => el("i", i < exam.i ? "done" : i === exam.i ? "now" : ""))));
 }
 
 function examAnswer(k) {
   if (!exam || exam.paused || exam.locked || !$("eresult").hidden) return;
+  if (exam.challenge) return challengeAnswer(k);
   const q = exam.qs[exam.i];
   exam.answers[exam.i] = q.opts[KEYS.indexOf(k)];
   exam.locked = true;
@@ -1063,11 +1093,11 @@ function finishExam() {
   if (!exam || !$("eresult").hidden) return; // already finished: never save the same exam twice
   clearInterval(exam.timer);
   const r = scoreExam(exam.qs, exam.answers);
-  exams = [...exams, { d: day.d, right: r.right, total: r.total, pass: r.pass, per: Object.fromEntries(Object.entries(r.per).map(([k, v]) => [k, [v.right, v.total]])) }].slice(-20);
+  exams = [...exams, { d: day.d, lv: exam.lv, right: r.right, total: r.total, pass: r.pass, per: Object.fromEntries(Object.entries(r.per).map(([k, v]) => [k, [v.right, v.total]])) }].slice(-20);
   store.set("kp-exams", exams);
   $("ebody").hidden = true; $("eresult").hidden = false; $("epause").hidden = true;
   $("esec").textContent = "Resultado";
-  $("escores").replaceChildren(...SECTIONS.map(s => {
+  $("escores").replaceChildren(...SECTIONS.filter(s => r.per[s.id].total).map(s => {
     const d = el("div", "escore");
     d.append(el("b", "", `${r.per[s.id].right}/${r.per[s.id].total}`), el("span", "", s.name));
     return d;
@@ -1087,6 +1117,65 @@ function finishExam() {
     return box;
   }));
   $("eback").focus({ preventScroll: true }); $("exam").scrollTop = 0; // scores first, not the bottom button
+}
+
+// ---------- Retos rápidos (same screen as the mock exam, with feedback after each answer) ----------
+function startChallenge(id) {
+  if (screen !== "pause" && screen !== "start") return;
+  // Cards already seen, without grammar (long sentences don't fit a fast round); kana until there are enough.
+  let pool = seenEntries().filter(e => e.deck.kind !== "grammar");
+  if (pool.length < MIN_POOL) pool = [...entriesOf("hira"), ...entriesOf("kata")];
+  exam = { challenge: id, pool, qs: [challengeQuestion(pool)], answers: [], i: 0, score: 0, missed: [], left: CHALLENGES[id].seconds ?? 0, paused: false, from: screen };
+  showExam(CHALLENGES[id].name.toUpperCase());
+  if (id === "time") {
+    exam.timer = setInterval(() => {
+      if (exam.paused) return;
+      exam.left--; renderClock();
+      if (exam.left <= 0) finishChallenge();
+    }, 1000);
+    renderClock();
+  }
+  renderExamQ();
+}
+function challengeAnswer(k) {
+  const q = exam.qs[exam.i], ok = q.opts[KEYS.indexOf(k)] === q.answer;
+  exam.locked = true;
+  if (ok) exam.score++; else { exam.missed.push(q); pad.rumble(); }
+  for (const b of $("eopts").children) {
+    const v = q.opts[KEYS.indexOf(b.dataset.k)];
+    b.classList.add(v === q.answer ? "right" : b.dataset.k === k ? "wrong" : "dim");
+  }
+  $("eprompt").className = "prompt " + (ok ? "ok" : "bad");
+  $("esec").textContent = `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "");
+  const s = exam;
+  // A miss stays a little longer so the right answer can be read.
+  setTimeout(() => {
+    if (exam !== s || !$("eresult").hidden) return;
+    if (runOver(exam.challenge, ok, exam.challenge === "time" ? exam.left : Infinity)) return finishChallenge();
+    exam.locked = false;
+    exam.qs[exam.i] = challengeQuestion(exam.pool, Math.random, q.item);
+    $("eprompt").className = "prompt";
+    renderExamQ();
+  }, ok ? 250 : 900);
+}
+function finishChallenge() {
+  if (!exam || !$("eresult").hidden) return;
+  clearInterval(exam.timer);
+  const r = recordRun(records, exam.challenge, exam.score);
+  records = r.records; store.setSync("kp-records", records);
+  $("ebody").hidden = true; $("eresult").hidden = false; $("epause").hidden = true;
+  $("eprompt").className = "prompt";
+  $("esec").textContent = "Resultado";
+  const score = el("div", "escore"); score.append(el("b", "", String(exam.score)), el("span", "", exam.score === 1 ? "acierto" : "aciertos"));
+  const best = el("div", "escore best"); best.append(el("b", "", String(r.best)), el("span", "", "récord"));
+  $("escores").replaceChildren(score, best);
+  $("epass").textContent = r.isNew ? "¡Nuevo récord!" : exam.challenge === "survival" ? "Se acabó al primer fallo" : "Se acabó el tiempo";
+  $("epass").className = "epass " + (r.isNew ? "ok" : "");
+  const ul = el("ul", "missed");
+  ul.append(...exam.missed.map(q => { const li = el("li"), inner = el("span"), jp = el("span", "jp", q.prompt); jp.lang = "ja"; inner.append(jp, q.answer); li.append(inner); return li; }));
+  const box = el("div"); box.append(el("p", "emsection", "Para repasar"), ul);
+  $("emissed").replaceChildren(...(exam.missed.length ? [box] : []));
+  $("eback").focus({ preventScroll: true });
 }
 
 function closeExam() {
@@ -1305,7 +1394,8 @@ function showStoryPart(part) {
   $("slist").hidden = part !== "list"; $("stabs").hidden = part !== "list";
   $("sreader").hidden = part !== "read"; $("sfuri").hidden = part !== "read";
   $("squiz").hidden = part !== "quiz"; $("sresult").hidden = part !== "result";
-  if (part === "list") $("stitle").textContent = "CUENTOS";
+  $("spreview").hidden = part !== "list";
+  if (part === "list") { $("stitle").textContent = "CUENTOS"; $("stitle").lang = "es"; }
 }
 function renderStoryList() {
   for (const b of $("stabs").querySelectorAll(".tab")) b.setAttribute("aria-selected", b.dataset.tab === storyTab);
@@ -1313,6 +1403,7 @@ function renderStoryList() {
   storySel = Math.min(storySel, list.length - 1);
   $("slist").replaceChildren(...list.map((st, i) => {
     const b = el("button", "menu-item story-item" + (i === storySel ? " sel" : "")); b.type = "button";
+    b.insertAdjacentHTML("beforeend", icon("book"));
     const label = el("span", "mlabel");
     const jp = el("span", "jp", parseWord(st.title).plain); jp.lang = "ja";
     label.append(jp, el("span", "msub", st.questions.length + " preguntas"));
@@ -1322,6 +1413,12 @@ function renderStoryList() {
     return b;
   }));
   $("slist").children[storySel]?.focus({ preventScroll: true });
+  // Preview of the selected story (wide screens): title, its first lines and the last score.
+  const st = list[storySel], sc = storyScores[st.id];
+  const title = el("p", "sptitle", parseWord(st.title).plain); title.lang = "ja";
+  const lines = el("p", "splines", parseStory(st.text).slice(0, 3).map(ws => ws.map(w => w.plain).join(" ")).join("\n") + " …"); lines.lang = "ja";
+  const meta = el("p", "spmeta"); meta.append(el("b", "", String(st.questions.length)), " preguntas · ", sc ? el("b", "", `${sc.right}/${sc.total}`) : el("b", "", "nuevo"), sc ? " la última vez" : "");
+  $("spreview").replaceChildren(title, lines, meta, el("p", "mfoot pad-only", "A leer · LB/RB escritura"));
 }
 function moveStoryList(d) { const n = storiesOf(storyTab).length; storySel = (storySel + d + n) % n; renderStoryList(); }
 function storyTabBy(d) { storyTab = SCRIPTS[(SCRIPTS.indexOf(storyTab) + d + 3) % 3]; storySel = 0; renderStoryList(); }
@@ -1330,10 +1427,11 @@ function openStory() {
   const st = storiesOf(storyTab)[storySel];
   const lines = parseStory(st.text);
   story = { st, lines, flat: lines.flatMap((ws, li) => ws.map((w, wi) => ({ w, li, wi }))), w: 0, qi: 0, results: [], missed: [] };
-  $("stitle").textContent = parseWord(st.title).plain;
+  $("stitle").textContent = parseWord(st.title).plain; $("stitle").lang = "ja";
   $("sfuri").disabled = st.script !== "kanji";
   $("sfuri").setAttribute("aria-pressed", st.script === "kanji" && prefs.furigana !== false);
   showStoryPart("read");
+  $("sfuri").hidden = st.script !== "kanji"; // only kanji stories have furigana to toggle
   renderStoryText(); selectWord(0);
 }
 function renderStoryText() {
@@ -1365,13 +1463,13 @@ function selectWord(i) {
   if (v) {
     panel.push(el("small", "", v.q === v.r ? v.r : `${v.q} · ${v.r}`), el("span", "", v.a));
     const saved = !!cards["vocab:" + v.q];
-    const add = el("button", "link"); add.type = "button";
+    const add = el("button", "mode"); add.type = "button";
     const ab = el("span", "badge", "A"); ab.dataset.k = "a";
     add.append(ab, saved ? "✓ En Repaso" : "Guardar en Repaso"); add.disabled = saved;
     add.addEventListener("click", saveWord);
     panel.push(add);
   } else panel.push(el("small", "", "Esta palabra aún no está en el vocabulario de la app."));
-  const say = el("button", "link"); say.type = "button";
+  const say = el("button", "mode"); say.type = "button";
   const xb = el("span", "badge", "X"); xb.dataset.k = "x"; say.append(xb, "Escuchar");
   say.addEventListener("click", () => speak(w.reading));
   panel.push(say);
@@ -1741,5 +1839,6 @@ store.get("kp-cards", {}).then(async c => {
   rollDay(); store.setSync("kp-day", day);
   renderTop();
 });
+for (const n of document.querySelectorAll("[data-icon]")) n.insertAdjacentHTML("afterbegin", icon(n.dataset.icon));
 renderTop();
 openMenu();

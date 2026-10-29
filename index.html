@@ -42,7 +42,7 @@
       <p class="note" id="note"></p>
       <div class="round"><div class="pips" id="pips"></div><span id="roundtxt"></span></div>
       <div class="modes">
-        <button type="button" class="mode" id="ear" aria-pressed="false"><kbd>LT</kbd>Modo oído</button>
+        <button type="button" class="mode" id="ear" aria-pressed="false" data-icon="headphones"><kbd>LT</kbd>Modo oído</button>
         <button type="button" class="mode" id="reverse" aria-pressed="false"><kbd>RT</kbd>Inverso</button>
       </div>
     </section>
@@ -139,8 +139,8 @@
       <p class="note" id="lnote"></p>
       <div class="pips" id="lpips"></div>
       <div class="modes">
-        <button type="button" class="mode" id="lrepeat"><kbd>VIEW</kbd>Repetir</button>
-        <button type="button" class="mode" id="lslow"><kbd>RT</kbd>Más lento</button>
+        <button type="button" class="mode" id="lrepeat" data-icon="speaker"><kbd>VIEW</kbd>Repetir</button>
+        <button type="button" class="mode" id="lslow" data-icon="timer"><kbd>RT</kbd>Más lento</button>
       </div>
     </section>
   </div>
@@ -169,9 +169,9 @@
     <section class="answers">
       <div class="dpad"><canvas id="dcanvas" width="600" height="600" aria-label="Lienzo para dibujar"></canvas><div class="dmodel" id="dmodel"></div></div>
       <div class="modes">
-        <button type="button" class="mode" id="dundo"><kbd>X</kbd>Deshacer</button>
-        <button type="button" class="mode" id="dclear"><kbd>LB</kbd>Borrar</button>
-        <button type="button" class="mode" id="dshow" aria-pressed="false"><kbd>Y</kbd>Ver modelo</button>
+        <button type="button" class="mode" id="dundo" data-icon="undo"><kbd>X</kbd>Deshacer</button>
+        <button type="button" class="mode" id="dclear" data-icon="close"><kbd>LB</kbd>Borrar</button>
+        <button type="button" class="mode" id="dshow" aria-pressed="false" data-icon="layers"><kbd>Y</kbd>Ver modelo</button>
       </div>
       <button type="button" class="bar primary" id="dcheck"><span class="badge" data-k="a">A</span><span id="dchecktxt">Revisar</span></button>
     </section>
@@ -192,12 +192,13 @@
     <button type="button" class="mode" id="sfuri" aria-pressed="true" hidden><kbd>Y</kbd>Furigana</button>
   </header>
   <nav class="menu-list" id="slist" aria-label="Cuentos"></nav>
+  <aside class="spreview" id="spreview"></aside>
   <div class="reader" id="sreader" hidden>
     <div class="stext" id="stext" lang="ja"></div>
-    <aside class="wordpanel" id="sword" aria-live="polite"></aside>
+    <aside class="wordpanel" id="sword"></aside>
     <div class="modes rbar">
-      <button type="button" class="mode" id="sline"><kbd>LT</kbd>Oír frase</button>
-      <button type="button" class="mode" id="squizbtn"><kbd>RB</kbd>Preguntas</button>
+      <button type="button" class="mode" id="sline" data-icon="speaker"><kbd>LT</kbd>Oír frase</button>
+      <button type="button" class="mode" id="squizbtn" data-icon="exam"><kbd>RB</kbd>Preguntas</button>
     </div>
     <p class="mfoot pad-only">←→ palabra · ↑↓ línea · A guardar · X escuchar · LT frase · RB preguntas · B salir</p>
   </div>
@@ -224,11 +225,11 @@
       <span class="deck-tag">MI PANEL</span>
       <div class="tabs" role="tablist" aria-label="Secciones de mi panel">
         <kbd>LB</kbd>
-        <button type="button" role="tab" class="tab" data-tab="resumen" aria-selected="true">Resumen</button>
-        <button type="button" role="tab" class="tab" data-tab="niveles" aria-selected="false">Niveles</button>
-        <button type="button" role="tab" class="tab" data-tab="precision" aria-selected="false">Precisión</button>
-        <button type="button" role="tab" class="tab" data-tab="pron" aria-selected="false">Próximos 7 días</button>
-        <button type="button" role="tab" class="tab" data-tab="cuenta" aria-selected="false">Cuenta</button>
+        <button type="button" role="tab" class="tab" data-tab="resumen" data-icon="grid" aria-selected="true">Resumen</button>
+        <button type="button" role="tab" class="tab" data-tab="niveles" data-icon="stairs" aria-selected="false">Niveles</button>
+        <button type="button" role="tab" class="tab" data-tab="precision" data-icon="practice" aria-selected="false">Precisión</button>
+        <button type="button" role="tab" class="tab" data-tab="pron" data-icon="calendar" aria-selected="false">Próximos 7 días</button>
+        <button type="button" role="tab" class="tab" data-tab="cuenta" data-icon="user" aria-selected="false">Cuenta</button>
         <kbd>RB</kbd>
       </div>
     </header>
