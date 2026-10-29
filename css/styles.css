@@ -147,8 +147,9 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: none !important; }
 
 /* Progress panel: flat tiles, Anton figures, skewed bars like the answer bars. */
-.panel { width: min(100%, 1100px); box-sizing: border-box; display: grid; gap: 24px; align-content: start; }
-.ptop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.panel { width: min(100%, 1640px); box-sizing: border-box; display: grid; gap: 24px; align-content: start; }
+.ptop { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ptop .tabs { margin-left: auto; }
 .tabs { display: flex; align-items: center; gap: 8px; }
 .tab { min-height: 44px; padding: 6px 16px; border: 1px solid var(--line); background: none; color: var(--muted); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 .tab[aria-selected="true"] { background: var(--hi); border-color: var(--hi); color: var(--bar-ink); }
@@ -166,7 +167,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .drow .meter i, .frow .meter i { display: block; height: 100%; background: var(--hi); }
 .frow .meter i { background: var(--slab); }
 .frow small, .drow small { white-space: nowrap; }
-#emissed { width: min(100%, 1100px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px 32px; align-items: start; }
+#emissed { width: min(100%, 1640px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px 32px; align-items: start; }
 #emissed .missed { justify-content: flex-start; }
 .drow small, .frow small { color: var(--muted); font-size: 16px; font-variant-numeric: tabular-nums; text-align: right; }
 .frow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 90px; align-items: center; gap: 16px; min-height: 44px; font-weight: 600; }
@@ -194,6 +195,16 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .heatkey i { width: 14px; height: 14px; background: var(--dim-bg); }
 .heatkey span:first-child { margin-right: 4px; } .heatkey span:last-child { margin-left: 4px; }
 #notices { grid-column: 1 / -1; display: grid; gap: 10px; }
+/* Wide screens: profile, figures and calendar side by side, with bigger text to read from a treadmill. */
+@media (min-width: 1200px) {
+  .dsum { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr); }
+  .pcard { grid-row: auto; margin-left: 32px; } /* room for the slab's skewed corner */
+  .kpi b { font-size: 64px; } .kpi span { font-size: 18px; }
+  .drow, .frow { font-size: 22px; min-height: 52px; }
+  .drow { grid-template-columns: 240px minmax(0, 1fr) 220px; }
+  .frow { grid-template-columns: 160px minmax(0, 1fr) 140px; }
+  .drow small, .frow small { font-size: 18px; }
+}
 .precision, .account { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 40px; align-items: start; }
 .precision .missed { margin: 0; }
 .pform { display: grid; gap: 12px; background: #17171f; padding: 20px 24px; }
@@ -357,7 +368,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   .kpi b { font-size: 40px; }
   .drow { grid-template-columns: 100px minmax(0, 1fr) 80px; gap: 10px; }
   .frow { grid-template-columns: 80px minmax(0, 1fr) 60px; gap: 10px; }
-  .tabs kbd { display: none; }
+  .tabs { flex-wrap: wrap; } .tabs kbd { display: none; } .ptop .tabs { margin-left: 0; }
   .mtitle { font-size: 40px; }
   .mbody { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .mlevel { display: none; }
@@ -402,4 +413,31 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   #draw .hint { display: none; }
   .dpad { width: min(100%, 38vh); }
 }
+/* Motion: short entrances replayed whenever a screen or tab stops being [hidden] (display: none restarts
+   CSS animations), so no JS is needed. Opacity and transform only, under 350 ms, and input is never blocked. */
+@keyframes fade { from { opacity: 0; } }
+@keyframes enter { from { opacity: 0; transform: translateX(-16px); } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@keyframes stamp { from { opacity: 0; transform: scale(1.35); } }
+@keyframes flash { 50% { transform: skewX(var(--skew)) scale(1.03); } }
+@keyframes pip { from { transform: skewX(var(--skew)) scaleY(2.2); } }
+.overlay, .exam { animation: fade .18s ease-out; }
+.app:not([inert]) > .stage, .summary, [data-panel], .ebody, .eresult, .reader, #slist, .mbody { animation: enter .22s ease-out; }
+/* Cards of the panel and results come in one after another. */
+.dsum > *, .account > *, .precision > *, .escore, .kpi { animation: rise .25s ease-out backwards; }
+.dsum > :nth-child(2), .account > :nth-child(2), .precision > :nth-child(2) { animation-delay: .05s; }
+.dsum > :nth-child(3) { animation-delay: .1s; } .dsum > :nth-child(4) { animation-delay: .15s; }
+.kpi:nth-child(2) { animation-delay: .1s; } .kpi:nth-child(3) { animation-delay: .13s; } .kpi:nth-child(4) { animation-delay: .16s; }
+.drow .meter i, .frow .meter i, .pcard .meter i { transform-origin: left; animation: grow .35s ease-out backwards; }
+@keyframes grow { from { transform: scaleX(0); } }
+.score, .epass { animation: stamp .25s ease-out backwards .05s; }
+/* Each new question slides in; the answer gives a quick pulse on the slab, a stamp on the verdict and a shake on a wrong bar. */
+#stage .prompt:not(.ok):not(.bad) > .glyph { animation: enter .18s ease-out; }
+.prompt.ok::before, .prompt.bad::before { animation: flash .22s ease-out; }
+.verdict.ok, .verdict.bad { animation: stamp .2s ease-out; }
+.bar.wrong { animation: nudge .3s ease-out; }
+.pips i:is(.hit, .miss):not(:has(+ :is(.hit, .miss))) { animation: pip .25s ease-out; }
+.tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .12s; }
+.bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) translateY(2px); }
+.tab:active, .mode:active { transform: translateY(2px); }
 @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } .strokes path { stroke-dashoffset: 0; opacity: 1; } }

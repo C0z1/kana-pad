@@ -1,6 +1,6 @@
 // Offline support: app files are cached on install; Google Fonts are cached the first time they load.
 // Bump VERSION whenever any file in APP changes so installed copies pick up the new release.
-const VERSION = "kana-pad-v0.8.0-dev2";
+const VERSION = "kana-pad-v0.8.0-dev3";
 // Voice clips are named after the text they say, so a cached clip never goes stale: they live in their
 // own cache that survives releases instead of being downloaded again (all three voices are ~73 MB).
 const AUDIO = "kana-pad-audio";
