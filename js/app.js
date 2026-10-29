@@ -611,7 +611,9 @@ function renderMenu() {
   fill.style.width = `${Math.min(100, (100 * day.n) / goal)}%`; today.append(fill);
   const big = el("p", "mbig"); big.append(el("b", "", String(pending())), pending() === 1 ? "repaso pendiente" : "repasos pendientes");
   const streakLine = el("p", "pmeta"); streakLine.append("Racha ", el("b", "", String(days)), " · nuevas ", el("b", "", `${day.fresh}/${newLimit()}`));
+  streakLine.prepend("Nivel ", el("b", "", prefs.level ? levelName(prefs.level) : "—"), " · ");
   $("menuhero").replaceChildren(el("p", "pmeta", "HOY"), big, streakLine, el("p", "peta", `Hoy: ${day.n} de ${goal} respuestas`), today);
+  $("menuhero").hidden = CATS[menu.cat].id !== "hoy" || !!menu.sub; // the slab belongs to Hoy, not to every page
   const focused = menu.focus === "rail" ? $("menurail").children[menu.cat] : $("menupanel").querySelectorAll(".mrow")[menu.sel];
   focused?.focus({ preventScroll: true });
   focused?.scrollIntoView({ block: "nearest", inline: "nearest" });
