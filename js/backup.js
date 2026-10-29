@@ -29,9 +29,10 @@ export function readBackup(data, levels = []) {
   const cards = sanitizeCards(data.cards);
   const out = { stats: data.stats, cards, skipped: Object.keys(data.cards).length - Object.keys(cards).length };
   if (isObj(data.history) && Object.entries(data.history).every(([d, h]) => DATE.test(d) && isObj(h) &&
-      [h.reviews, h.correct, h.answers].every(v => v === undefined || count(v)))) out.history = data.history;
+      [h.reviews, h.correct, h.answers, h.fresh].every(v => v === undefined || count(v)))) out.history = data.history;
   if (Array.isArray(data.exams)) out.exams = data.exams.filter(validExam).slice(-20);
   if (isObj(data.stories) && Object.values(data.stories).every(s => isObj(s) && count(s.right) && count(s.total))) out.stories = data.stories;
+  if (isObj(data.kinds) && Object.values(data.kinds).every(pair)) out.kinds = data.kinds;
   out.prefs = readPrefs(data.prefs, levels);
   return out;
 }

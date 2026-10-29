@@ -220,18 +220,45 @@
   <div class="panel">
     <header class="ptop">
       <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
-      <span class="deck-tag">PROGRESO</span>
-      <div class="tabs" role="tablist" aria-label="Secciones del progreso">
+      <span class="deck-tag">MI PANEL</span>
+      <div class="tabs" role="tablist" aria-label="Secciones de mi panel">
         <kbd>LB</kbd>
-        <button type="button" role="tab" class="tab" data-tab="hoy" aria-selected="true">Hoy</button>
-        <button type="button" role="tab" class="tab" data-tab="mazos" aria-selected="false">Mazos</button>
+        <button type="button" role="tab" class="tab" data-tab="resumen" aria-selected="true">Resumen</button>
+        <button type="button" role="tab" class="tab" data-tab="niveles" aria-selected="false">Niveles</button>
+        <button type="button" role="tab" class="tab" data-tab="precision" aria-selected="false">Precisión</button>
         <button type="button" role="tab" class="tab" data-tab="pron" aria-selected="false">Próximos 7 días</button>
+        <button type="button" role="tab" class="tab" data-tab="cuenta" aria-selected="false">Cuenta</button>
         <kbd>RB</kbd>
       </div>
     </header>
-    <section class="kpis" data-panel="hoy" role="tabpanel"></section>
-    <section class="decklist" data-panel="mazos" role="tabpanel" hidden></section>
+    <section class="dsum" data-panel="resumen" role="tabpanel">
+      <div class="pcard" id="pcard"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="heatbox">
+        <p class="mgroup">ÚLTIMAS 16 SEMANAS</p>
+        <div class="heat" id="heat" role="img"></div>
+        <p class="heatkey"><span>Menos</span><i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i><span>Más (meta diaria)</span></p>
+      </div>
+      <div id="notices"></div>
+    </section>
+    <section class="decklist" data-panel="niveles" role="tabpanel" hidden></section>
+    <section class="precision" data-panel="precision" role="tabpanel" hidden>
+      <div><p class="mgroup">ACIERTOS POR TIPO</p><div class="decklist" id="pkinds"></div></div>
+      <div><p class="mgroup">LAS QUE MÁS FALLAS</p><ul class="missed" id="pweak"></ul></div>
+    </section>
     <section class="forecast" data-panel="pron" role="tabpanel" hidden></section>
+    <section class="account" data-panel="cuenta" role="tabpanel" hidden>
+      <form class="pform" id="pform">
+        <p class="mgroup">PERFIL</p>
+        <label>Nombre <input id="pname" maxlength="40" autocomplete="nickname"></label>
+        <label>Meta diaria (respuestas) <input id="pgoal" type="number" min="1" max="500" inputmode="numeric"></label>
+        <label>Nivel objetivo <select id="ptarget"><option value="">—</option><option value="n5">N5</option><option value="n4">N4</option><option value="n3">N3</option></select></label>
+        <label>Para la fecha <input id="pdate" type="date"></label>
+        <button type="submit" class="bar primary"><span>Guardar perfil</span></button>
+        <p class="small" id="pmsg" aria-live="polite"></p>
+      </form>
+      <div class="acct" id="acct"></div>
+    </section>
   </div>
 </div>
 

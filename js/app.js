@@ -13,6 +13,9 @@ import { activeVoices, pickVoice, voiceVariation, buildListening } from "./liste
 import { BUILT_IN, clipUrl, clipPath } from "./voices.js";
 import { readBackup } from "./backup.js";
 import { allTexts } from "./clips.js";
+import { heatmap, levelProgress, kindAccuracy, weakest, eta } from "./dashboard.js";
+import { mergeProgress, changed } from "./merge.js";
+import * as cloud from "./cloud.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
 import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
@@ -40,6 +43,9 @@ let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correc
 const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
+let kinds = store.getSync("kp-kinds", {}); // listening/reading: [hits, misses]; draw: [sum of scores, drawings]
+let profile = { name: "", goal: 20, target: null, targetDate: null, updatedAt: null, ...store.getSync("kp-profile", {}) };
+function bumpKind(kind, ok) { const k = (kinds[kind] ??= [0, 0]); k[ok ? 0 : 1]++; store.setSync("kp-kinds", kinds); }
 let ready = false; // starting before cards load would overwrite the saved schedule
 
 let screen = "start"; // start | play | pause | summary | progress | exam
@@ -227,6 +233,12 @@ function countAnswer() {
   h.answers = (h.answers ?? 0) + 1;
   store.setSync("kp-hist", history);
 }
+function countFresh() {
+  day.fresh++;
+  const h = (history[day.d] ??= { reviews: 0, correct: 0 });
+  h.fresh = (h.fresh ?? 0) + 1;
+  store.setSync("kp-hist", history);
+}
 
 // After a miss the card stays on screen as a mini lesson until the student moves on.
 let studyCard = 0; // when the mini lesson after a miss started (0 = none)
@@ -252,7 +264,7 @@ function answer(k) {
     locked = true;
     day.n++; countAnswer();
     if (isReview()) {
-      day.fresh++;
+      countFresh();
       cards[key] = grade(undefined, true, 0);
       saveCards();
     } else {
@@ -273,7 +285,7 @@ function answer(k) {
   s[ok ? 0 : 1]++;
   stats[key] = s;
   if (isReview()) {
-    if (!cards[key]) day.fresh++;
+    if (!cards[key]) countFresh();
     else if (cards[key].state === 2) {
       const h = (history[day.d] ??= { reviews: 0, correct: 0 });
       h.reviews++; if (ok) h.correct++;
@@ -344,6 +356,7 @@ function answer(k) {
 
 function showSummary() {
   screen = "summary";
+  sync();
   $("stage").hidden = true; $("summary").hidden = false;
   const hits = round.results.filter(Boolean).length;
   const done = round.results.length;
@@ -461,7 +474,7 @@ function startMode(i) {
 // ↑↓ move, A or → enter the panel, B or ← go back to the column; ←→ change a row's value (Ajustes).
 const CATS = [
   { id: "hoy", name: "Hoy" }, { id: "practicar", name: "Practicar" }, { id: "leer", name: "Leer y oír" },
-  { id: "retos", name: "Retos" }, { id: "progreso", name: "Progreso" }, { id: "ajustes", name: "Ajustes" },
+  { id: "retos", name: "Retos" }, { id: "progreso", name: "Mi panel" }, { id: "ajustes", name: "Ajustes" },
 ];
 const menu = { cat: 0, sel: 0, focus: "panel", sub: null }; // sub: "voices", a page inside Ajustes
 
@@ -520,9 +533,13 @@ function menuRows() {
   if (id === "retos") return [
     { label: "Simulacro N5", sub: (last ? `Último: ${last.right}/${last.total} · ${last.pass ? "aprobado" : "no aprobado"} · ` : "") + "20 minutos, 30 preguntas", action: startExam },
   ];
-  if (id === "progreso") return [
-    { label: "Ver progreso", count: String(streakDays(history, day.d)), sub: "Días seguidos · retención, mazos y próximos 7 días", action: openProgress },
-  ];
+  if (id === "progreso") {
+    const u = cloud.user();
+    return [
+      { label: "Ver mi panel", count: String(streakDays(history, day.d)), sub: "Racha y calendario, niveles, precisión y próximos 7 días", action: () => openProgress("resumen") },
+      { label: "Perfil y cuenta", sub: u ? `Sincronizado con ${u.email}` : "Nombre, meta diaria, nivel objetivo y sincronizar entre dispositivos", action: () => openProgress("cuenta") },
+    ];
+  }
   const lv = Math.max(0, LEVELS.findIndex(l => l.id === start));
   const setLevel = d => {
     const to = Math.max(0, Math.min(LEVELS.length - 1, lv + d));
@@ -703,28 +720,61 @@ async function keepAwake() {
   try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {}
 }
 document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") sync();
   // The browser drops the lock whenever the tab is hidden.
   if (document.visibilityState === "visible" && screen === "play" && (!wakeLock || wakeLock.released)) keepAwake();
 });
 
-// ---------- progress panel ----------
-const TABS = ["hoy", "mazos", "pron"];
-let tab = "hoy";
+// ---------- user dashboard ("Mi panel") ----------
+const TABS = ["resumen", "niveles", "precision", "pron", "cuenta"];
+let tab = "resumen";
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const fmtDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+const meterRow = (cls, label, frac, right) => {
+  const row = el("div", cls);
+  const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${Math.round(100 * Math.min(1, frac))}%`; meter.append(fill);
+  row.append(el("span", "", label), meter, el("small", "", right));
+  return row;
+};
 
 function renderProgress() {
   rollDay();
-  const ret = retention(history, day.d);
+  const P = $("progress");
+  // Profile on the slab: name, level, goal for today and when the target level is done at this pace.
+  const lv = prefs.level ? levelName(prefs.level) : "—", goal = profile.goal || 20;
+  const meta = el("p", "pmeta"); meta.append("Nivel ", el("b", "", lv), " · meta ", el("b", "", String(goal)), " al día");
+  const today = el("div", "meter"); const fill = el("i"); fill.style.width = `${Math.min(100, (100 * day.n) / goal)}%`; today.append(fill);
+  const card = [el("p", "pname", profile.name || "Estudiante"), meta, el("p", "peta", `Hoy: ${day.n} de ${goal}${day.n >= goal ? " · ¡meta cumplida!" : ""}`), today];
+  if (profile.target) {
+    const e = eta(fromLevel(ENTRIES, cards, prefs.level), cards, history, day.d, profile.target, newLimit() || NEW_PER_DAY);
+    const name = levelName(profile.target);
+    let line = !e ? "" : e.remaining === 0 ? `Ya viste todo ${name}.` : `A este ritmo terminas ${name} el ${fmtDate(e.date)} (${e.remaining} cartas, ${e.pace.toFixed(1)} nuevas al día).`;
+    if (e?.remaining && profile.targetDate) line += e.date <= profile.targetDate ? ` Llegas antes del ${fmtDate(profile.targetDate)}.` : ` Para el ${fmtDate(profile.targetDate)} te faltarían ${Math.ceil(e.remaining - e.pace * Math.max(0, (Date.parse(profile.targetDate) - Date.parse(day.d)) / 864e5))} cartas.`;
+    card.push(el("p", "peta", line));
+  } else card.push(el("p", "peta", "Elige un nivel objetivo en Cuenta para ver cuándo llegas."));
+  $("pcard").replaceChildren(...card);
+
+  const ret = retention(history, day.d), streakN = streakDays(history, day.d);
   const kpi = (value, label) => { const d = el("div", "kpi"); d.append(el("b", "", value), el("span", "", label)); return d; };
-  const streakN = streakDays(history, day.d);
-  $("progress").querySelector(".kpis").replaceChildren(
-    kpi(String(day.n), "respuestas hoy"),
+  $("kpis").replaceChildren(
+    kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
     kpi(ret === null ? "—" : `${Math.round(ret * 100)}%`, "retención de cartas maduras (3 días)"),
     kpi(`${day.fresh}/${day.limit ?? NEW_PER_DAY}`, "cartas nuevas hoy"),
-    kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
+    kpi(String(Object.keys(cards).length), "cartas en repaso"),
   );
+  // Activity calendar: color by answers relative to the daily goal.
+  const cells = heatmap(history, day.d);
+  $("heat").replaceChildren(...cells.map(c => {
+    const i = el("i");
+    if (c.n === null) i.className = "future";
+    else { const lvl = c.n === 0 ? 0 : c.n >= goal ? 4 : c.n >= goal / 2 ? 3 : c.n >= goal / 4 ? 2 : 1; i.className = `h${lvl}` + (c.d === day.d ? " today" : ""); }
+    i.title = c.n === null ? "" : `${fmtDate(c.d)}: ${c.n} ${c.n === 1 ? "respuesta" : "respuestas"}`;
+    return i;
+  }));
+  $("heat").setAttribute("aria-label", `Actividad de las últimas 16 semanas: ${cells.filter(c => c.n).length} días con estudio.`);
+  const notes = [];
   const last = exams.at(-1);
-  if (last) $("progress").querySelector(".kpis").append(el("p", "notice pexam",
+  if (last) notes.push(el("p", "notice pexam",
     `Último simulacro (${last.d}): ${last.right}/${last.total} · ${last.pass ? "Aprobado" : "No aprobado"} — vocabulario ${last.per?.vocab?.join("/") ?? "–"}, gramática ${last.per?.gram?.join("/") ?? "–"}, lectura ${last.per?.read?.join("/") ?? "–"}.`));
   const limit = day.limit ?? NEW_PER_DAY;
   if (limit < NEW_PER_DAY) {
@@ -734,23 +784,35 @@ function renderProgress() {
       : dueNow() > 100
         ? `Hoy entran ${limit} cartas nuevas en vez de ${NEW_PER_DAY}: tienes más de 100 repasos pendientes. Repasa primero y el límite sube solo.`
         : `Hoy entran ${limit} cartas nuevas en vez de ${NEW_PER_DAY}: aciertas menos del 70% de las cartas maduras. Unos días repasando sin prisa lo corrigen.`);
-    $("progress").querySelector(".kpis").append(why);
+    notes.push(why);
   }
-  $("progress").querySelector(".decklist").replaceChildren(...deckStats(DECKS, cards).map(d => {
-    const row = el("div", "drow");
-    const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * d.seen) / d.total}%`; meter.append(fill);
-    row.append(el("span", "", d.name), meter, el("small", "", `${d.seen}/${d.total} · ${d.mature} maduras`));
-    return row;
-  }));
+  $("notices").replaceChildren(...notes);
+
+  // Levels: one bar per level, then its decks.
+  const decksOf = deckStats(DECKS, cards);
+  P.querySelector("[data-panel=niveles]").replaceChildren(...levelProgress(DECKS, cards, LEVELS).flatMap(l => [
+    meterRow("drow lrow", `${l.name}${l.id === prefs.level ? " · tu nivel" : ""}`, l.seen / l.total, `${l.seen}/${l.total} · ${l.mature} maduras`),
+    ...decksOf.filter(d => DECKS.find(x => x.id === d.id).level === l.id)
+      .map(d => meterRow("drow", d.name, d.seen / d.total, `${d.seen}/${d.total} · ${d.mature} maduras`)),
+  ]));
+
+  // Accuracy by kind and the cards missed most.
+  $("pkinds").replaceChildren(...kindAccuracy(DECKS, stats, kinds).map(k =>
+    meterRow("drow", k.name, k.rate ?? 0, k.rate === null ? "sin datos" : `${Math.round(100 * k.rate)}% · ${k.total}`)));
+  const weak = weakest(DECKS, stats);
+  $("pweak").replaceChildren(...(weak.length ? weak.map(w => {
+    const li = el("li"); const jp = el("span", "jp", w.q); jp.lang = "ja";
+    li.append(jp, ` ${w.a} · ${w.deck} · ${w.misses} fallos de ${w.hits + w.misses}`);
+    return li;
+  }) : [el("li", "", "Todavía no hay cartas que falles a menudo.")]));
+
   const ends = Array.from({ length: 7 }, (_, i) => { const e = dayEnd(); e.setDate(e.getDate() + i); return e; });
   const counts = forecast(cards, ends), max = Math.max(1, ...counts);
-  $("progress").querySelector(".forecast").replaceChildren(...counts.map((n, i) => {
-    const row = el("div", "frow");
-    const label = i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" });
-    const meter = el("div", "meter"); const fill = el("i"); fill.style.width = `${(100 * n) / max}%`; meter.append(fill);
-    row.append(el("span", "", label), meter, el("small", "", `${n} ${n === 1 ? "carta" : "cartas"}`));
-    return row;
-  }));
+  P.querySelector("[data-panel=pron]").replaceChildren(...counts.map((n, i) =>
+    meterRow("frow", i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" }), n / max, `${n} ${n === 1 ? "carta" : "cartas"}`)));
+
+  $("pname").value = profile.name; $("pgoal").value = profile.goal; $("ptarget").value = profile.target ?? ""; $("pdate").value = profile.targetDate ?? "";
+  renderAccount();
 }
 
 function setTab(t) {
@@ -761,10 +823,10 @@ function setTab(t) {
   }
   for (const p of $("progress").querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== tab;
 }
-function openProgress() {
+function openProgress(start = "resumen") {
   if (screen !== "pause" && screen !== "start") return;
   progressFrom = screen; screen = "progress";
-  renderProgress(); setTab("hoy");
+  renderProgress(); setTab(start);
   $("overlay").hidden = true; $("progress").hidden = false;
   $("progress").querySelector(".tab").focus();
 }
@@ -775,6 +837,89 @@ function closeProgress() {
   renderMenu();
 }
 for (const b of $("progress").querySelectorAll(".tab")) b.addEventListener("click", () => setTab(b.dataset.tab));
+
+$("pform").addEventListener("submit", e => {
+  e.preventDefault();
+  const goal = Math.round(Number($("pgoal").value));
+  if (!(goal >= 1 && goal <= 500)) { $("pmsg").textContent = "La meta diaria va de 1 a 500 respuestas."; return; }
+  profile = { name: $("pname").value.trim().slice(0, 40), goal, target: $("ptarget").value || null, targetDate: $("pdate").value || null, updatedAt: new Date().toISOString() };
+  store.setSync("kp-profile", profile);
+  $("pmsg").textContent = cloud.user() ? "Guardado. Se sincroniza con tu cuenta." : "Guardado en este dispositivo.";
+  renderProgress(); sync();
+});
+
+const login = { step: "email", email: "" };
+let syncState = { ok: null, at: null, msg: "" };
+function renderAccount() {
+  const box = $("acct"), u = cloud.user();
+  const btn = (label, fn) => { const b = el("button", "bar primary"); b.type = "button"; b.append(el("span", "", label)); b.addEventListener("click", fn); return b; };
+  if (u) {
+    const st = el("p", "sync"); st.append(el("i", syncState.ok === true ? "ok" : syncState.ok === false ? "bad" : ""),
+      syncState.ok === false ? `No se pudo sincronizar: ${syncState.msg}` : syncState.at ? `Sincronizado ${new Date(syncState.at).toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })}` : "Sin sincronizar todavía");
+    const row = el("div", "row");
+    row.append(btn("Sincronizar ahora", () => sync(true)), btn("Cerrar sesión", async () => { await cloud.signOut(); syncState = { ok: null, at: null, msg: "" }; renderAccount(); renderMenu(); }));
+    box.replaceChildren(el("p", "mgroup", "CUENTA"), el("p", "", `Sesión iniciada como ${u.email}.`), st,
+      el("p", "small", "Tu progreso y tu perfil se sincronizan entre la web, Windows, Linux y Android al abrir la app y al terminar cada ronda. Si estudiaste en dos dispositivos, se combinan carta por carta."), row);
+    return;
+  }
+  const msg = el("p", "small"); msg.id = "amsg"; msg.setAttribute("aria-live", "polite");
+  const input = document.createElement("input");
+  if (login.step === "email") {
+    input.type = "email"; input.autocomplete = "email"; input.placeholder = "tu@correo.com"; input.value = login.email;
+    const send = async () => {
+      const email = input.value.trim();
+      if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = "Escribe un correo válido."; return; }
+      msg.textContent = "Enviando…";
+      try { await cloud.sendCode(email); login.email = email; login.step = "code"; renderAccount(); }
+      catch (e) { msg.textContent = e.status === 429 ? "Demasiados intentos; espera un minuto y vuelve a pedir el código." : `No se pudo enviar: ${e.message}`; }
+    };
+    input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); send(); } });
+    box.replaceChildren(el("p", "mgroup", "CUENTA"),
+      el("p", "", "Con una cuenta, tu progreso se guarda en la nube y se sincroniza entre tus dispositivos. Es opcional: sin cuenta todo sigue funcionando en este dispositivo."),
+      input, btn("Enviarme un código", send), msg);
+  } else {
+    input.inputMode = "numeric"; input.autocomplete = "one-time-code"; input.maxLength = 6; input.placeholder = "123456";
+    const verify = async () => {
+      const code = input.value.replace(/\D/g, "");
+      if (code.length !== 6) { msg.textContent = "El código tiene 6 dígitos."; return; }
+      msg.textContent = "Comprobando…";
+      try { await cloud.verifyCode(login.email, code); login.step = "email"; renderAccount(); renderMenu(); sync(true); }
+      catch (e) { msg.textContent = e.status === 403 || e.status === 400 ? "Código incorrecto o caducado. Pide otro." : `No se pudo entrar: ${e.message}`; }
+    };
+    input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); verify(); } });
+    const back = el("button", "link", "Usar otro correo"); back.type = "button"; back.addEventListener("click", () => { login.step = "email"; renderAccount(); });
+    box.replaceChildren(el("p", "mgroup", "CUENTA"), el("p", "", `Te enviamos un código de 6 dígitos a ${login.email}. Escríbelo aquí:`), input, btn("Entrar", verify), back, msg);
+  }
+  if (screen === "progress" && tab === "cuenta") input.focus({ preventScroll: true });
+}
+
+// Merge this device with the cloud: pull, combine card by card, apply what is new here, push the result.
+let syncing = null;
+function sync(loud = false) {
+  if (!cloud.user() || !ready) return Promise.resolve();
+  return (syncing ??= (async () => {
+    try {
+      const levels = LEVELS.map(l => l.id);
+      const remote = await cloud.pullProgress();
+      const local = readBackup(backupData(), levels);
+      const merged = mergeProgress(local, remote ? readBackup(remote.data, levels) : null);
+      if (changed(local, merged)) await applyBackup(merged);
+      await cloud.pushProgress(JSON.parse(backupJson()));
+      const rp = await cloud.pullProfile();
+      if (rp && (!profile.updatedAt || Date.parse(rp.updated_at) > Date.parse(profile.updatedAt))) {
+        profile = { name: rp.display_name ?? "", goal: rp.daily_goal, target: rp.target_level, targetDate: rp.target_date, updatedAt: rp.updated_at };
+        store.setSync("kp-profile", profile);
+      } else if (profile.updatedAt) await cloud.pushProfile(profile);
+      syncState = { ok: true, at: Date.now(), msg: "" };
+    } catch (e) {
+      syncState = { ok: false, at: syncState.at, msg: navigator.onLine ? e.message : "sin conexión" };
+      if (loud) $("msg").textContent = `No se pudo sincronizar: ${syncState.msg}`;
+    } finally {
+      syncing = null;
+      if (screen === "progress") renderProgress();
+    }
+  })());
+}
 
 // ---------- mock exam ----------
 let exam = null; // { qs, answers, i, left, paused, timer, from }
@@ -990,6 +1135,7 @@ function listenAnswer(k) {
   $("lverdict").textContent = ok ? "¡CORRECTO!" : `ERA: ${q.answer}`;
   $("lverdict").className = "verdict " + (ok ? "ok" : "bad");
   if (!ok) { $("lnote").textContent = `Voz: ${listen.voice?.name ?? "—"}`; pad.rumble(); }
+  bumpKind("listening", ok);
   countAnswer();
   const s = listen;
   setTimeout(() => {
@@ -1082,6 +1228,7 @@ async function checkDrawing() {
   $("dnote").textContent = notes.join(" ");
   $("dchecktxt").textContent = draw.i + 1 < draw.pool.length ? "Siguiente" : "Terminar";
   if (r.score < 40) pad.rumble();
+  const dk = (kinds.draw ??= [0, 0]); dk[0] += r.score; dk[1]++; store.setSync("kp-kinds", kinds);
   countAnswer();
 }
 function closeDraw() {
@@ -1245,6 +1392,7 @@ function storyAnswer(k) {
   story.locked = true;
   const q = story.st.questions[story.qi], chosen = story.opts[KEYS.indexOf(k)], ok = chosen === q.a;
   story.results.push(ok); if (!ok) story.missed.push(q);
+  bumpKind("reading", ok);
   for (const b of $("sopts").children) {
     const v = story.opts[KEYS.indexOf(b.dataset.k)];
     b.classList.add(v === q.a ? "right" : b.dataset.k === k ? "wrong" : "dim");
@@ -1467,7 +1615,8 @@ $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
 
 // ---------- progress backup ----------
-const backupJson = () => JSON.stringify({ app: "kana-pad", v: 3, stats, cards, day, prefs, history, exams, stories: storyScores }, null, 2);
+const backupData = () => ({ app: "kana-pad", v: 4, stats, cards, day, prefs, history, exams, stories: storyScores, kinds });
+const backupJson = () => JSON.stringify(backupData(), null, 2);
 
 // Desktop/Android builds save a weekly copy on disk by themselves; the web asks the student to export.
 const tauri = window.__TAURI__?.core;
@@ -1521,6 +1670,7 @@ async function applyBackup(r) {
   if (r.history) { history = r.history; store.setSync("kp-hist", history); }
   if (r.exams) { exams = r.exams; store.set("kp-exams", exams); }
   if (r.stories) { storyScores = r.stories; store.setSync("kp-stories", storyScores); }
+  if (r.kinds) { kinds = r.kinds; store.setSync("kp-kinds", kinds); }
   if (r.prefs) { Object.assign(prefs, r.prefs); if (!MODES[prefs.deck]) prefs.deck = 0; savePrefs(); }
   cards = r.cards;
   await store.set("kp-cards", cards);
@@ -1562,6 +1712,7 @@ store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
 store.get("kp-cards", {}).then(c => {
   cards = sanitizeCards(c);
   ready = true; renderMenu();
+  sync();
   setTimeout(downloadVoices, 3000);
   autoBackup(); renderBackupReminder();
   rollDay(); store.setSync("kp-day", day);
