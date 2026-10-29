@@ -7,7 +7,8 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 **Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre: cada carta nueva se enseña con su respuesta antes de preguntarla, y entran de una en una a medida que aprendes las anteriores. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
-n[Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
+
+[Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
 ## Novedades de 0.7.0
 
