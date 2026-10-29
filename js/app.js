@@ -477,6 +477,7 @@ const CATS = [
   { id: "retos", name: "Retos" }, { id: "progreso", name: "Mi panel" }, { id: "ajustes", name: "Ajustes" },
 ];
 const menu = { cat: 0, sel: 0, focus: "panel", sub: null }; // sub: "voices", a page inside Ajustes
+let menuPage = null; // category (and sub page) the panel last showed
 
 function accuracyOf(deck) {
   let h = 0, m = 0;
@@ -585,6 +586,9 @@ function renderMenu() {
     return b;
   }));
   $("menupanel").classList.toggle("active", menu.focus === "panel");
+  // A new category slides its rows in; moving inside the same one only moves the highlight.
+  const page = menu.cat + (menu.sub ?? "");
+  if (page !== menuPage) { menuPage = page; $("menupanel").classList.remove("swap"); void $("menupanel").offsetWidth; $("menupanel").classList.add("swap"); }
   let group = null;
   $("menupanel").replaceChildren(...rows.flatMap((it, i) => {
     const out = [];
@@ -602,11 +606,18 @@ function renderMenu() {
     out.push(b);
     return out;
   }));
+  // Today at a glance on the blue slab, like the profile card in Mi panel.
+  const goal = profile.goal || 20, today = el("div", "meter"), fill = el("i");
+  fill.style.width = `${Math.min(100, (100 * day.n) / goal)}%`; today.append(fill);
+  const big = el("p", "mbig"); big.append(el("b", "", String(pending())), pending() === 1 ? "repaso pendiente" : "repasos pendientes");
+  const streakLine = el("p", "pmeta"); streakLine.append("Racha ", el("b", "", String(days)), " · nuevas ", el("b", "", `${day.fresh}/${newLimit()}`));
+  $("menuhero").replaceChildren(el("p", "pmeta", "HOY"), big, streakLine, el("p", "peta", `Hoy: ${day.n} de ${goal} respuestas`), today);
   const focused = menu.focus === "rail" ? $("menurail").children[menu.cat] : $("menupanel").querySelectorAll(".mrow")[menu.sel];
   focused?.focus({ preventScroll: true });
   focused?.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 function moveMenu(d) {
+  $("overlay").classList.remove("intro");
   if (menu.focus === "rail") { menu.cat = (menu.cat + d + CATS.length) % CATS.length; menu.sel = 0; menu.sub = null; $("credits").hidden = true; }
   else { const n = menuRows().length; menu.sel = (menu.sel + d + n) % n; }
   renderMenu();
@@ -634,6 +645,8 @@ function openMenu() {
   wakeLock?.release().catch(() => {}); wakeLock = null;
   Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
   $("overlay").hidden = false; document.querySelector(".app").inert = true;
+  // The staggered entrance runs once per opening, not on every rebuild while moving (rows are recreated).
+  $("overlay").classList.add("intro"); setTimeout(() => $("overlay").classList.remove("intro"), 450);
   renderMenu(); renderBackupReminder();
 }
 function closeMenu() { $("overlay").hidden = true; document.querySelector(".app").inert = false; }

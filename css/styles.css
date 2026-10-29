@@ -254,7 +254,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 /* Main menu: categories in a left column (skewed bars like the answers); the right panel shows what is inside.
    The bar or row the pad is on is yellow; the open category stays blue while you move inside its panel. */
 .menu-screen { place-items: center; }
-.menu-wrap { width: min(100%, 1180px); display: grid; gap: 16px; }
+.menu-wrap { width: min(100%, 1640px); display: grid; gap: 16px; }
 .mtop { display: flex; align-items: center; gap: 16px; }
 .mtitle { margin: 0; font: 400 56px/1 var(--font-display); letter-spacing: .04em; background: var(--slab); color: var(--ink); padding: 4px 24px; transform: skewX(var(--skew)); }
 .mlevel { margin-left: auto; font-weight: 600; color: var(--muted); }
@@ -297,6 +297,15 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .mfoot { margin: 0; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 15px; }
 .legend { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
 .legend > span { display: inline-flex; align-items: center; gap: 6px; }
+/* Today's slab: below the menu on narrow screens, a third column on wide ones. */
+.mhero { grid-column: 1 / -1; grid-row: auto; align-self: start; }
+.mhero .mbig { display: grid; font-weight: 800; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; }
+.mhero .mbig b { font: 400 112px/.95 var(--font-display); color: var(--hi); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+@media (min-width: 1200px) {
+  .mbody { grid-template-columns: minmax(0, 360px) minmax(0, 1fr) minmax(0, clamp(300px, 24vw, 460px)); }
+  .mhero { grid-column: auto; }
+  .mrow { font-size: 30px; min-height: 64px; } .mrow .msub { font-size: 19px; } .mrow .mcount { font-size: 30px; }
+}
 
 /* Listening (§9.2) */
 .voice-chip { background: var(--bar); color: var(--bar-ink); font: 400 22px var(--font-display); letter-spacing: .04em; padding: 2px 12px; transform: rotate(-3deg); }
@@ -383,6 +392,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   .menu-list .menu-item, .menu-list .menu-item.sel { width: 100%; font-size: 26px; }
   .menu-item .msub { display: block; }
   .mfoot { display: none; }
+  .mhero .mbig b { font-size: 64px; }
   .reader { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .stext { font-size: 24px; padding: 16px; max-height: none; }
   .wordpanel { position: sticky; bottom: 0; min-height: 128px; border-top: 1px solid var(--line); padding: 12px 16px; }
@@ -437,6 +447,18 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .verdict.ok, .verdict.bad { animation: stamp .2s ease-out; }
 .bar.wrong { animation: nudge .3s ease-out; }
 .pips i:is(.hit, .miss):not(:has(+ :is(.hit, .miss))) { animation: pip .25s ease-out; }
+/* Menu: the staggered entrance only while .intro is on (set on opening; rows are rebuilt on every move).
+   Switching category slides the panel; moving the highlight is instant. */
+@keyframes rise-skew { from { opacity: 0; transform: skewX(var(--skew)) translateY(12px); } }
+.intro .menu-item { animation: rise-skew .25s ease-out backwards; }
+.intro .mrow, .intro .mhero { animation: rise .25s ease-out backwards; }
+.intro .menu-item:nth-child(2), .intro .mrow:nth-child(2) { animation-delay: .03s; }
+.intro .menu-item:nth-child(3), .intro .mrow:nth-child(3) { animation-delay: .06s; }
+.intro .menu-item:nth-child(4), .intro .mrow:nth-child(4) { animation-delay: .09s; }
+.intro .menu-item:nth-child(5), .intro .mrow:nth-child(n+5) { animation-delay: .12s; }
+.intro .menu-item:nth-child(6), .intro .mhero { animation-delay: .15s; }
+.mpanel.swap { animation: enter .18s ease-out; }
+.mhero .meter i { animation: none; } .intro .mhero .meter i { animation: grow .35s ease-out backwards .15s; }
 .tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .12s; }
 .bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) translateY(2px); }
 .tab:active, .mode:active { transform: translateY(2px); }
