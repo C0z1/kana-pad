@@ -202,7 +202,6 @@ function renderCard() {
     return b;
   }));
   renderPips(); renderTop();
-  if (document.activeElement === document.body) $("opts").querySelector(".bar")?.focus({ preventScroll: true });
   locked = false;
   shownAt = performance.now();
   if (teaching) {
@@ -432,7 +431,7 @@ function setPaused(p) {
     keepAwake();
     if (screen === "play" && locked) next();
     else if (screen === "summary") showSummary(); // restarts the breather countdown
-    else if (screen === "play") $("opts").querySelector(".bar")?.focus({ preventScroll: true });
+    // (no auto-focus on an answer bar: its yellow focus ring would look like a hint)
   }
 }
 let resumeTo = "play", pausedAt = 0;
@@ -544,7 +543,9 @@ function renderMenu() {
   const meta = el("span"); const days = streakDays(history, day.d);
   meta.append("Nivel ", el("b", "", prefs.level ? levelName(prefs.level) : "—"), ` · ${days} ${days === 1 ? "día seguido" : "días seguidos"}`);
   $("menulevel").replaceChildren(meta);
-  $("mback").hidden = menu.focus === "rail" && screen !== "pause";
+  const atHome = menu.cat === 0 && !menu.sub;
+  $("overlay").querySelector("[data-nav=back]").hidden = atHome && screen !== "pause"; // nothing behind the home screen
+  $("overlay").querySelector("[data-nav=home]").hidden = atHome;
   $("menurail").replaceChildren(...CATS.map((c, i) => {
     const b = el("button", "menu-item" + (i !== menu.cat ? "" : menu.focus === "rail" ? " sel" : " on"));
     b.type = "button";
@@ -761,7 +762,6 @@ function closeProgress() {
   $("progress").hidden = true; $("overlay").hidden = false;
   renderMenu();
 }
-$("closeprogress").addEventListener("click", closeProgress);
 for (const b of $("progress").querySelectorAll(".tab")) b.addEventListener("click", () => setTab(b.dataset.tab));
 
 // ---------- mock exam ----------
@@ -918,7 +918,6 @@ function closeExam() {
   renderMenu();
 }
 $("eback").addEventListener("click", closeExam);
-$("epausebtn").addEventListener("click", () => setExamPaused(!exam?.paused));
 $("equit").addEventListener("click", closeExam);
 
 // ---------- listening (§9.2) ----------
@@ -1001,7 +1000,6 @@ function closeListening() {
 }
 $("lagain").addEventListener("click", startListening);
 $("lback").addEventListener("click", closeListening);
-$("lclose").addEventListener("click", closeListening);
 $("lrepeat").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice));
 $("lslow").addEventListener("click", () => listen && sayWith(listen.qs[listen.i]?.say ?? "", listen.voice, true));
 
@@ -1108,7 +1106,6 @@ $("dundo").addEventListener("click", drawAction.undo);
 $("dclear").addEventListener("click", drawAction.clear);
 $("dshow").addEventListener("click", drawAction.show);
 $("dcheck").addEventListener("click", checkDrawing);
-$("dclose").addEventListener("click", closeDraw);
 
 // ---------- stories (§9.3) ----------
 const SCRIPTS = ["hira", "kata", "kanji"];
@@ -1274,12 +1271,44 @@ function toggleFurigana() {
   $("sfuri").setAttribute("aria-pressed", prefs.furigana !== false);
   $("stext").classList.toggle("nofuri", prefs.furigana === false);
 }
-$("sclose").addEventListener("click", storyBack);
 $("sagain").addEventListener("click", () => { storyBack(); });
 $("sfuri").addEventListener("click", toggleFurigana);
 $("sline").addEventListener("click", () => story && sayLine());
 $("squizbtn").addEventListener("click", () => story && startStoryQuiz());
 for (const b of $("stabs").querySelectorAll(".tab")) b.addEventListener("click", () => { storyTab = b.dataset.tab; storySel = 0; renderStoryList(); });
+
+// ---------- back arrow and home (every screen) ----------
+// Back does what B / Esc do on that screen; home goes to the main menu (from a round, the pause menu,
+// so "Continuar" is still there; from a running exam, its pause, which has "Salir").
+function goBack() {
+  if (screen === "play" || screen === "summary") setPaused(true);
+  else if (screen === "start" || screen === "pause") {
+    // The arrow goes back a page: a sub-page, then Hoy, then (in the pause) the round itself.
+    if (menu.sub) menuBack();
+    else if (menu.cat !== 0) goHome();
+    else if (screen === "pause") setPaused(false);
+  }
+  else if (screen === "exam") { if (!$("eresult").hidden || exam?.paused) closeExam(); else setExamPaused(true); }
+  else if (screen === "listen") closeListening();
+  else if (screen === "stories") storyBack();
+  else if (screen === "progress") closeProgress();
+  else if (screen === "draw") closeDraw();
+}
+function goHome() {
+  if (screen === "play" || screen === "summary") setPaused(true);
+  else if (screen === "exam" && $("eresult").hidden && !exam?.paused) return setExamPaused(true);
+  else if (screen === "exam") closeExam();
+  else if (screen === "listen") closeListening();
+  else if (screen === "stories") closeStories();
+  else if (screen === "progress") closeProgress();
+  else if (screen === "draw") closeDraw();
+  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
+  if (!$("overlay").hidden) renderMenu();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest?.("[data-nav]");
+  if (b) (b.dataset.nav === "home" ? goHome : goBack)();
+});
 
 // ---------- input ----------
 const ANSWER_BUTTONS = { 0: "a", 1: "b", 2: "x", 3: "y", 12: "y", 13: "a", 14: "x", 15: "b" };
@@ -1422,8 +1451,6 @@ document.addEventListener("keydown", e => {
 $("again").addEventListener("click", continueStudy);
 $("morenew").addEventListener("click", moreNew);
 $("decktag").addEventListener("click", () => setDeck(prefs.deck + 1));
-$("playback").addEventListener("click", () => setPaused(true));
-$("mback").addEventListener("click", menuBack);
 $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
 
@@ -1507,6 +1534,7 @@ async function undoImport() {
 setInterval(() => {
   const s = pad.status();
   $("dot").classList.toggle("on", s.on);
+  document.body.classList.toggle("pad", s.on);
   $("padtxt").textContent = s.text;
 }, 500);
 

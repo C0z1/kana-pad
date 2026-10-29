@@ -18,7 +18,7 @@
 <div class="app">
   <header class="top">
     <div class="deckbar">
-      <button type="button" class="link back" id="playback"><kbd>MENÚ</kbd>Volver</button>
+      <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
       <kbd>LB</kbd>
       <button type="button" class="deck-tag" id="decktag">HIRAGANA</button>
       <kbd>RB</kbd>
@@ -59,7 +59,7 @@
   </section>
 
   <footer class="bottom">
-    <span class="pad"><span class="dot" id="dot"></span><span id="padtxt">Sin mando</span></span>
+    <span class="pad pad-only"><span class="dot" id="dot"></span><span id="padtxt">Sin mando</span></span>
     <span class="saved" id="saved" aria-live="off"></span>
     <span class="legend help"><span><kbd>LB</kbd><kbd>RB</kbd>Mazo</span><span><kbd>VIEW</kbd>Voz</span><span><kbd>MENÚ</kbd>Pausa</span><span>Cruceta ↑Y ←X →B ↓A</span></span>
   </footer>
@@ -67,7 +67,7 @@
 
 <div class="overlay menu-screen" id="overlay">
   <div class="menu-wrap">
-    <header class="mtop"><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span><button type="button" class="link back" id="mback" hidden><span class="badge" data-k="b">B</span>Volver</button></header>
+    <header class="mtop"><span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span></header>
     <div class="mbody">
       <nav class="mrail" id="menurail" aria-label="Categorías"></nav>
       <section class="mpanel" id="menupanel" aria-live="polite"></section>
@@ -88,16 +88,16 @@
       </ul>
     </details>
     <input type="file" id="import" accept="application/json" hidden>
-    <p class="mfoot">↑↓ elegir · A o → entrar · B o ← volver · ←→ cambian los valores de Ajustes</p>
+    <p class="mfoot pad-only">↑↓ elegir · A o → entrar · B o ← volver · ←→ cambian los valores de Ajustes</p>
   </div>
 </div>
 
 <section class="exam" id="exam" hidden aria-label="Simulacro N5">
   <header class="etop">
+    <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
     <span class="deck-tag" id="etitle">SIMULACRO N5</span>
     <span class="esec" id="esec"></span>
     <b class="etimer" id="etimer">20:00</b>
-    <button type="button" class="link back" id="epausebtn"><kbd>MENÚ</kbd>Pausa</button>
   </header>
   <div class="ebody" id="ebody">
     <div class="prompt" id="eprompt"><div class="glyph" id="eq"></div><p class="hint" id="ehint"></p></div>
@@ -120,9 +120,9 @@
 
 <section class="exam" id="listen" hidden aria-label="Listening">
   <header class="etop">
+    <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
     <span class="deck-tag">LISTENING</span>
     <span class="esec" id="lsec"></span>
-    <button type="button" class="link back" id="lclose"><kbd>MENÚ</kbd>Volver</button>
   </header>
   <div class="ebody" id="lbody">
     <div class="prompt" id="lprompt">
@@ -153,9 +153,9 @@
 
 <section class="exam" id="draw" hidden aria-label="Dibujar">
   <header class="etop">
+    <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
     <span class="deck-tag">DIBUJAR</span>
     <span class="esec" id="dsec"></span>
-    <button type="button" class="link back" id="dclose"><kbd>MENÚ</kbd>Volver</button>
   </header>
   <div class="ebody">
     <div class="prompt" id="dprompt">
@@ -179,6 +179,7 @@
 
 <section class="exam" id="stories" hidden aria-label="Cuentos">
   <header class="etop">
+    <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
     <span class="deck-tag" id="stitle">CUENTOS</span>
     <div class="tabs" id="stabs" role="tablist" aria-label="Escritura">
       <kbd>LB</kbd>
@@ -188,7 +189,6 @@
       <kbd>RB</kbd>
     </div>
     <button type="button" class="mode" id="sfuri" aria-pressed="true" hidden><kbd>Y</kbd>Furigana</button>
-    <button type="button" class="link" id="sclose"><span class="badge" data-k="b">B</span>Volver</button>
   </header>
   <nav class="menu-list" id="slist" aria-label="Cuentos"></nav>
   <div class="reader" id="sreader" hidden>
@@ -198,7 +198,7 @@
       <button type="button" class="mode" id="sline"><kbd>LT</kbd>Oír frase</button>
       <button type="button" class="mode" id="squizbtn"><kbd>RB</kbd>Preguntas</button>
     </div>
-    <p class="mfoot">←→ palabra · ↑↓ línea · A guardar · X escuchar · LT frase · RB preguntas · B salir</p>
+    <p class="mfoot pad-only">←→ palabra · ↑↓ línea · A guardar · X escuchar · LT frase · RB preguntas · B salir</p>
   </div>
   <div class="ebody" id="squiz" hidden>
     <div class="prompt"><div class="glyph latin" id="sq"></div><p class="hint" id="shint"></p></div>
@@ -219,6 +219,7 @@
 <div class="overlay" id="progress" hidden>
   <div class="panel">
     <header class="ptop">
+      <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
       <span class="deck-tag">PROGRESO</span>
       <div class="tabs" role="tablist" aria-label="Secciones del progreso">
         <kbd>LB</kbd>
@@ -227,7 +228,6 @@
         <button type="button" role="tab" class="tab" data-tab="pron" aria-selected="false">Próximos 7 días</button>
         <kbd>RB</kbd>
       </div>
-      <button type="button" class="link" id="closeprogress"><span class="badge" data-k="b">B</span>Volver</button>
     </header>
     <section class="kpis" data-panel="hoy" role="tabpanel"></section>
     <section class="decklist" data-panel="mazos" role="tabpanel" hidden></section>

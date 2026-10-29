@@ -14,7 +14,7 @@
 }
 
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 500 18px/1.35 var(--font-ui); overflow: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 500 18px/1.35 var(--font-ui); overflow: auto; }
 button { font: inherit; color: inherit; }
 kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; }
 :focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; }
@@ -135,10 +135,16 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .dmodel .strokes path.ok { stroke: var(--btn-a); }
 .dmodel .strokes path.meh { stroke: var(--btn-y); }
 .dmodel .strokes path.bad { stroke: var(--bad); }
-/* Visible way back on every screen, for touch and mouse (the pad uses B or Menú). */
-.back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
-.mtop .back { margin-left: auto; }
-.deckbar .back { margin-right: 12px; }
+/* Back arrow and home on every screen, first thing in each header (the pad uses B and Menú). */
+.nav { display: inline-flex; gap: 8px; flex: none; }
+.navbtn { width: 48px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: var(--dim-bg); color: var(--ink);
+  cursor: pointer; transform: skewX(var(--skew)); }
+.navbtn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transform: skewX(calc(var(--skew) * -1)); }
+.navbtn:hover { background: #343444; }
+.navbtn[hidden] { display: none; }
+.deckbar .nav { margin-right: 12px; }
+/* Controller hints are an extra: hidden until a controller is in use (body.pad). */
+body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: none !important; }
 
 /* Progress panel: flat tiles, Anton figures, skewed bars like the answer bars. */
 .panel { width: min(100%, 1100px); box-sizing: border-box; display: grid; gap: 24px; align-content: start; }
@@ -205,7 +211,6 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .mtitle { margin: 0; font: 400 56px/1 var(--font-display); letter-spacing: .04em; background: var(--slab); color: var(--ink); padding: 4px 24px; transform: skewX(var(--skew)); }
 .mlevel { margin-left: auto; font-weight: 600; color: var(--muted); }
 .mlevel b { font: 400 30px var(--font-display); color: var(--hi); letter-spacing: .04em; }
-.mtop .back { margin-left: 0; }
 .mbody { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 40px; align-items: start; }
 .mrail { display: grid; gap: 10px; }
 .menu-list { display: grid; gap: 10px; }
@@ -301,7 +306,8 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   .summary .bar.primary { width: auto; }
   .combo-label { display: none; }
   .dpad { width: min(100%, 44vh); }
-  .deckbar { gap: 6px; } .deckbar > kbd { display: none; } .deckbar .back { margin-right: 4px; }
+  .deckbar { gap: 6px; } .deckbar > kbd { display: none; } .deckbar .nav { margin-right: 4px; }
+  .navbtn { width: 44px; }
   .top > * { min-width: 0; }
   .combo > span { white-space: normal; font-size: 12px; }
   .modes { justify-content: stretch; } .modes .mode { flex: 1 1 0; min-width: 0; justify-content: center; }
