@@ -1,12 +1,21 @@
 # Kana Pad
 
-Practica japonés con un mando Xbox: hiragana, katakana y tres niveles JLPT (N5, N4 y N3) con unas 3,000 palabras, 613 kanji con orden de trazos y gramática de cada nivel. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
+Practica japonés con teclado, ratón, pantalla táctil o un mando Xbox: hiragana, katakana y tres niveles JLPT (N5, N4 y N3) con unas 3,000 palabras, 613 kanji con orden de trazos y gramática de cada nivel. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
 
-Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye un **panel de progreso** (pausa → Y) y un **simulacro N5** de 20 minutos (pausa → X).
+Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye **listening** con tres voces japonesas incluidas (funcionan sin conexión), **cuentos** N5, **dibujo** de kana y kanji con calificación por trazo, un **panel de progreso** y un **simulacro N5** de 20 minutos.
 
 **Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
+
+## Novedades de 0.7.0
+
+- Niveles N4 y N3 (unas 2,450 palabras, 510 kanji y gramática) y prueba de nivel.
+- Tres voces japonesas incluidas (Kokoro-82M); la versión web las descarga una vez para usarlas sin conexión.
+- Dibujar: kana y kanji con calificación de 0 a 100 según forma, orden y dirección de cada trazo.
+- Menú nuevo: categorías a la izquierda y su contenido a la derecha; Ajustes agrupados.
+- Flecha ← para volver y ⌂ para ir al inicio en todas las pantallas. Las indicaciones del mando solo aparecen con un mando conectado.
+- Importar progreso pide confirmación y se puede deshacer. Muchos arreglos de las pruebas de QA.
 
 ## Descargas
 
@@ -18,7 +27,7 @@ En [Releases](https://github.com/C0z1/kana-pad/releases/latest):
 | Linux | `.AppImage` o `.deb` | Al `.AppImage` dale permiso de ejecución (`chmod +x`) |
 | Android | `kana-pad-android.apk` | Versión de prueba firmada con clave de depuración. Permite "instalar apps de origen desconocido". Conecta el mando por Bluetooth |
 
-Las versiones descargables todavía no se actualizan solas: para pasar a una versión nueva, exporta tu progreso, instala la nueva e impórtalo. Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
+Las versiones descargables todavía no se actualizan solas: para pasar a una versión nueva, exporta tu progreso (Ajustes → Exportar), instala la nueva e impórtalo. Traen las voces dentro, por eso pesan unos 75 MB. Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
 
 ## Controles
 
@@ -30,10 +39,12 @@ Las versiones descargables todavía no se actualizan solas: para pasar a una ver
 | RT | I | Modo inverso: de español o romaji a japonés |
 | View | S | Voz en japonés sí o no |
 | Menú | Esc | Pausa |
+| B | Esc o ← | Volver (también el botón ← de cada pantalla; ⌂ lleva al inicio) |
 
 - Cada ronda tiene 10 cartas. Las que fallas vuelven con más frecuencia.
 - La app solo escucha el primer mando en el que pulsas un botón. Así puedes dejar otro mando para el juego. "Usar otro mando" (en la pausa) lo reinicia.
-- El progreso se guarda en el navegador. Desde la pausa puedes exportarlo o importarlo como JSON.
+- El progreso se guarda en el navegador. En Ajustes puedes exportarlo o importarlo como JSON.
+- El mando es opcional: con ratón o pantalla táctil, toca la respuesta; las indicaciones del mando aparecen cuando conectas uno.
 
 ## Desarrollo
 
