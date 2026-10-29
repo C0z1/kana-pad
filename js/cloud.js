@@ -54,6 +54,21 @@ export async function signIn(email, password) {
   save(await call("/auth/v1/token?grant_type=password", { method: "POST", body: { email, password } }));
   return user();
 }
+// Google (web only): Supabase sends the student to Google and back to `returnTo` with the session
+// in the URL fragment (#access_token=…). takeRedirect() reads it on load and clears the address bar.
+export const googleUrl = returnTo => `${URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(returnTo)}`;
+export async function takeRedirect() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (!h.has("access_token") && !h.has("error")) return null;
+  history.replaceState(null, "", location.pathname + location.search); // tokens must not stay in the URL or history
+  if (h.has("error")) throw new Error(h.get("error_description") || h.get("error"));
+  const access_token = h.get("access_token");
+  const u = await call("/auth/v1/user", { token: access_token });
+  save({ access_token, refresh_token: h.get("refresh_token"), expires_in: Number(h.get("expires_in")) || 3600,
+    expires_at: Number(h.get("expires_at")) || undefined, user: u });
+  return user();
+}
+
 export async function signOut() {
   try { const t = await token(); if (t) await call("/auth/v1/logout", { method: "POST", token: t }); } catch {}
   save(null);

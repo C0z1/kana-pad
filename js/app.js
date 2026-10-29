@@ -891,9 +891,11 @@ function renderAccount() {
   for (const f of [input, pass]) f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
   const swap = el("button", "link", login.step === "signup" ? "Ya tengo cuenta: entrar" : "No tengo cuenta: crear una");
   swap.type = "button"; swap.addEventListener("click", () => { login.email = input.value.trim(); login.step = login.step === "signup" ? "signin" : "signup"; renderAccount(); });
+  // Google needs a real browser tab (Google refuses sign-in inside app webviews), so only on the web.
+  const google = tauri ? [] : [btn("Entrar con Google", () => { location.href = cloud.googleUrl(location.origin + location.pathname); }), el("p", "small", "o con tu correo:")];
   box.replaceChildren(el("p", "mgroup", login.step === "signup" ? "CREAR CUENTA" : "CUENTA"),
     el("p", "", "Con una cuenta, tu progreso se guarda en la nube y se sincroniza entre tus dispositivos. Es opcional: sin cuenta todo sigue funcionando en este dispositivo."),
-    input, pass, btn(login.step === "signup" ? "Crear cuenta" : "Entrar", go), swap, msg);
+    ...google, input, pass, btn(login.step === "signup" ? "Crear cuenta" : "Entrar", go), swap, msg);
   if (screen === "progress" && tab === "cuenta") input.focus({ preventScroll: true });
 }
 
@@ -1713,9 +1715,11 @@ window.speechSynthesis?.addEventListener?.("voiceschanged", checkVoices);
 checkVoices();
 document.querySelector(".app").inert = true;
 store.get("kp-exams", []).then(x => { exams = Array.isArray(x) ? x : []; });
-store.get("kp-cards", {}).then(c => {
+store.get("kp-cards", {}).then(async c => {
   cards = sanitizeCards(c);
   ready = true; renderMenu();
+  try { if (await cloud.takeRedirect()) $("msg").textContent = `Sesión iniciada como ${cloud.user().email}.`; }
+  catch (e) { $("msg").textContent = `No se pudo entrar con Google: ${e.message}`; }
   sync();
   setTimeout(downloadVoices, 3000);
   autoBackup(); renderBackupReminder();
