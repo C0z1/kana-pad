@@ -10,15 +10,12 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
-## Novedades de 0.7.0
+## Novedades de 0.8.0
 
-- Niveles N4 y N3 (unas 2,450 palabras, 510 kanji y gramática) y prueba de nivel.
-- Tres voces japonesas incluidas (Kokoro-82M); la versión web las descarga una vez para usarlas sin conexión.
-- Dibujar: kana y kanji con calificación de 0 a 100 según forma, orden y dirección de cada trazo.
-- Menú nuevo: categorías a la izquierda y su contenido a la derecha; Ajustes agrupados.
-- Flecha ← para volver y ⌂ para ir al inicio en todas las pantallas. Las indicaciones del mando solo aparecen con un mando conectado.
-- Importar progreso pide confirmación y se puede deshacer. Muchos arreglos de las pruebas de QA.
-
+- Cuenta opcional en la nube: tu progreso y tu perfil se sincronizan entre dispositivos. Entra con correo y contraseña o, en la versión web, con Google.
+- Mi panel: perfil con meta diaria y nivel objetivo, calendario de las últimas 16 semanas, niveles, precisión y repasos de los próximos 7 días.
+- El menú principal y Mi panel aprovechan el ancho de la pantalla; el menú muestra de un vistazo lo que toca hoy.
+- Animaciones en toda la app: cambios de pantalla, tarjetas y respuestas. Se apagan si tu sistema tiene activado reducir el movimiento.
 ## Descargas
 
 En [Releases](https://github.com/C0z1/kana-pad/releases/latest):
@@ -29,7 +26,7 @@ En [Releases](https://github.com/C0z1/kana-pad/releases/latest):
 | Linux | `.AppImage` o `.deb` | Al `.AppImage` dale permiso de ejecución (`chmod +x`) |
 | Android | `kana-pad-android.apk` | Versión de prueba firmada con clave de depuración. Permite "instalar apps de origen desconocido". Conecta el mando por Bluetooth |
 
-Las versiones descargables todavía no se actualizan solas: para pasar a una versión nueva, exporta tu progreso (Ajustes → Exportar), instala la nueva e impórtalo. Traen las voces dentro, por eso pesan unos 75 MB. Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, usa Exportar e Importar en la pausa.
+Las versiones descargables todavía no se actualizan solas: para pasar a una versión nueva, exporta tu progreso (Ajustes → Exportar), instala la nueva e impórtalo. Traen las voces dentro, por eso pesan unos 75 MB. Las apps de escritorio y Android usan el mismo código que la versión web. El progreso de cada una es independiente: para pasarlo de un dispositivo a otro, entra con la misma cuenta (Mi panel → Cuenta) o usa Exportar e Importar en Ajustes.
 
 ## Controles
 
