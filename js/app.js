@@ -20,7 +20,9 @@ import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js
 import { grade as gradeDrawing, verdict, pathPoints } from "./draw.js";
 import { shuffle } from "./srs.js";
 import { icon } from "./icons.js";
-import { CHALLENGES, MIN_POOL, challengeQuestion, runOver, recordRun } from "./challenges.js";
+import { achievements, unseen } from "./achievements.js";
+import { sfx } from "./sfx.js";
+import { CHALLENGES, MIN_POOL, challengeQuestion, runOver, recordRun, dailyQuestions, DAILY_QUESTIONS } from "./challenges.js";
 
 const KEYS = ["y", "x", "b", "a"]; // top-to-bottom order of the answer bars
 const ROUND = 10;
@@ -46,6 +48,8 @@ const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSy
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
 let records = store.getSync("kp-records", {}); // Retos: best score per challenge id
+let daily = store.getSync("kp-daily", {}); // Reto del día: "YYYY-MM-DD" -> score of the day's first run
+let achvSeen = store.getSync("kp-achv-seen", []); // achievement ids already announced
 let kinds = store.getSync("kp-kinds", {}); // listening/reading: [hits, misses]; draw: [sum of scores, drawings]
 let profile = { name: "", goal: 20, target: null, targetDate: null, updatedAt: null, ...store.getSync("kp-profile", {}) };
 function bumpKind(kind, ok) { const k = (kinds[kind] ??= [0, 0]); k[ok ? 0 : 1]++; store.setSync("kp-kinds", kinds); }
@@ -298,6 +302,7 @@ function answer(k) {
     saveCards();
   }
   streak = ok ? streak + 1 : 0;
+  if (prefs.sfx) (ok ? sfx.right : sfx.wrong)();
   day.n++; countAnswer();
   round.results.push(ok);
   if (!ok) round.missed.push(item);
@@ -358,6 +363,7 @@ function answer(k) {
 }
 
 function showSummary() {
+  setTimeout(announceAchievements); // after this result is saved
   screen = "summary";
   sync();
   $("stage").hidden = true; $("summary").hidden = false;
@@ -514,6 +520,8 @@ function menuRows() {
       ...(screen === "pause" ? [{ icon: "play", label: "Continuar", sub: "Volver a donde estabas", action: () => setPaused(false) }] : []),
       { icon: "layers", label: "Repaso de hoy", count: String(pending()), action: () => startMode(0),
         sub: `${pending()} pendientes · ${day.fresh} de ${newLimit()} nuevas · desde ${levelName(start)}` + (limit < NEW_PER_DAY ? " · FRENO: hoy entran menos nuevas" : "") },
+      // A reminder while it's pending; once done it lives in Retos with its score.
+      ...(daily[day.d] === undefined ? [{ ...dailyRow(), group: undefined }] : []),
       ...(!prefs.level ? [{ icon: "stairs", label: "Prueba de nivel", sub: "Unas preguntas para saber desde dónde empezar", action: startPlacement }] : []),
     ];
   }
@@ -542,6 +550,7 @@ function menuRows() {
         sub: (prev ? `Último: ${prev.right}/${prev.total} · ${prev.pass ? "aprobado" : "no aprobado"} · ` : "") + `${examMinutes(n)} minutos, ${n} preguntas` + (lv === "n5" ? "" : " · sin lectura") };
     };
     return [
+      dailyRow(),
       { group: "Retos rápidos", icon: "timer", label: "Contrarreloj", sub: `${best("time")} · 60 segundos: todas las que puedas`, action: () => startChallenge("time") },
       { group: "Retos rápidos", icon: "heart", label: "Supervivencia", sub: `${best("survival")} · hasta el primer fallo`, action: () => startChallenge("survival") },
       sim("n5"), sim("n4"), sim("n3"),
@@ -562,8 +571,12 @@ function menuRows() {
   };
   const voice = () => { toggle("voice"); renderMenu(); };
   const voiceTo = d => { if ((d < 0) === prefs.voice) return false; voice(); }; // ← SÍ, → NO
+  // Turning effects on plays one, so the student hears how loud they are.
+  const effects = () => { toggle("sfx"); if (prefs.sfx) sfx.right(); renderMenu(); };
+  const effectsTo = d => { if ((d < 0) === !!prefs.sfx) return false; effects(); };
   return [
     { group: "Voz", icon: "speaker", label: "Leer cada carta en voz alta", seg: { options: ["SÍ", "NO"], on: prefs.voice ? 0 : 1 }, action: voice, change: voiceTo },
+    { group: "Voz", icon: prefs.sfx ? "speaker" : "mute", label: "Efectos de sonido", sub: "Acierto, fallo y récord · volumen bajo", seg: { options: ["SÍ", "NO"], on: prefs.sfx ? 0 : 1 }, action: effects, change: effectsTo },
     { group: "Voz", icon: "headphones", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
     ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", icon: "download", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
     { group: "Nivel", icon: "stairs", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
@@ -667,6 +680,7 @@ function menuBack() {
   else if (screen === "pause") setPaused(false);
 }
 function openMenu() {
+  setTimeout(announceAchievements); // anything earned since, e.g. through a sync
   wakeLock?.release().catch(() => {}); wakeLock = null;
   Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
   $("overlay").hidden = false; document.querySelector(".app").inert = true;
@@ -764,7 +778,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ---------- user dashboard ("Mi panel") ----------
-const TABS = ["resumen", "niveles", "precision", "pron", "cuenta"];
+const TABS = ["resumen", "logros", "niveles", "precision", "pron", "cuenta"];
 let tab = "resumen";
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
 const fmtDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
@@ -774,6 +788,34 @@ const meterRow = (cls, label, frac, right) => {
   row.append(el("span", "", label), meter, el("small", "", right));
   return row;
 };
+
+function emptyState(ico, title, text) {
+  const box = el("div", "empty"), mark = el("span", "emptyicon");
+  mark.innerHTML = icon(ico);
+  box.append(mark, el("p", "emptytitle", title), el("p", "emptytext", text));
+  return box;
+}
+const achievementList = () => achievements({ history, cards, decks: deckStats(DECKS, cards), exams, stories: storyScores, records, daily, goal: profile.goal || 20 });
+
+// "¡Logro!" toast for achievements done since the last announcement. Only on result screens and the menu,
+// never during a question; it doesn't take the focus and hides by itself.
+let toastTimer;
+function announceAchievements() {
+  const fresh = unseen(achievementList(), achvSeen);
+  if (!fresh.length) return;
+  achvSeen = [...achvSeen, ...fresh.map(a => a.id)]; store.setSync("kp-achv-seen", achvSeen);
+  if (prefs.sfx) sfx.win();
+  const t = $("toast");
+  t.innerHTML = icon("medal");
+  t.append(el("b", "", fresh.length === 1 ? "¡LOGRO!" : `${fresh.length} LOGROS NUEVOS`), ...(fresh.length === 1 ? [el("span", "", fresh[0].name)] : []));
+  t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+}
+// Mi panel has nothing to focus inside the tabs, so ↑↓ scroll it (a pad can't reach a long tab otherwise).
+function scrollProgress(d) {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("progress").scrollBy({ top: d * innerHeight * 0.4, behavior: reduce ? "auto" : "smooth" });
+}
 
 function renderProgress() {
   rollDay();
@@ -826,6 +868,27 @@ function renderProgress() {
   }
   $("notices").replaceChildren(...notes);
 
+  // No history yet: an empty state takes the calendar's band.
+  P.querySelector(".heatbox").hidden = !Object.keys(history).length;
+  $("notices").prepend(...(Object.keys(history).length ? [] : [emptyState("calendar", "Todavía no hay datos", "Haz tu primer Repaso de hoy (Hoy → A) y aquí verás tu semana.")]));
+
+  // Achievements, grouped; unlocked ones on the blue slab, locked ones with their progress.
+  const achs = achievementList(), groups = { constancia: "CONSTANCIA", volumen: "VOLUMEN", dominio: "DOMINIO", retos: "RETOS" };
+  const head = el("div", "achhead"); head.append(el("b", "", String(achs.filter(a => a.done).length)), el("span", "", `de ${achs.length} logros`));
+  P.querySelector("[data-panel=logros]").replaceChildren(head, ...Object.entries(groups).flatMap(([g, name]) => {
+    const grid = el("div", "achgrid");
+    grid.append(...achs.filter(a => a.group === g).map(a => {
+      const card = el("article", "ach" + (a.done ? " done" : ""));
+      const [n, of] = a.progress;
+      card.setAttribute("aria-label", `${a.name}: ${a.desc}, ${a.done ? "conseguido" : `${n} de ${of}`}`);
+      card.insertAdjacentHTML("beforeend", icon(!a.done && n === 0 ? "lock" : a.icon));
+      card.append(el("p", "aname", a.name), el("p", "adesc", a.desc));
+      if (!a.done) { const m = el("div", "meter"), f = el("i"); f.style.width = `${Math.round((100 * n) / of)}%`; m.append(f); card.append(m, el("small", "", `${n}/${of}`)); }
+      return card;
+    }));
+    return [el("p", "mgroup", name), grid];
+  }));
+
   // Levels: one bar per level, then its decks.
   const decksOf = deckStats(DECKS, cards);
   P.querySelector("[data-panel=niveles]").replaceChildren(...levelProgress(DECKS, cards, LEVELS).flatMap(l => [
@@ -838,6 +901,8 @@ function renderProgress() {
   $("pkinds").replaceChildren(...kindAccuracy(DECKS, stats, kinds).map(k =>
     meterRow("drow", k.name, k.rate ?? 0, k.rate === null ? "sin datos" : `${Math.round(100 * k.rate)}% · ${k.total}`)));
   const weak = weakest(DECKS, stats);
+  P.querySelector("[data-panel=precision]").querySelector(".empty")?.remove();
+  if (!Object.keys(stats).length) P.querySelector("[data-panel=precision]").prepend(emptyState("practice", "Sin respuestas todavía", "Cuando respondas cartas, aquí verás qué tipo aciertas más y cuáles fallas."));
   $("pweak").replaceChildren(...(weak.length ? weak.map(w => {
     const li = el("li"); const jp = el("span", "jp", w.q); jp.lang = "ja";
     li.append(jp, ` ${w.a} · ${w.deck} · ${w.misses} fallos de ${w.hits + w.misses}`);
@@ -846,8 +911,9 @@ function renderProgress() {
 
   const ends = Array.from({ length: 7 }, (_, i) => { const e = dayEnd(); e.setDate(e.getDate() + i); return e; });
   const counts = forecast(cards, ends), max = Math.max(1, ...counts);
-  P.querySelector("[data-panel=pron]").replaceChildren(...counts.map((n, i) =>
-    meterRow("frow", i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" }), n / max, `${n} ${n === 1 ? "carta" : "cartas"}`)));
+  P.querySelector("[data-panel=pron]").replaceChildren(...(!Object.keys(cards).length
+    ? [emptyState("layers", "Nada en repaso todavía", "Las cartas que aprendas en Repaso de hoy aparecerán aquí el día que les toque.")] : counts.map((n, i) =>
+    meterRow("frow", i === 0 ? "hoy" : new Date(ends[i].getTime() - 5 * 3600e3).toLocaleDateString("es", { weekday: "short", day: "numeric" }), n / max, `${n} ${n === 1 ? "carta" : "cartas"}`))));
 
   $("pname").value = profile.name; $("pgoal").value = profile.goal; $("ptarget").value = profile.target ?? ""; $("pdate").value = profile.targetDate ?? "";
   renderAccount();
@@ -992,9 +1058,9 @@ function showExam(title) {
   screen = "exam";
   $("overlay").hidden = true; $("exam").hidden = false;
   $("ebody").hidden = false; $("eresult").hidden = true; $("epause").hidden = true;
-  $("etitle").textContent = title; $("etimer").hidden = !!exam.placement || exam.challenge === "survival";
-  $("eresulttitle").textContent = exam.placement ? "Resultado de la prueba de nivel" : exam.challenge ? "Resultado del reto" : "Resultado del simulacro";
-  $("epausetxt").textContent = exam.placement || exam.challenge === "survival" ? "El reto está en pausa." : "El reloj está detenido.";
+  $("etitle").textContent = title; $("etimer").hidden = !!exam.placement || exam.challenge === "survival" || exam.challenge === "daily";
+  $("eresulttitle").textContent = exam.placement ? "Resultado de la prueba de nivel" : exam.challenge === "daily" ? "Resultado del reto del día" : exam.challenge ? "Resultado del reto" : "Resultado del simulacro";
+  $("epausetxt").textContent = exam.placement || exam.challenge === "survival" || exam.challenge === "daily" ? "El reto está en pausa." : "El reloj está detenido.";
 }
 
 // ---------- placement test (same screen as the mock exam, no clock) ----------
@@ -1037,7 +1103,8 @@ function renderClock() {
 function renderExamQ() {
   const q = exam.qs[exam.i];
   const n = SECTIONS.findIndex(s => s.id === q.section);
-  $("esec").textContent = exam.challenge ? `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "")
+  $("esec").textContent = exam.challenge === "daily" ? `Pregunta ${exam.i + 1} de ${exam.qs.length} · ${exam.score} ${exam.score === 1 ? "acierto" : "aciertos"}`
+    : exam.challenge ? `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "")
     : exam.placement ? `${levelName(LEVELS[exam.lv].id)} · pregunta ${exam.i + 1} de ${exam.qs.length}`
     : `${n + 1} · ${SECTIONS[n].name} · pregunta ${exam.i + 1} de ${exam.qs.length}`;
   const reading = q.section === "read";
@@ -1062,7 +1129,9 @@ function renderExamQ() {
     b.addEventListener("click", () => examAnswer(k));
     return b;
   }));
-  $("epips").replaceChildren(...(exam.challenge ? [] : exam.qs.map((_, i) => el("i", i < exam.i ? "done" : i === exam.i ? "now" : ""))));
+  // The Reto del día marks each answer right or wrong, like a study round; the other retos have no fixed length.
+  const pip = i => exam.challenge === "daily" && i < exam.i ? (exam.results[i] ? "hit" : "miss") : i < exam.i ? "done" : i === exam.i ? (exam.challenge === "daily" ? "done" : "now") : "";
+  $("epips").replaceChildren(...(exam.challenge && exam.challenge !== "daily" ? [] : exam.qs.map((_, i) => el("i", pip(i)))));
 }
 
 function examAnswer(k) {
@@ -1090,6 +1159,7 @@ function setExamPaused(p) {
 }
 
 function finishExam() {
+  setTimeout(announceAchievements); // after this result is saved
   if (!exam || !$("eresult").hidden) return; // already finished: never save the same exam twice
   clearInterval(exam.timer);
   const r = scoreExam(exam.qs, exam.answers);
@@ -1137,44 +1207,76 @@ function startChallenge(id) {
   }
   renderExamQ();
 }
+// Reto del día: 10 fixed questions from the decks of the student's level (kana before any level).
+const dailyPool = () => ENTRIES.filter(e => e.deck.level === (prefs.level ?? "kana") && e.deck.kind !== "grammar");
+function startDaily() {
+  if (screen !== "pause" && screen !== "start") return;
+  exam = { challenge: "daily", qs: dailyQuestions(dailyPool(), day.d), results: [], practice: daily[day.d] !== undefined,
+    answers: [], i: 0, score: 0, missed: [], left: 0, paused: false, from: screen };
+  showExam("RETO DEL DÍA");
+  renderExamQ();
+}
+function dailyRow() {
+  const done = daily[day.d], n = dailyStreak();
+  return { group: "Hoy", icon: "bolt", label: "Reto del día", count: done === undefined ? "" : `${done}/${DAILY_QUESTIONS}`, action: startDaily,
+    sub: done === undefined ? `Nuevo · ${DAILY_QUESTIONS} preguntas, las mismas todo el día` : `Hecho hoy · racha ${n} ${n === 1 ? "día" : "días"} · repetir es práctica` };
+}
 function challengeAnswer(k) {
   const q = exam.qs[exam.i], ok = q.opts[KEYS.indexOf(k)] === q.answer;
   exam.locked = true;
   if (ok) exam.score++; else { exam.missed.push(q); pad.rumble(); }
+  if (prefs.sfx) (ok ? sfx.right : sfx.wrong)();
+  exam.results?.push(ok);
+  // Real practice, so it counts toward today's goal; the FSRS calendar is left alone.
+  day.n++; countAnswer(); store.setSync("kp-day", day); renderTop();
   for (const b of $("eopts").children) {
     const v = q.opts[KEYS.indexOf(b.dataset.k)];
     b.classList.add(v === q.answer ? "right" : b.dataset.k === k ? "wrong" : "dim");
   }
   $("eprompt").className = "prompt " + (ok ? "ok" : "bad");
-  $("esec").textContent = `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "");
+  if (exam.challenge !== "daily") $("esec").textContent = `Aciertos: ${exam.score}` + (exam.challenge === "survival" ? " · un fallo y se acaba" : "");
   const s = exam;
   // A miss stays a little longer so the right answer can be read.
   setTimeout(() => {
     if (exam !== s || !$("eresult").hidden) return;
-    if (runOver(exam.challenge, ok, exam.challenge === "time" ? exam.left : Infinity)) return finishChallenge();
+    if (exam.challenge === "daily") exam.i++;
+    if (exam.challenge === "daily" ? exam.i >= exam.qs.length : runOver(exam.challenge, ok, exam.challenge === "time" ? exam.left : Infinity)) return finishChallenge();
     exam.locked = false;
-    exam.qs[exam.i] = challengeQuestion(exam.pool, Math.random, q.item);
+    if (exam.challenge !== "daily") exam.qs[exam.i] = challengeQuestion(exam.pool, Math.random, q.item);
     $("eprompt").className = "prompt";
     renderExamQ();
   }, ok ? 250 : 900);
 }
+const scoreBox = (n, label, cls = "escore") => { const b = el("div", cls); b.append(el("b", "", n), el("span", "", label)); return b; };
+// Days in a row with the Reto del día done, ending today (or yesterday).
+const dailyStreak = () => streakDays(Object.fromEntries(Object.keys(daily).map(d => [d, { answers: 1 }])), day.d);
 function finishChallenge() {
+  setTimeout(announceAchievements); // after this result is saved
   if (!exam || !$("eresult").hidden) return;
   clearInterval(exam.timer);
-  const r = recordRun(records, exam.challenge, exam.score);
-  records = r.records; store.setSync("kp-records", records);
   $("ebody").hidden = true; $("eresult").hidden = false; $("epause").hidden = true;
   $("eprompt").className = "prompt";
   $("esec").textContent = "Resultado";
-  const score = el("div", "escore"); score.append(el("b", "", String(exam.score)), el("span", "", exam.score === 1 ? "acierto" : "aciertos"));
-  const best = el("div", "escore best"); best.append(el("b", "", String(r.best)), el("span", "", "récord"));
-  $("escores").replaceChildren(score, best);
-  $("epass").textContent = r.isNew ? "¡Nuevo récord!" : exam.challenge === "survival" ? "Se acabó al primer fallo" : "Se acabó el tiempo";
-  $("epass").className = "epass " + (r.isNew ? "ok" : "");
+  if (exam.challenge === "daily") {
+    // Only the first run of the day counts; repeating it is practice.
+    if (!exam.practice) { daily = { ...daily, [day.d]: exam.score }; store.setSync("kp-daily", daily); }
+    $("epips").replaceChildren(...exam.results.map(ok => el("i", ok ? "hit" : "miss")));
+    $("escores").replaceChildren(scoreBox(`${exam.score}/${exam.qs.length}`, "aciertos"), scoreBox(String(dailyStreak()), dailyStreak() === 1 ? "día seguido" : "días seguidos", "escore best"));
+    $("epass").textContent = exam.practice ? "Práctica: no cambia tu marca" : "¡Reto del día hecho!";
+    $("epass").className = "epass " + (exam.practice ? "" : "ok");
+  } else {
+    const r = recordRun(records, exam.challenge, exam.score);
+    records = r.records; store.setSync("kp-records", records);
+    $("escores").replaceChildren(scoreBox(String(exam.score), exam.score === 1 ? "acierto" : "aciertos"), scoreBox(r.best ? String(r.best) : "—", "récord", "escore best"));
+    if (r.isNew && prefs.sfx) sfx.win();
+    $("epass").textContent = r.isNew ? "¡Nuevo récord!" : exam.challenge === "survival" ? "Se acabó al primer fallo" : "Se acabó el tiempo";
+    $("epass").className = "epass " + (r.isNew ? "ok" : "");
+  }
   const ul = el("ul", "missed");
   ul.append(...exam.missed.map(q => { const li = el("li"), inner = el("span"), jp = el("span", "jp", q.prompt); jp.lang = "ja"; inner.append(jp, q.answer); li.append(inner); return li; }));
-  const box = el("div"); box.append(el("p", "emsection", "Para repasar"), ul);
-  $("emissed").replaceChildren(...(exam.missed.length ? [box] : []));
+  const box = el("div", "emcenter"); box.append(el("p", "emsection", "Para repasar"), ul);
+  const tomorrow = exam.challenge === "daily" ? [el("p", "note emcenter", "Mañana hay preguntas nuevas.")] : [];
+  $("emissed").replaceChildren(...tomorrow, ...(exam.missed.length ? [box] : []));
   $("eback").focus({ preventScroll: true });
 }
 
@@ -1529,6 +1631,7 @@ function storyAnswer(k) {
   }, ok ? 1200 : 2400);
 }
 function finishStory() {
+  setTimeout(announceAchievements); // after this result is saved
   const right = story.results.filter(Boolean).length, total = story.results.length;
   storyScores[story.st.id] = { right, total }; store.setSync("kp-stories", storyScores);
   showStoryPart("result");
@@ -1616,6 +1719,8 @@ const pad = createPad(i => {
   if (screen === "progress") {
     if (i === 4 || i === 14) setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
     else if (i === 5 || i === 15) setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
+    else if (i === 12) scrollProgress(-1);
+    else if (i === 13) scrollProgress(1);
     else if (i === 1 || i === 9) closeProgress();
     return;
   }
@@ -1701,6 +1806,7 @@ document.addEventListener("keydown", e => {
   if (screen === "progress") {
     if (key === "q" || e.key === "ArrowLeft") setTab(TABS[TABS.indexOf(tab) - 1] ?? TABS.at(-1));
     else if (key === "e" || e.key === "ArrowRight") setTab(TABS[TABS.indexOf(tab) + 1] ?? TABS[0]);
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); scrollProgress(e.key === "ArrowUp" ? -1 : 1); }
     else if (e.key === "Escape" || key === "b") closeProgress();
     return;
   }
@@ -1734,7 +1840,8 @@ $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
 
 // ---------- progress backup ----------
-const backupData = () => ({ app: "kana-pad", v: 4, stats, cards, day, prefs, history, exams, stories: storyScores, kinds });
+const backupData = () => ({ app: "kana-pad", v: 5, stats, cards, day, prefs, history, exams, stories: storyScores, kinds,
+  records, daily, achvSeen: [...achvSeen].sort() });
 const backupJson = () => JSON.stringify(backupData(), null, 2);
 
 // Desktop/Android builds save a weekly copy on disk by themselves; the web asks the student to export.
@@ -1790,6 +1897,9 @@ async function applyBackup(r) {
   if (r.exams) { exams = r.exams; store.set("kp-exams", exams); }
   if (r.stories) { storyScores = r.stories; store.setSync("kp-stories", storyScores); }
   if (r.kinds) { kinds = r.kinds; store.setSync("kp-kinds", kinds); }
+  if (r.records) { records = r.records; store.setSync("kp-records", records); }
+  if (r.daily) { daily = r.daily; store.setSync("kp-daily", daily); }
+  if (r.achvSeen) { achvSeen = r.achvSeen; store.setSync("kp-achv-seen", achvSeen); }
   if (r.prefs) { Object.assign(prefs, r.prefs); if (!MODES[prefs.deck]) prefs.deck = 0; savePrefs(); }
   cards = r.cards;
   await store.set("kp-cards", cards);

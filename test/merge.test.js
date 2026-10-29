@@ -28,3 +28,15 @@ test("merging is stable: merging again changes nothing", () => {
   assert.equal(changed(m, mergeProgress(m, a)), false);
   assert.equal(mergeProgress(a, null), a);
 });
+
+test("records and Reto del día keep the best score; announced achievements are joined; N4 exams don't collide with N5", () => {
+  const base = { stats: {}, cards: {}, history: {}, stories: {}, kinds: {}, prefs: {} };
+  const a = { ...base, exams: [{ d: "2026-10-29", lv: "n5", right: 10, total: 20 }], records: { time: 12 }, daily: { "2026-10-29": 6 }, achvSeen: ["b"] };
+  const b = { ...base, exams: [{ d: "2026-10-29", lv: "n4", right: 10, total: 20 }], records: { time: 15, survival: 4 }, daily: { "2026-10-29": 8, "2026-10-28": 5 }, achvSeen: ["a", "b"] };
+  const m = mergeProgress(a, b);
+  assert.deepEqual(m.records, { time: 15, survival: 4 });
+  assert.deepEqual(m.daily, { "2026-10-29": 8, "2026-10-28": 5 });
+  assert.deepEqual(m.achvSeen, ["a", "b"]);
+  assert.equal(m.exams.length, 2);
+  assert.equal(changed(m, mergeProgress(m, b)), false);
+});

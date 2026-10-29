@@ -46,3 +46,12 @@ test("runs end on the first miss (Supervivencia) or on the clock (Contrarreloj)"
   assert.equal(runOver("time", true, 0), true);
   assert.equal(CHALLENGES.time.seconds, 60);
 });
+
+test("Reto del día: same date, same questions; another date, different ones", async () => {
+  const { dailyQuestions, DAILY_QUESTIONS } = await import("../js/challenges.js");
+  const a = dailyQuestions(entries, "2026-10-29"), b = dailyQuestions(entries, "2026-10-29"), c = dailyQuestions(entries, "2026-10-30");
+  assert.equal(a.length, DAILY_QUESTIONS);
+  assert.deepEqual(a.map(q => [q.prompt, ...q.opts]), b.map(q => [q.prompt, ...q.opts]));
+  assert.notDeepEqual(a.map(q => q.prompt), c.map(q => q.prompt));
+  for (let i = 1; i < a.length; i++) assert.notEqual(a[i].item, a[i - 1].item);
+});

@@ -28,6 +28,10 @@ const SHAPES = {
   check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   book: '<path d="M6 2.5h13v15H6.5A2.5 2.5 0 0 0 4 20V4.5a2 2 0 0 1 2-2zM4 20a2 2 0 0 0 2.5 1.5H19v-4M9 7.5h6"/>',
+  medal: '<circle cx="12" cy="15" r="5.5"/><path d="M8.5 10.5L6 3h4l2 4 2-4h4l-2.5 7.5"/>',
+  lock: '<path d="M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
+  mute: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/>',
+  bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6z"/>',
 };
 
 export const icon = name => SHAPES[name] ? `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${SHAPES[name]}</svg>` : "";

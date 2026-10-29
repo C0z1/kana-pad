@@ -171,6 +171,9 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .frow small, .drow small { white-space: nowrap; }
 #emissed { width: min(100%, 1640px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px 32px; align-items: start; }
 #emissed .missed { justify-content: flex-start; }
+/* Challenge results: one centered column under the scores, not the exam's per-section grid. */
+#emissed > .emcenter { grid-column: 1 / -1; justify-self: center; text-align: center; }
+#emissed > .emcenter .missed { justify-content: center; }
 .drow small, .frow small { color: var(--muted); font-size: 16px; font-variant-numeric: tabular-nums; text-align: right; }
 .frow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 90px; align-items: center; gap: 16px; min-height: 44px; font-weight: 600; }
 /* User dashboard ("Mi panel"): the profile rides the skewed blue slab, like the prompt in a round. */
@@ -215,6 +218,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   .dsum .kpis { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .heatbox { grid-column: 1 / span 2; max-width: 640px; }
   #notices { grid-column: 3 / -1; align-self: start; }
+  .dsum .heatbox[hidden] + #notices { grid-column: 1 / -1; }
   /* Cuenta: both cards the same height, profile fields in a 2×2 grid instead of 750 px wide inputs. */
   section.account { align-items: stretch; } /* beats the base rule declared after this block */
   .pform { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; align-content: start; }
@@ -240,6 +244,11 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 16px;
   padding-block: 20px; padding-left: max(24px, env(safe-area-inset-left, 0px), calc((100% - 1400px) / 2)); padding-right: max(24px, env(safe-area-inset-right, 0px), calc((100% - 1400px) / 2)); }
 .etop { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+@media (min-width: 861px) {
+  #listen .bar { width: min(100%, 580px); font-size: clamp(24px, 2vw, 34px); }
+  #listen .bar.right { width: min(100%, 620px); }
+  #lpips { width: min(100%, 620px); }
+}
 @media (max-height: 800px) and (min-width: 861px) {
   #listen .glyph { font-size: min(22vh, 180px); }
   #listen .prompt { padding-block: 8px; gap: 2px; }
@@ -438,7 +447,10 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   .kpi b { font-size: 40px; }
   .drow { grid-template-columns: 100px minmax(0, 1fr) 80px; gap: 10px; }
   .frow { grid-template-columns: 80px minmax(0, 1fr) 60px; gap: 10px; }
-  .tabs { flex-wrap: wrap; } .tabs kbd { display: none; } .ptop .tabs { margin-left: 0; }
+  .tabs { flex-wrap: wrap; } .tabs kbd { display: none; } .ptop .tabs { margin-left: 0; gap: 6px; }
+  .ptop .tab { padding: 6px 10px; font-size: 15px; letter-spacing: .03em; gap: 6px; } .ptop .tab .ico { width: 18px; height: 18px; }
+  /* Long questions (story quiz, reverse mode) stay clear of the slab's slanted edges. */
+  .glyph.latin { font-size: clamp(24px, 7vw, 34px); max-width: 80%; }
   .mtitle { font-size: 40px; }
   .mbody { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .menu-screen { place-items: start center; } /* the menu starts at the top, not floating mid-screen */
@@ -529,4 +541,44 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .12s; }
 .bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) translateY(2px); }
 .tab:active, .mode:active { transform: translateY(2px); }
+/* Logros: unlocked on the blue slab (yellow stays for the focus), locked dark with their progress. */
+.achs { display: grid; gap: 12px; align-content: start; }
+.achhead { display: flex; align-items: baseline; gap: 12px; }
+.achhead b { font: 400 72px/1 var(--font-display); color: var(--hi); }
+.achhead span { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.achgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.ach { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 14px; align-items: center; align-content: center; padding: 14px 18px; background: #17171f; min-height: 96px; box-sizing: border-box; }
+.ach .ico { grid-row: span 2; width: 36px; height: 36px; color: var(--muted); }
+.ach .aname { margin: 0; font: 800 22px/1.1 var(--font-ui); color: var(--dim-ink); }
+.ach .adesc { margin: 0; font-size: 16px; color: var(--muted); }
+.ach .meter { grid-column: 1 / -1; height: 8px; background: var(--line); transform: skewX(var(--skew)); }
+.ach .meter i { display: block; height: 100%; background: var(--slab); }
+.ach small { grid-column: 1 / -1; justify-self: end; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ach.done { background: var(--slab); }
+.ach.done .ico { color: var(--hi); } .ach.done .aname, .ach.done .adesc { color: var(--ink); }
+@media (min-width: 1200px) { .achgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .achgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ach { grid-template-columns: 32px minmax(0, 1fr); padding: 10px 12px; } .ach .ico { width: 28px; height: 28px; } .achhead b { font-size: 48px; } }
+
+/* "¡Logro!" toast: top right under the combo (bottom on phones), never over the answers, no focus. */
+.toast { position: fixed; z-index: 8; top: max(20px, env(safe-area-inset-top)); right: max(24px, env(safe-area-inset-right));
+  display: flex; align-items: center; gap: 12px; padding: 10px 22px; background: var(--hi); color: var(--bar-ink);
+  transform: skewX(var(--skew)); box-shadow: 8px 8px 0 var(--slab); pointer-events: none; }
+.toast[hidden] { display: none; }
+.toast > * { transform: skewX(calc(var(--skew) * -1)); }
+.toast .ico { width: 28px; height: 28px; }
+.toast b { font: 400 30px/1 var(--font-display); letter-spacing: .04em; }
+.toast span { font: 800 22px var(--font-ui); }
+.toast:not([hidden]) { animation: stamp-skew .25s ease-out; }
+@keyframes stamp-skew { from { opacity: 0; transform: skewX(var(--skew)) scale(1.3); } }
+@media (max-width: 860px) { .toast { left: 16px; right: 16px; top: auto; bottom: max(16px, env(safe-area-inset-bottom)); } }
+
+/* Empty states in Mi panel: where to go, not a button (the pad can't focus inside the tabs). */
+.empty { display: grid; justify-items: start; gap: 8px; padding: 28px 32px; background: #17171f; border-left: 6px solid var(--slab); grid-column: 1 / -1; }
+.emptyicon { display: grid; place-items: center; width: 64px; height: 56px; background: var(--dim-bg); transform: skewX(var(--skew)); }
+.emptyicon .ico { width: 32px; height: 32px; color: var(--muted); transform: skewX(calc(var(--skew) * -1)); }
+.emptytitle { margin: 0; font: 400 32px/1 var(--font-display); letter-spacing: .03em; }
+.emptytext { margin: 0; font-size: 20px; color: var(--muted); max-width: 52ch; }
+/* Six tabs: icons only on the narrowest phones (the label stays in aria-label/title or the text). */
+@media (max-width: 400px) { .ptop .tab { font-size: 0; padding-inline: 10px; } .ptop .tab .ico { width: 22px; height: 22px; } }
+
 @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } .strokes path { stroke-dashoffset: 0; opacity: 1; } }

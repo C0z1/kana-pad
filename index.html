@@ -65,12 +65,13 @@
   </footer>
 </div>
 
+<div class="toast" id="toast" role="status" hidden></div>
 <div class="overlay menu-screen" id="overlay">
   <div class="menu-wrap">
     <header class="mtop"><span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span><h1 class="mtitle">KANA PAD</h1><span class="mlevel" id="menulevel"></span></header>
     <div class="mbody">
       <nav class="mrail" id="menurail" aria-label="Categorías"></nav>
-      <section class="mpanel" id="menupanel" aria-live="polite"></section>
+      <section class="mpanel" id="menupanel"></section>
       <aside class="pcard mhero" id="menuhero" aria-label="Tu día"></aside>
     </div>
     <p class="notice pexam" id="backupmsg" hidden></p>
@@ -226,9 +227,10 @@
       <div class="tabs" role="tablist" aria-label="Secciones de mi panel">
         <kbd>LB</kbd>
         <button type="button" role="tab" class="tab" data-tab="resumen" data-icon="grid" aria-selected="true">Resumen</button>
+        <button type="button" role="tab" class="tab" data-tab="logros" data-icon="medal" aria-selected="false">Logros</button>
         <button type="button" role="tab" class="tab" data-tab="niveles" data-icon="stairs" aria-selected="false">Niveles</button>
         <button type="button" role="tab" class="tab" data-tab="precision" data-icon="practice" aria-selected="false">Precisión</button>
-        <button type="button" role="tab" class="tab" data-tab="pron" data-icon="calendar" aria-selected="false">Próximos 7 días</button>
+        <button type="button" role="tab" class="tab" data-tab="pron" data-icon="calendar" aria-selected="false" aria-label="Próximos 7 días" title="Próximos 7 días">7 días</button>
         <button type="button" role="tab" class="tab" data-tab="cuenta" data-icon="user" aria-selected="false">Cuenta</button>
         <kbd>RB</kbd>
       </div>
@@ -243,6 +245,7 @@
       </div>
       <div id="notices"></div>
     </section>
+    <section class="achs" data-panel="logros" role="tabpanel" hidden></section>
     <section class="decklist" data-panel="niveles" role="tabpanel" hidden></section>
     <section class="precision" data-panel="precision" role="tabpanel" hidden>
       <div><p class="mgroup">ACIERTOS POR TIPO</p><div class="decklist" id="pkinds"></div></div>

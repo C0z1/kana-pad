@@ -13,7 +13,7 @@ function byKey(a = {}, b = {}, pick) {
 
 export function mergeProgress(local, remote) {
   if (!remote) return local;
-  const examKey = x => `${x.d}|${x.right}|${x.total}`;
+  const examKey = x => `${x.d}|${x.lv ?? "n5"}|${x.right}|${x.total}`;
   const exams = [...new Map([...(remote.exams ?? []), ...(local.exams ?? [])].map(x => [examKey(x), x])).values()]
     .sort((x, y) => x.d.localeCompare(y.d)).slice(-20);
   return {
@@ -27,6 +27,9 @@ export function mergeProgress(local, remote) {
     exams,
     stories: byKey(local.stories, remote.stories, (x, y) => (y.right > x.right ? y : x)),
     kinds: byKey(local.kinds, remote.kinds, maxPair),
+    records: byKey(local.records, remote.records, Math.max),
+    daily: byKey(local.daily, remote.daily, Math.max),
+    achvSeen: [...new Set([...(local.achvSeen ?? []), ...(remote.achvSeen ?? [])])].sort(),
     prefs: local.prefs,
   };
 }

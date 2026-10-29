@@ -2,7 +2,7 @@
 
 Practica japonés con teclado, ratón, pantalla táctil o un mando Xbox: hiragana, katakana y tres niveles JLPT (N5, N4 y N3) con unas 3,000 palabras, 613 kanji con orden de trazos y gramática de cada nivel. Está pensado para repasar en el cardio o en las pausas de un juego, y es la primera pieza de un programa de cero a nivel profesional.
 
-Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye **listening** con tres voces japonesas incluidas (funcionan sin conexión), **cuentos** N5, **dibujo** de kana y kanji con calificación por trazo, un **panel de progreso** y un **simulacro N5** de 20 minutos.
+Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye **listening** con tres voces japonesas incluidas (funcionan sin conexión), **cuentos** N5, **dibujo** de kana y kanji con calificación por trazo, un **panel de progreso** con logros, **retos** (reto del día, contrarreloj, supervivencia) y **simulacros** N5, N4 y N3.
 
 **Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre: cada carta nueva se enseña con su respuesta antes de preguntarla, y entran de una en una a medida que aprendes las anteriores. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
@@ -10,12 +10,16 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
-## Novedades de 0.8.0
+## Novedades de 0.9.0
 
-- Cuenta opcional en la nube: tu progreso y tu perfil se sincronizan entre dispositivos. Entra con correo y contraseña o, en la versión web, con Google.
-- Mi panel: perfil con meta diaria y nivel objetivo, calendario de las últimas 16 semanas, niveles, precisión y repasos de los próximos 7 días.
-- El menú principal y Mi panel aprovechan el ancho de la pantalla; el menú muestra de un vistazo lo que toca hoy.
-- Animaciones en toda la app: cambios de pantalla, tarjetas y respuestas. Se apagan si tu sistema tiene activado reducir el movimiento.
+- **Reto del día**: 10 preguntas de tu nivel, las mismas todo el día. Solo cuenta la primera partida; lleva su propia racha.
+- **Retos rápidos**: Contrarreloj (60 segundos) y Supervivencia (hasta el primer fallo), con récord. Simulacros N4 y N3.
+- **Logros**: 16 logros de constancia, volumen, dominio y retos en Mi panel → Logros, con un aviso cuando consigues uno.
+- Las respuestas de los retos cuentan para tu meta diaria, tu racha y el calendario (no cambian el calendario de repasos).
+- Récords, reto del día y logros entran en Exportar/Importar y en la sincronización con tu cuenta.
+- Efectos de sonido opcionales (Ajustes → Voz), apagados por defecto.
+- Iconos, saludo y semana en el inicio, cuentos con el estilo nuevo y una revisión de diseño de toda la app. En Mi panel, ↑↓ desplazan la pestaña.
+
 ## Descargas
 
 En [Releases](https://github.com/C0z1/kana-pad/releases/latest):

@@ -15,7 +15,7 @@ const validExam = x => isObj(x) && count(x.right) && count(x.total) && typeof x.
 function readPrefs(p, levels) {
   if (!isObj(p)) return undefined;
   const out = {};
-  for (const k of ["voice", "ear", "reverse", "furigana"]) if (typeof p[k] === "boolean") out[k] = p[k];
+  for (const k of ["voice", "ear", "reverse", "furigana", "sfx"]) if (typeof p[k] === "boolean") out[k] = p[k];
   if (count(p.deck)) out.deck = p.deck;
   if (levels.includes(p.level)) out.level = p.level;
   if (Array.isArray(p.listenVoices) && p.listenVoices.every(v => typeof v === "string")) out.listenVoices = p.listenVoices;
@@ -33,6 +33,10 @@ export function readBackup(data, levels = []) {
   if (Array.isArray(data.exams)) out.exams = data.exams.filter(validExam).slice(-20);
   if (isObj(data.stories) && Object.values(data.stories).every(s => isObj(s) && count(s.right) && count(s.total))) out.stories = data.stories;
   if (isObj(data.kinds) && Object.values(data.kinds).every(pair)) out.kinds = data.kinds;
+  // v5: challenge records, Reto del día scores and the achievements already announced.
+  if (isObj(data.records) && Object.values(data.records).every(count)) out.records = data.records;
+  if (isObj(data.daily) && Object.entries(data.daily).every(([d, s]) => DATE.test(d) && count(s))) out.daily = data.daily;
+  if (Array.isArray(data.achvSeen) && data.achvSeen.every(s => typeof s === "string")) out.achvSeen = data.achvSeen;
   out.prefs = readPrefs(data.prefs, levels);
   return out;
 }

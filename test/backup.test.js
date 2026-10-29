@@ -30,3 +30,16 @@ test("damaged optional parts are dropped, not trusted", () => {
   assert.equal(r.stories, undefined);
   assert.deepEqual(r.prefs, {});
 });
+
+test("v5 parts: records, Reto del día and announced achievements; v4 files still load", () => {
+  const r = readBackup({ ...base, v: 5, records: { time: 18, survival: 7 }, daily: { "2026-10-29": 8 }, achvSeen: ["streak3"] });
+  assert.deepEqual(r.records, { time: 18, survival: 7 });
+  assert.deepEqual(r.daily, { "2026-10-29": 8 });
+  assert.deepEqual(r.achvSeen, ["streak3"]);
+  const bad = readBackup({ ...base, records: { time: -1 }, daily: { ayer: 3 }, achvSeen: [1] });
+  assert.equal(bad.records, undefined);
+  assert.equal(bad.daily, undefined);
+  assert.equal(bad.achvSeen, undefined);
+  const v4 = readBackup({ ...base, v: 4 });
+  assert.equal(v4.records, undefined);
+});
