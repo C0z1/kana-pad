@@ -31,3 +31,25 @@ export function options(items, item, field, rng = Math.random) {
 
 // "ひと(つ)・いち" → "ひとつ、いち": parentheses mark okurigana in readings; the voice must not read them.
 export const speakable = text => text.replace(/[()]/g, "").replace(/・/g, "、");
+
+// Free practice of one deck: a card is never asked before it was taught. New cards come in
+// curriculum order, one at a time, and only while few cards are still being learned, so the
+// student isn't flooded with unknowns. `status(item)` is "new" | "learning" | "known".
+// Returns { item, teach }: teach = show it with its answer marked instead of asking it.
+export const LEARNING_MAX = 3;
+export const LEARNED_HITS = 2; // hits (with more hits than misses) for a card to stop counting as "learning"
+export function pickPractice(items, statsFor, status, rng = Math.random, avoid = null, lastTaught = false) {
+  const fresh = items.filter(i => status(i) === "new");
+  const seen = items.filter(i => status(i) !== "new");
+  const learning = seen.filter(i => status(i) === "learning").length;
+  // The first two are taught back to back so the first question isn't the card just shown.
+  if (fresh.length && (seen.length < 2 || (!lastTaught && learning < LEARNING_MAX))) return { item: fresh[0], teach: true };
+  return { item: pick(seen, statsFor, rng, avoid), teach: false };
+}
+
+// Learning status from free-practice stats [hits, misses] and the FSRS card (if any).
+export function practiceStatus(s, card) {
+  if (!s) return card ? (card.state === 2 ? "known" : "learning") : "new";
+  const [hits, misses] = s;
+  return hits >= LEARNED_HITS && hits > misses ? "known" : "learning";
+}

@@ -4,7 +4,7 @@ Practica japonés con un mando Xbox: hiragana, katakana, gramática N5, 574 pala
 
 Incluye un **panel de progreso** (pausa → Y) y un **simulacro N5** de 20 minutos (pausa → X).
 
-**Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
+**Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre: cada carta nueva se enseña con su respuesta antes de preguntarla, y entran de una en una a medida que aprendes las anteriores. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
 
