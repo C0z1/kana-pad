@@ -1,4 +1,4 @@
-// Optional cloud account (Supabase): sign in with a 6-digit code sent by email, then keep the
+// Optional cloud account (Supabase): sign in with email and password, then keep the
 // progress and the profile in sync across devices. Plain REST calls, no client library.
 // The publishable key is meant to ship in the app; row level security limits every user to
 // their own rows (see supabase/migrations).
@@ -43,9 +43,15 @@ async function token() {
   return session.access_token;
 }
 
-export const sendCode = email => call("/auth/v1/otp", { method: "POST", body: { email, create_user: true } });
-export async function verifyCode(email, code) {
-  save(await call("/auth/v1/verify", { method: "POST", body: { type: "email", email, token: code } }));
+// New accounts confirm their email with the link Supabase sends (default template); until then
+// signIn fails with code "email_not_confirmed". Returns true if the account needs that confirmation.
+export async function signUp(email, password) {
+  const r = await call("/auth/v1/signup", { method: "POST", body: { email, password } });
+  if (r?.access_token) { save(r); return false; }
+  return true;
+}
+export async function signIn(email, password) {
+  save(await call("/auth/v1/token?grant_type=password", { method: "POST", body: { email, password } }));
   return user();
 }
 export async function signOut() {

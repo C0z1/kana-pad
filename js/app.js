@@ -848,7 +848,7 @@ $("pform").addEventListener("submit", e => {
   renderProgress(); sync();
 });
 
-const login = { step: "email", email: "" };
+const login = { step: "signin", email: "" }; // signin | signup
 let syncState = { ok: null, at: null, msg: "" };
 function renderAccount() {
   const box = $("acct"), u = cloud.user();
@@ -863,33 +863,37 @@ function renderAccount() {
     return;
   }
   const msg = el("p", "small"); msg.id = "amsg"; msg.setAttribute("aria-live", "polite");
-  const input = document.createElement("input");
-  if (login.step === "email") {
-    input.type = "email"; input.autocomplete = "email"; input.placeholder = "tu@correo.com"; input.value = login.email;
-    const send = async () => {
-      const email = input.value.trim();
-      if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = "Escribe un correo válido."; return; }
-      msg.textContent = "Enviando…";
-      try { await cloud.sendCode(email); login.email = email; login.step = "code"; renderAccount(); }
-      catch (e) { msg.textContent = e.status === 429 ? "Demasiados intentos; espera un minuto y vuelve a pedir el código." : `No se pudo enviar: ${e.message}`; }
-    };
-    input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); send(); } });
-    box.replaceChildren(el("p", "mgroup", "CUENTA"),
-      el("p", "", "Con una cuenta, tu progreso se guarda en la nube y se sincroniza entre tus dispositivos. Es opcional: sin cuenta todo sigue funcionando en este dispositivo."),
-      input, btn("Enviarme un código", send), msg);
-  } else {
-    input.inputMode = "numeric"; input.autocomplete = "one-time-code"; input.maxLength = 6; input.placeholder = "123456";
-    const verify = async () => {
-      const code = input.value.replace(/\D/g, "");
-      if (code.length !== 6) { msg.textContent = "El código tiene 6 dígitos."; return; }
-      msg.textContent = "Comprobando…";
-      try { await cloud.verifyCode(login.email, code); login.step = "email"; renderAccount(); renderMenu(); sync(true); }
-      catch (e) { msg.textContent = e.status === 403 || e.status === 400 ? "Código incorrecto o caducado. Pide otro." : `No se pudo entrar: ${e.message}`; }
-    };
-    input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); verify(); } });
-    const back = el("button", "link", "Usar otro correo"); back.type = "button"; back.addEventListener("click", () => { login.step = "email"; renderAccount(); });
-    box.replaceChildren(el("p", "mgroup", "CUENTA"), el("p", "", `Te enviamos un código de 6 dígitos a ${login.email}. Escríbelo aquí:`), input, btn("Entrar", verify), back, msg);
-  }
+  const field = (type, auto, ph, value = "") => { const f = document.createElement("input"); f.type = type; f.autocomplete = auto; f.placeholder = ph; f.value = value; return f; };
+  const input = field("email", "email", "tu@correo.com", login.email);
+  const pass = field("password", login.step === "signup" ? "new-password" : "current-password", "Contraseña (8 o más caracteres)");
+  const go = async () => {
+    const email = input.value.trim(), password = pass.value;
+    if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = "Escribe un correo válido."; return; }
+    if (password.length < 8) { msg.textContent = "La contraseña necesita 8 caracteres o más."; return; }
+    login.email = email;
+    msg.textContent = login.step === "signup" ? "Creando la cuenta…" : "Entrando…";
+    try {
+      if (login.step === "signup") {
+        if (await cloud.signUp(email, password)) {
+          login.step = "signin"; renderAccount();
+          $("amsg").textContent = `Te enviamos un correo a ${email}. Abre su enlace para confirmar la cuenta (si la página a la que lleva no carga, no importa: la cuenta queda confirmada) y luego entra aquí.`;
+          return;
+        }
+      } else await cloud.signIn(email, password);
+      login.step = "signin"; renderAccount(); renderMenu(); sync(true);
+    } catch (e) {
+      msg.textContent = e.code === "email_not_confirmed" ? "Falta confirmar el correo: abre el enlace que te enviamos y vuelve a intentarlo."
+        : e.code === "invalid_credentials" ? "Correo o contraseña incorrectos."
+        : e.code === "user_already_exists" ? "Ese correo ya tiene cuenta: entra con tu contraseña."
+        : e.status === 429 ? "Demasiados intentos; espera unos minutos." : `No se pudo: ${e.message}`;
+    }
+  };
+  for (const f of [input, pass]) f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+  const swap = el("button", "link", login.step === "signup" ? "Ya tengo cuenta: entrar" : "No tengo cuenta: crear una");
+  swap.type = "button"; swap.addEventListener("click", () => { login.email = input.value.trim(); login.step = login.step === "signup" ? "signin" : "signup"; renderAccount(); });
+  box.replaceChildren(el("p", "mgroup", login.step === "signup" ? "CREAR CUENTA" : "CUENTA"),
+    el("p", "", "Con una cuenta, tu progreso se guarda en la nube y se sincroniza entre tus dispositivos. Es opcional: sin cuenta todo sigue funcionando en este dispositivo."),
+    input, pass, btn(login.step === "signup" ? "Crear cuenta" : "Entrar", go), swap, msg);
   if (screen === "progress" && tab === "cuenta") input.focus({ preventScroll: true });
 }
 
