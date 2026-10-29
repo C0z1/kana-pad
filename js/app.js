@@ -1,5 +1,5 @@
 import { DECKS, LEVELS } from "./data.js";
-import { pick, options, speakable } from "./srs.js";
+import { pick, options, speakable, pickPractice, practiceStatus } from "./srs.js";
 import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY, BREATHER_CARDS, BREATHER_MS } from "./scheduler.js";
 import { store } from "./storage.js";
@@ -149,18 +149,22 @@ function nextCard() {
     const q = reviewQueue();
     const e = pickNext(q, recent, Date.now(), x => !cards[x.key]);
     resting = !e && q.length > 0;
-    return e ? { item: e.item, deck: e.deck } : null;
+    return e ? { item: e.item, deck: e.deck, teach: !cards[e.key] } : null;
   }
   if (mode() === PRACTICE) {
     const seen = seenEntries();
     if (!seen.length) return null;
     const prev = seen.find(e => e.key === lastKey);
     const e = pick(seen, x => stats[x.key], Math.random, prev);
-    return { item: e.item, deck: e.deck };
+    return { item: e.item, deck: e.deck, teach: false };
   }
+  // A single deck teaches each card the first time instead of asking it cold.
   const deck = mode();
   const prev = deck.items.find(i => keyOf(deck, i) === lastKey);
-  return { item: pick(deck.items, it => stats[keyOf(deck, it)], Math.random, prev), deck };
+  const k = it => keyOf(deck, it);
+  const { item, teach } = pickPractice(deck.items, it => stats[k(it)], it => practiceStatus(stats[k(it)], cards[k(it)]),
+    Math.random, prev, !!recent.at(-1)?.taught);
+  return { item, deck, teach };
 }
 
 function next() {
@@ -171,7 +175,7 @@ function next() {
   cur = nextCard();
   if (!cur) return showSummary();
   lastKey = keyOf(cur.deck, cur.item);
-  teaching = isReview() && !cards[lastKey];
+  teaching = cur.teach;
   recent = [...recent.slice(-4), { key: lastKey, t: Date.now(), taught: teaching }];
   renderCard();
 }
@@ -246,9 +250,17 @@ function answer(k) {
       return;
     }
     locked = true;
-    day.fresh++; day.n++; countAnswer();
-    cards[key] = grade(undefined, true, 0);
-    saveCards(); store.setSync("kp-day", day);
+    day.n++; countAnswer();
+    if (isReview()) {
+      day.fresh++;
+      cards[key] = grade(undefined, true, 0);
+      saveCards();
+    } else {
+      // Free practice: the card is now "seen" for this deck, without touching the FSRS calendar.
+      stats[key] ??= [0, 0];
+      store.setSync("kp-stats", stats);
+    }
+    store.setSync("kp-day", day);
     renderTop();
     timer = setTimeout(next, 300);
     return;

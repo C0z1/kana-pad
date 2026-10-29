@@ -4,7 +4,7 @@ Practica japonés con teclado, ratón, pantalla táctil o un mando Xbox: hiragan
 
 Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónde entran cartas nuevas a tu repaso; se puede repetir o cambiar en Ajustes. Incluye **listening** con tres voces japonesas incluidas (funcionan sin conexión), **cuentos** N5, **dibujo** de kana y kanji con calificación por trazo, un **panel de progreso** y un **simulacro N5** de 20 minutos.
 
-**Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
+**Repaso de hoy** reúne todos los mazos en una sola cola con el algoritmo FSRS: primero lo que toca repasar y después hasta 15 cartas nuevas al día. Los demás mazos son práctica libre: cada carta nueva se enseña con su respuesta antes de preguntarla, y entran de una en una a medida que aprendes las anteriores. Se instala como app (PWA) desde Chrome o Edge y funciona sin internet.
 
 **Úsalo en línea:** https://c0z1.github.io/kana-pad/
 
