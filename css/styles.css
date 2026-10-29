@@ -177,6 +177,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .pcard::before { content: ""; position: absolute; inset: 0 6% 0 0; background: var(--slab); transform: skewX(var(--skew)); z-index: -1; }
 .pcard p { margin: 0; }
 .pcard { grid-row: span 2; align-self: stretch; align-content: center; }
+.pcard:empty { display: none; } /* no bare blue slab flashing on load before the menu or panel fills it */
 .pcard .pname { font: 400 52px/1 var(--font-display); letter-spacing: .03em; overflow-wrap: anywhere; }
 .pcard .pmeta { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 16px; }
 .pcard .pmeta b { font: 400 26px var(--font-display); color: var(--hi); letter-spacing: .04em; }

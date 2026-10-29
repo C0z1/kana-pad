@@ -55,7 +55,18 @@ test("reader: ruby segments, words per line and conservative lookup", async () =
   assert.equal(lookupWord(parseWord("いえに"), VOCAB_N5)?.q, "家");
   assert.equal(lookupWord(parseWord("ねこが"), VOCAB_N5)?.q, "猫");
   assert.equal(lookupWord(parseWord("たべました。"), VOCAB_N5)?.q, "食べる");
-  assert.equal(lookupWord(parseWord("いいます。"), VOCAB_N5), null); // not いい (bueno)
+  assert.equal(lookupWord(parseWord("いいます。"), VOCAB_N5)?.q, "言う"); // not いい (bueno)
+  // godan verbs, い-adjectives, する/来る, and a noun is never conjugated
+  assert.equal(lookupWord(parseWord("かきました。"), VOCAB_N5)?.q, "書く");
+  assert.equal(lookupWord(parseWord("読[よ]みます。"), VOCAB_N5)?.q, "読む");
+  assert.equal(lookupWord(parseWord("およいだり、"), VOCAB_N5)?.q, "泳ぐ");
+  assert.equal(lookupWord(parseWord("いきません"), VOCAB_N5)?.q, "行く");
+  assert.equal(lookupWord(parseWord("しろくて、ちいさい"), VOCAB_N5)?.q, "白い");
+  assert.equal(lookupWord(parseWord("おいしかったです。"), VOCAB_N5)?.q, "美味しい");
+  assert.equal(lookupWord(parseWord("して、"), VOCAB_N5)?.q, "する");
+  assert.equal(lookupWord(parseWord("きて、"), VOCAB_N5)?.q, "来る");
+  assert.equal(lookupWord(parseWord("ねたり"), VOCAB_N5)?.q, "寝る");
+  assert.equal(lookupWord(parseWord("いつ"), VOCAB_N5)?.q, "いつ");
   // every story parses and every word has text
   for (const st of STORIES_N5) for (const line of parseStory(st.text)) for (const word of line) assert.ok(word.plain, st.id);
 });
