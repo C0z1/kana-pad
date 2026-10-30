@@ -10,6 +10,13 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
+## Novedades de 0.13.0
+
+- **Vibración del mando**: un toque ligero al acertar, un doble golpe al fallar, un pulso más fuerte cada 5 seguidas y una vibración larga en una ronda perfecta. Se apaga en Ajustes → Mando y datos → Vibración del mando.
+- **Aciertos con más peso**: una luz cruza la barra que acertaste, la barra crece con rebote y el combo da un salto mayor cada 5 seguidas.
+- **Final de ronda**: el puntaje cuenta hacia arriba y, con 10 de 10, sale una ráfaga de cuadritos.
+- **Tipografía nueva**: toda la app usa solo dos fuentes, Dela Gothic One para títulos y Zen Kaku Gothic New para el texto; las dos cubren kana y kanji.
+
 ## Novedades de 0.12.0
 
 - **Guía de trazos** (Practicar): los 100 kanji más usados (ranking de frecuencia de KANJIDIC2), los 46 hiragana y los 46 katakana. Eliges un carácter y ves su orden de trazos numerado y animado, su lectura, su significado, cuántos trazos tiene y, en los kanji, su lugar entre los más usados; los que tienen tarjeta mnemotécnica la muestran también. Con el mando: cruceta para moverte, LB/RB para cambiar de escritura, A para repetir.

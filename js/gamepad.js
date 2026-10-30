@@ -47,8 +47,14 @@ export function createPad(onPress, canRepeat = () => false) {
       return { on: false, text: pads().length ? "Pulsa un botón en el mando que vas a usar" : "Sin mando: conéctalo y pulsa un botón" };
     },
     reset() { active = null; },
-    rumble() {
-      try { current()?.vibrationActuator?.playEffect("dual-rumble", { duration: 180, strongMagnitude: 0.6, weakMagnitude: 0.4 }); } catch {}
+    // Haptics on the controller in use: a light tick for a right answer, a firm double knock for a miss, a fuller
+    // pulse every 5 in a row, a long roll for a perfect round. Controllers without a motor simply ignore it.
+    rumble(kind = "wrong") {
+      const act = current()?.vibrationActuator;
+      if (!act) return;
+      const play = (ms, strong, weak) => { try { act.playEffect("dual-rumble", { duration: ms, strongMagnitude: strong, weakMagnitude: weak })?.catch?.(() => {}); } catch {} };
+      ({ right: () => play(45, 0.1, 0.35), combo: () => play(140, 0.35, 0.7), win: () => play(420, 0.5, 0.8),
+         wrong: () => { play(110, 0.65, 0.4); setTimeout(() => play(110, 0.65, 0.4), 170); } })[kind]?.();
     },
   };
 }

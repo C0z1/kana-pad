@@ -9,6 +9,8 @@
   --font-head: "Dela Gothic One", "Yu Gothic", "Hiragino Sans", sans-serif;      /* titles, figures, big kana and kanji */
   --font-body: "Zen Kaku Gothic New", "Yu Gothic", "Hiragino Sans", sans-serif;  /* everything else, small Japanese too (500 and 700) */
   --skew: -14deg;
+  /* A spring that overshoots a little and settles (sampled curve for linear()); browsers without linear() use ease. */
+  --spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1);
   color-scheme: dark;
 }
 
@@ -35,6 +37,8 @@ kbd { font: 500 13px var(--font-body); letter-spacing: .08em; color: var(--muted
 .combo span span { color: var(--ink); letter-spacing: 0; }
 .combo .combo-label { color: var(--muted); letter-spacing: .14em; }
 .combo.bump b { animation: bump .25s ease-out; }
+.combo.bump.big b { animation: bump-big .4s ease-out; } /* every 5 in a row */
+@keyframes bump-big { 35% { transform: scale(1.32) rotate(-5deg); } 70% { transform: scale(.96); } }
 @keyframes bump { 50% { transform: scale(1.18); } }
 
 .stage { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; min-height: 0; }
@@ -71,7 +75,7 @@ kbd { font: 500 13px var(--font-body); letter-spacing: .08em; color: var(--muted
 .opts { width: 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .bar { display: flex; align-items: center; gap: 18px; width: min(100%, 420px); box-sizing: border-box; padding: 10px 22px; border: 0;
   background: var(--bar); color: var(--bar-ink); font: 700 clamp(28px, 3.2vw, 42px)/1.1 var(--font-body); text-align: left; cursor: pointer;
-  transform: skewX(var(--skew)); transition: width .15s ease-out, background-color .15s, box-shadow .15s, opacity .15s, transform .15s ease-out; }
+  transform: skewX(var(--skew)); transition: width .32s var(--spring), background-color .15s, box-shadow .15s, opacity .15s, transform .15s ease-out; }
 .bar > * { transform: skewX(calc(var(--skew) * -1)); }
 .bar .label { min-width: 0; overflow-wrap: anywhere; }
 .bar .label.jp { font: 400 clamp(28px, 3vw, 40px)/1.15 var(--font-head); }
@@ -529,11 +533,18 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .dsum > .heatbox { animation-delay: .2s; } .dsum > #notices { animation-delay: .24s; }
 .drow .meter i, .frow .meter i, .pcard .meter i { transform-origin: left; animation: grow .35s ease-out backwards; }
 @keyframes grow { from { transform: scaleX(0); } }
-.score, .epass { animation: stamp .25s ease-out backwards .05s; }
+.score, .epass { animation: stamp .35s var(--spring) backwards .05s; }
 /* Each new question slides in; the answer gives a quick pulse on the slab, a stamp on the verdict and a shake on a wrong bar. */
 #stage .prompt:not(.ok):not(.bad) > .glyph { animation: enter .18s ease-out; }
 .prompt.ok::before, .prompt.bad::before { animation: flash .22s ease-out; }
-.verdict.ok, .verdict.bad { animation: stamp .2s ease-out; }
+.verdict.ok, .verdict.bad { animation: stamp .3s var(--spring); }
+/* The bar you got right: a light passes across it once. */
+.bar.hit { position: relative; overflow: hidden; }
+.bar.hit::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 45%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .75), transparent); animation: sweep .5s ease-out .06s both; }
+@keyframes sweep { from { transform: translateX(-110%); } to { transform: translateX(260%); } }
+/* A perfect round: squares fly out of the score (js burst()). */
+.burst-bit { position: fixed; z-index: 9; width: 14px; height: 14px; pointer-events: none; }
 .bar.wrong { animation: nudge .3s ease-out; }
 .pips i:is(.hit, .miss):not(:has(+ :is(.hit, .miss))) { animation: pip .25s ease-out; }
 /* Menu: the staggered entrance only while .intro is on (set on opening; rows are rebuilt on every move).

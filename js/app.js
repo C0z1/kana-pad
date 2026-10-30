@@ -51,7 +51,7 @@ const todayKey = () => studyDay(); // local YYYY-MM-DD; the study day ends at 4:
 let stats = store.getSync("kp-stats", {});            // "deck:q" -> [hits, misses], free-practice weights
 let day = store.getSync("kp-day", { d: todayKey(), n: 0, fresh: 0 });
 let history = store.getSync("kp-hist", {}); // "YYYY-MM-DD" -> { reviews, correct } of mature-review answers, { answers } of all
-const prefs = { deck: 0, voice: true, ear: false, reverse: false, ...store.getSync("kp-prefs", {}) };
+const prefs = { deck: 0, voice: true, ear: false, reverse: false, rumble: true, ...store.getSync("kp-prefs", {}) };
 if (!MODES[prefs.deck]) prefs.deck = 0;
 let cards = {}; // FSRS state per key, loaded from IndexedDB before the first round
 let records = store.getSync("kp-records", {}); // Retos: best score per challenge id
@@ -367,10 +367,12 @@ function answer(k) {
       $("note").replaceChildren("Tu respuesta: ", jp, ` = ${picked.a}`);
     }
   }
-  if (!ok) pad.rumble();
+  if (!ok) buzz("wrong");
   else {
-    const combo = $("streak").parentElement;
-    combo.classList.remove("bump"); void combo.offsetWidth; combo.classList.add("bump");
+    const combo = $("streak").parentElement, five = streak % 5 === 0;
+    buzz(five ? "combo" : "right");
+    combo.classList.remove("bump", "big"); void combo.offsetWidth; combo.classList.add("bump", ...(five ? ["big"] : []));
+    $("opts").querySelector(`[data-k="${k}"]`)?.classList.add("hit"); // the light sweep across the bar you chose
   }
   if (field === "q" || deck.kind === "grammar") speak(item.r || item.q);
   $("verdict").scrollIntoView({ block: "nearest" }); // on short phones it sits below the fold
@@ -421,6 +423,8 @@ function showSummary() {
       : "";
     if (mode() === MISTAKES && !done) { $("sumtitle").textContent = "Sin errores"; $("score").textContent = "0"; }
   }
+  countUp($("score"));
+  if (done === ROUND && hits === done) { burst($("score")); buzz("win"); if (prefs.sfx) sfx.win(); }
   const braked = isReview() && day.limit !== undefined && day.limit < NEW_PER_DAY;
   $("brake").hidden = !braked;
   if (braked) $("braketxt").textContent = day.limit === 0
@@ -660,6 +664,8 @@ function menuRows() {
     { group: "Anki", icon: "upload", label: "Importar de Anki", fresh: "anki", sub: ankiDecks.length ? `${ankiDecks.length} mazos importados · necesita Anki abierto con AnkiConnect` : "Practica tus mazos de Anki aquí · necesita Anki abierto con AnkiConnect", count: "›", action: openAnki },
     { group: "Nivel", icon: "stairs", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
     { group: "Nivel", icon: "exam", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
+    { group: "Mando y datos", icon: "pad", label: "Vibración del mando", sub: "Al acertar, al fallar y cada 5 seguidas", seg: { options: ["SÍ", "NO"], on: prefs.rumble ? 0 : 1 },
+      action: () => { toggle("rumble"); if (prefs.rumble) buzz("combo"); renderMenu(); }, change: d => { if ((d < 0) === prefs.rumble) return false; toggle("rumble"); if (prefs.rumble) buzz("combo"); renderMenu(); } },
     { group: "Mando y datos", icon: "pad", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
     { group: "Mando y datos", icon: "download", label: "Exportar progreso", sub: "Guarda una copia en un archivo", action: exportProgress },
     ...(pendingImport ? [
@@ -1046,6 +1052,21 @@ function openProgress(start = "resumen") {
 }
 // The KPI figures count up the first time the panel opens in a session; afterwards they just show.
 let kpisCounted = false;
+// A perfect round: flat squares in the app's colours fly out of the score and fall away (0.7 s).
+function burst(el) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  for (let i = 0; i < 16; i++) {
+    const bit = document.createElement("i"), a = (i / 16) * Math.PI * 2 + Math.random() * 0.4, d = 110 + Math.random() * 130;
+    bit.className = "burst-bit"; bit.style.left = `${x}px`; bit.style.top = `${y}px`;
+    bit.style.background = ["var(--hi)", "var(--slab)", "var(--ink)", "var(--btn-a)"][i % 4];
+    document.body.append(bit);
+    bit.animate([
+      { transform: "translate(-50%, -50%) rotate(0deg) scale(1)", opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d + 60}px)) rotate(${(Math.random() - 0.5) * 540}deg) scale(.5)`, opacity: 0 },
+    ], { duration: 700, easing: "cubic-bezier(.15, .7, .3, 1)" }).finished.then(() => bit.remove(), () => bit.remove());
+  }
+}
 function countUp(b) {
   const m = /^(\d+)(.*)$/.exec(b.textContent); // "12", "87%", "3/15"; "—" is left alone
   if (!m || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -1347,7 +1368,7 @@ function dailyRow() {
 function challengeAnswer(k) {
   const q = exam.qs[exam.i], ok = q.opts[KEYS.indexOf(k)] === q.answer;
   exam.locked = true;
-  if (ok) exam.score++; else { exam.missed.push(q); pad.rumble(); }
+  if (ok) exam.score++; else { exam.missed.push(q); buzz("wrong"); }
   if (prefs.sfx) (ok ? sfx.right : sfx.wrong)();
   exam.results?.push(ok);
   // Real practice, so it counts toward today's goal; the FSRS calendar is left alone.
@@ -1469,7 +1490,7 @@ function listenAnswer(k) {
   $("lchip").textContent = `VOZ: ${(listen.voice?.name ?? "").replace(/^Microsoft |\s*-.*$/g, "").toUpperCase()}`;
   $("lverdict").textContent = ok ? "¡CORRECTO!" : `ERA: ${q.answer}`;
   $("lverdict").className = "verdict " + (ok ? "ok" : "bad");
-  if (!ok) { $("lnote").textContent = `Voz: ${listen.voice?.name ?? "—"}`; pad.rumble(); }
+  if (!ok) { $("lnote").textContent = `Voz: ${listen.voice?.name ?? "—"}`; buzz("wrong"); }
   bumpKind("listening", ok);
   countAnswer();
   const s = listen;
@@ -1562,7 +1583,7 @@ async function checkDrawing() {
   notes.push("Verde: bien · amarillo: casi · rojo: revisa forma u orden.");
   $("dnote").textContent = notes.join(" ");
   $("dchecktxt").textContent = draw.i + 1 < draw.pool.length ? "Siguiente" : "Terminar";
-  if (r.score < 40) pad.rumble();
+  if (r.score < 40) buzz("wrong");
   const dk = (kinds.draw ??= [0, 0]); dk[0] += r.score; dk[1]++; store.setSync("kp-kinds", kinds);
   countAnswer();
 }
@@ -1744,7 +1765,7 @@ function storyAnswer(k) {
   $("squiz").querySelector(".prompt").className = "prompt " + (ok ? "ok" : "bad");
   $("sverdict").textContent = ok ? "¡CORRECTO!" : `ERA: ${q.a}`;
   $("sverdict").className = "verdict " + (ok ? "ok" : "bad");
-  if (!ok) pad.rumble();
+  if (!ok) buzz("wrong");
   countAnswer();
   const s = story;
   setTimeout(() => {
@@ -1881,6 +1902,7 @@ document.addEventListener("click", e => {
 
 // ---------- input ----------
 const ANSWER_BUTTONS = { 0: "a", 1: "b", 2: "x", 3: "y", 12: "y", 13: "a", 14: "x", 15: "b" };
+const buzz = kind => { if (prefs.rumble) pad.rumble(kind); }; // controller haptics, unless turned off in Ajustes
 const pad = createPad(i => {
   if (screen === "exam") {
     if (!$("eresult").hidden) { if (i === 0 || i === 1) closeExam(); return; }
