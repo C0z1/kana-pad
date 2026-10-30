@@ -10,6 +10,12 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
+## Novedades de 0.11.0
+
+- **Tarjetas mnemotécnicas**: los 17 kanji de N5 que son dibujos (火 fuego, 木 árbol, 日 sol, 水 agua, 山 montaña, 川 río, 月 luna, 雨 lluvia, 空 cielo, 電 electricidad, 人 persona, 口 boca, 目 ojo, 金 oro, 花 flor, 魚 pez, 本 libro) se enseñan con una ilustración de lo que representan: la figura en el centro, los trazos del kanji en negro encima, dibujándose en orden, y el significado debajo.
+- **Orden de trazos numerado**: después de responder un kanji, sus trazos se dibujan uno a uno y el número de cada trazo aparece donde empieza, como en una hoja de caligrafía. Los números y su posición vienen de KanjiVG.
+- **NUEVO** en el menú: Mis errores e Importar de Anki llevan una etiqueta y un borde que late hasta que los abres una vez.
+
 ## Novedades de 0.10.0
 
 - **Mis errores** (Practicar): las cartas que más fallas, de todos los mazos. Una carta sale de la lista sola cuando la aciertas lo suficiente (menos de 25% de fallos). No cambia tu calendario.

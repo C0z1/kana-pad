@@ -3,7 +3,8 @@ import { pick, options, speakable, pickPractice, practiceStatus } from "./srs.js
 import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY, BREATHER_CARDS, BREATHER_MS } from "./scheduler.js";
 import { store } from "./storage.js";
-import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
+import { strokePaths, strokeData, strokeSvg, STROKE_SECONDS } from "./strokes.js";
+import { MNEMONICS, mnemonicSvg } from "./mnemonics.js";
 import { retention, streakDays, streakRun, deckStats, forecast, backupDue, daysSince } from "./progress.js";
 import { buildExam, scoreExam, clock, SECTIONS, EXAM_SECONDS } from "./exam.js";
 import { READING_N5 } from "./content/reading-n5.js";
@@ -233,16 +234,28 @@ function renderCard() {
   shownAt = performance.now();
   if (teaching) {
     speak(item.r || item.q);
-    if (deck.kind === "kanji") showStrokes(item.q);
+    // A pictographic kanji is taught with its picture; the others with their numbered stroke order.
+    if (deck.kind === "kanji") (MNEMONICS[item.q] ? showMnemonic(item) : showStrokes(item.q));
   } else if (answerField(deck) === "a" && deck.kind !== "grammar") speak(item.r || item.q);
 }
 
 async function showStrokes(ch) {
-  const paths = await strokePaths(ch);
+  const { paths, nums } = await strokeData(ch);
   if (!paths.length || cur?.item.q !== ch) return;
   $("q").className = "glyph";
-  $("q").replaceChildren(strokeSvg(paths));
+  $("q").replaceChildren(strokeSvg(paths, nums));
   return paths.length;
+}
+// Mnemonic card: a flat picture of what the kanji depicts, its strokes in black on top, the meaning below.
+async function showMnemonic(item) {
+  const paths = await strokePaths(item.q);
+  if (!paths.length || cur?.item.q !== item.q) return;
+  const fig = el("figure", "mnemo");
+  fig.style.setProperty("--mfg", `var(${MNEMONICS[item.q][1]})`);
+  fig.innerHTML = mnemonicSvg(item.q, paths); // KanjiVG paths from our own content folder
+  fig.append(el("figcaption", "", item.a.toLowerCase()));
+  $("q").className = "glyph";
+  $("q").replaceChildren(fig);
 }
 
 function countAnswer() {

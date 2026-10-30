@@ -52,6 +52,17 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
   stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .3s ease-out both; filter: drop-shadow(4px 4px 0 var(--bg)); }
 /* Hidden until its turn: round caps would otherwise show a dot at each stroke's start. */
 @keyframes draw { 0% { stroke-dashoffset: 1; opacity: 0; } 1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+/* Stroke-order numbers at KanjiVG's positions (where each stroke starts); each appears as its stroke begins. */
+.strokes.numbered text { font: 400 9px var(--font-display); fill: var(--hi); paint-order: stroke; stroke: var(--bg); stroke-width: 1.2px; animation: fade .2s ease-out both; }
+/* Mnemonic card, in the app's own look: the answer bars' light ground with a hard shadow, a flat shape in the palette,
+   the strokes drawing in order in the bars' ink, and the meaning on a yellow tag like NUEVA, in lower case. */
+.mnemo { --mbg: var(--bar); margin: 0; display: grid; justify-items: center; text-shadow: none; }
+.mnemo svg { width: min(36vh, 24vw, 300px); height: auto; aspect-ratio: 1; background: var(--mbg); box-shadow: 10px 10px 0 var(--bg); }
+.mnemo .mshape { fill: var(--mfg); color: var(--mfg); }
+.mnemo .mstrokes path { fill: none; stroke: var(--bar-ink); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .3s ease-out both; }
+.mnemo figcaption { position: relative; margin-top: -18px; background: var(--hi); color: var(--bar-ink); font: 400 clamp(24px, 2.4vw, 34px)/1.15 var(--font-display);
+  letter-spacing: .04em; text-transform: lowercase; white-space: nowrap; padding: 2px 14px; transform: rotate(-3deg); box-shadow: 6px 6px 0 var(--bg); }
 .glyph.ear { font: 800 26px var(--font-ui); letter-spacing: .1em; display: grid; justify-items: center; gap: 12px; text-shadow: none; }
 .glyph.ear svg { width: 96px; height: 96px; }
 .hint { margin: 0; font-weight: 800; font-size: 24px; letter-spacing: .1em; text-transform: uppercase; }
@@ -588,7 +599,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 /* Six tabs: icons only on the narrowest phones (the label stays in aria-label/title or the text). */
 @media (max-width: 400px) { .ptop .tab { font-size: 0; padding-inline: 10px; } .ptop .tab .ico { width: 22px; height: 22px; } }
 
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } .strokes path { stroke-dashoffset: 0; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } .strokes path, .mnemo .mstrokes path { stroke-dashoffset: 0; opacity: 1; } }
 
 /* Tu semana (Mi panel → Resumen): four small figures with their change against the week before. */
 .weekbox { display: grid; gap: 8px; }
@@ -609,3 +620,4 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 @keyframes coach { from { box-shadow: 0 0 0 0 rgba(255, 230, 0, .6); } to { box-shadow: 0 0 0 8px rgba(255, 230, 0, 0); } }
 .newtag { font: 400 18px var(--font-display); letter-spacing: .04em; padding: 2px 8px; background: var(--hi); color: var(--bar-ink); }
 .mrow.sel .newtag { background: var(--bar-ink); color: var(--hi); }
+@media (max-width: 860px) { .mnemo svg { width: min(26vh, 52vw); } }
