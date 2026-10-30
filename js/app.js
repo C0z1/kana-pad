@@ -55,6 +55,7 @@ let cards = {}; // FSRS state per key, loaded from IndexedDB before the first ro
 let records = store.getSync("kp-records", {}); // Retos: best score per challenge id
 let daily = store.getSync("kp-daily", {}); // Reto del día: "YYYY-MM-DD" -> score of the day's first run
 let achvSeen = store.getSync("kp-achv-seen", []); // achievement ids already announced
+let newSeen = store.getSync("kp-new-seen", []); // features marked NUEVO in the menu that were already opened
 let kinds = store.getSync("kp-kinds", {}); // listening/reading: [hits, misses]; draw: [sum of scores, drawings]
 let profile = { name: "", goal: 20, target: null, targetDate: null, updatedAt: null, ...store.getSync("kp-profile", {}) };
 function bumpKind(kind, ok) { const k = (kinds[kind] ??= [0, 0]); k[ok ? 0 : 1]++; store.setSync("kp-kinds", kinds); }
@@ -499,6 +500,7 @@ const CATS = [
 ];
 const menu = { cat: 0, sel: 0, focus: "panel", sub: null }; // sub: "voices", a page inside Ajustes
 let menuPage = null; // category (and sub page) the panel last showed
+const pulsed = new Set(); // NUEVO rows that already pulsed since the menu opened
 
 function accuracyOf(deck) {
   let h = 0, m = 0;
@@ -580,7 +582,7 @@ function menuRows() {
     const order = [start, ...LEVELS.map(l => l.id).filter(l => l !== start)];
     return [
       { icon: "layers", label: "Todo lo visto", count: String(seenEntries().length), sub: "Sin cartas nuevas · no cambia tu calendario", action: () => startMode(1) },
-      { icon: "undo", label: "Mis errores", count: String(mistakePool().length || ""), action: () => startMode(MODES.indexOf(MISTAKES)),
+      { icon: "undo", label: "Mis errores", fresh: "errors", count: String(mistakePool().length || ""), action: () => startMode(MODES.indexOf(MISTAKES)),
         sub: mistakePool().length ? `Las ${mistakePool().length} cartas que más fallas · no cambia tu calendario` : "Aún no hay cartas con errores" },
       { icon: "pen", label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
       ...order.flatMap(lv => DECKS.flatMap((d, i) => {
@@ -637,7 +639,7 @@ function menuRows() {
     { group: "Voz", icon: prefs.sfx ? "speaker" : "mute", label: "Efectos de sonido", sub: "Acierto, fallo y récord · volumen bajo", seg: { options: ["SÍ", "NO"], on: prefs.sfx ? 0 : 1 }, action: effects, change: effectsTo },
     { group: "Voz", icon: "headphones", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
     ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", icon: "download", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
-    { group: "Anki", icon: "upload", label: "Importar de Anki", sub: ankiDecks.length ? `${ankiDecks.length} mazos importados · necesita Anki abierto con AnkiConnect` : "Practica tus mazos de Anki aquí · necesita Anki abierto con AnkiConnect", count: "›", action: openAnki },
+    { group: "Anki", icon: "upload", label: "Importar de Anki", fresh: "anki", sub: ankiDecks.length ? `${ankiDecks.length} mazos importados · necesita Anki abierto con AnkiConnect` : "Practica tus mazos de Anki aquí · necesita Anki abierto con AnkiConnect", count: "›", action: openAnki },
     { group: "Nivel", icon: "stairs", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
     { group: "Nivel", icon: "exam", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
     { group: "Mando y datos", icon: "pad", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
@@ -688,6 +690,11 @@ function renderMenu() {
     if (it.sub) label.append(el("span", "msub", it.sub));
     b.append(label);
     if (it.seg) { const s = el("span", "seg"); s.append(...it.seg.options.map((o, k) => el("span", k === it.seg.on ? "on" : "", o))); b.append(s); }
+    // A new feature wears NUEVO until opened once; its ring pulses only the first time it shows per menu opening.
+    if (it.fresh && !newSeen.includes(it.fresh)) {
+      b.classList.add("isnew"); b.append(el("span", "newtag", "NUEVO"));
+      if (!pulsed.has(it.fresh)) { pulsed.add(it.fresh); b.classList.add("pulse"); }
+    }
     if (it.count) b.append(el("span", "mcount", it.count));
     b.addEventListener("click", () => { menu.focus = "panel"; menu.sel = i; activateMenu(); });
     out.push(b);
@@ -730,6 +737,7 @@ function activateMenu() {
   if (menu.focus === "rail") return enterPanel();
   const it = menuRows()[menu.sel];
   if (!it || it.disabled) return;
+  if (it.fresh && !newSeen.includes(it.fresh)) { newSeen = [...newSeen, it.fresh]; store.setSync("kp-new-seen", newSeen); }
   it.action();
 }
 function openVoices() { menu.cat = CATS.findIndex(c => c.id === "ajustes"); menu.focus = "panel"; menu.sub = "voices"; menu.subRow = menu.sel; menu.sel = 0; renderMenu(); }
@@ -741,7 +749,7 @@ function menuBack() {
 function openMenu() {
   setTimeout(announceAchievements); // anything earned since, e.g. through a sync
   wakeLock?.release().catch(() => {}); wakeLock = null;
-  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
+  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true; pulsed.clear();
   $("overlay").hidden = false; document.querySelector(".app").inert = true;
   // The staggered entrance runs once per opening, not on every rebuild while moving (rows are recreated).
   $("overlay").classList.add("intro"); setTimeout(() => $("overlay").classList.remove("intro"), 450);
@@ -1781,7 +1789,7 @@ function goHome() {
   else if (screen === "stories") closeStories();
   else if (screen === "progress") closeProgress();
   else if (screen === "draw") closeDraw();
-  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true;
+  Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true; pulsed.clear();
   if (!$("overlay").hidden) renderMenu();
 }
 document.addEventListener("click", e => {
