@@ -2,11 +2,19 @@
 // so they need no storage of their own beyond the ids already announced. Pure functions.
 const DAY_MS = 864e5;
 
-// Longest run of consecutive dates ("YYYY-MM-DD") in a list.
-export function bestRun(dates) {
+// Longest run of consecutive dates ("YYYY-MM-DD") in a list. With `freeze` (Racha protegida), a single missed
+// day jumps the gap once per week (Monday to Sunday) without counting, as in streakRun().
+export function bestRun(dates, freeze = false) {
   const days = [...new Set(dates)].sort().map(d => Math.round(Date.parse(d + "T12:00:00Z") / DAY_MS));
-  let best = 0, run = 0;
-  days.forEach((d, i) => { run = i && d === days[i - 1] + 1 ? run + 1 : 1; best = Math.max(best, run); });
+  const week = n => Math.floor((n + 3) / 7); // day 0 (1970-01-01) is a Thursday; weeks start on Monday
+  let best = 0, run = 0, used = new Set();
+  days.forEach((d, i) => {
+    const gap = i ? d - days[i - 1] : 0;
+    if (gap === 1) run++;
+    else if (freeze && gap === 2 && !used.has(week(d - 1))) { used.add(week(d - 1)); run++; }
+    else { run = 1; used = new Set(); }
+    best = Math.max(best, run);
+  });
   return best;
 }
 
@@ -14,7 +22,7 @@ export function bestRun(dates) {
 // Returns every achievement with `progress: [n, goal]` and `done`, in display order.
 export function achievements({ history = {}, cards = {}, decks = [], exams = [], stories = {}, records = {}, daily = {}, goal = 20 }) {
   const studied = Object.entries(history).filter(([, h]) => (h.answers ?? 0) > 0);
-  const streak = bestRun(studied.map(([d]) => d));
+  const streak = bestRun(studied.map(([d]) => d), true); // the same protected streak the panel shows
   // shortcut: the history doesn't keep the goal of each day, so past days are measured against today's goal;
   // store the goal per day if it ever matters.
   const goalDays = studied.filter(([, h]) => h.answers >= goal).length;

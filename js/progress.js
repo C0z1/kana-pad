@@ -11,13 +11,23 @@ export function retention(history, today) {
 }
 
 // Consecutive study days ending today (or yesterday, if today hasn't started yet).
-export function streakDays(history, today) {
+// With `freeze` (Racha protegida), one missed day per week (Monday to Sunday) doesn't break the run: it is
+// jumped over but not counted. `saved` is how many missed days the run jumped.
+export function streakRun(history, today, freeze = false) {
   const studied = new Set(Object.entries(history).filter(([, h]) => (h.answers ?? 0) > 0).map(([d]) => d));
   const back = (d, n) => new Date(Date.parse(d + "T12:00:00") - n * DAY_MS).toLocaleDateString("sv");
-  let start = studied.has(today) ? 0 : 1, n = 0;
-  while (studied.has(back(today, start + n))) n++;
-  return n;
+  const monday = d => back(d, (new Date(d + "T12:00:00").getDay() + 6) % 7);
+  const used = new Set();
+  let i = studied.has(today) ? 0 : 1, n = 0;
+  for (;;) {
+    const d = back(today, i);
+    if (studied.has(d)) n++;
+    else if (freeze && studied.has(back(today, i + 1)) && !used.has(monday(d))) used.add(monday(d));
+    else return { n, saved: used.size };
+    i++;
+  }
 }
+export const streakDays = (history, today, freeze = false) => streakRun(history, today, freeze).n;
 
 // Seen and mature cards per deck.
 export function deckStats(decks, cards) {

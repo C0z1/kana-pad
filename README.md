@@ -10,15 +10,21 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
-## Novedades de 0.9.0
+## Novedades de 0.10.0
 
-- **Reto del día**: 10 preguntas de tu nivel, las mismas todo el día. Solo cuenta la primera partida; lleva su propia racha.
-- **Retos rápidos**: Contrarreloj (60 segundos) y Supervivencia (hasta el primer fallo), con récord. Simulacros N4 y N3.
-- **Logros**: 16 logros de constancia, volumen, dominio y retos en Mi panel → Logros, con un aviso cuando consigues uno.
-- Las respuestas de los retos cuentan para tu meta diaria, tu racha y el calendario (no cambian el calendario de repasos).
-- Récords, reto del día y logros entran en Exportar/Importar y en la sincronización con tu cuenta.
-- Efectos de sonido opcionales (Ajustes → Voz), apagados por defecto.
-- Iconos, saludo y semana en el inicio, cuentos con el estilo nuevo y una revisión de diseño de toda la app. En Mi panel, ↑↓ desplazan la pestaña.
+- **Mis errores** (Practicar): las cartas que más fallas, de todos los mazos. Una carta sale de la lista sola cuando la aciertas lo suficiente (menos de 25% de fallos). No cambia tu calendario.
+- **Tu semana** (Mi panel → Resumen): respuestas, días con estudio, cartas nuevas y retención de los últimos 7 días, comparados con los 7 anteriores, y tu mejor día.
+- **Racha protegida**: un día sin estudiar por semana (de lunes a domingo) no rompe tu racha; ese día no suma, pero la racha sigue. Dos días seguidos sí la rompen. Los logros de racha usan la misma regla.
+- **Puente con Anki** (Ajustes → Importar de Anki): practica tus mazos de Anki como práctica libre. El primer campo de cada nota es la pregunta y el segundo la respuesta. Solo lee; tu Anki no cambia.
+- Movimiento: las tarjetas se elevan al pasar el ratón, los botones se hunden al pulsar, las tarjetas entran escalonadas, las cifras del Resumen cuentan desde cero, el anillo de foco aparece suave y el aviso de ¡LOGRO! se abre como un sobre. Todo se apaga si tu sistema pide reducir el movimiento.
+
+### Cómo conectar Anki
+
+1. En Anki: Herramientas → Complementos → Obtener complementos, código `2055492159` (AnkiConnect). Reinicia Anki.
+2. Herramientas → Complementos → AnkiConnect → Configuración: agrega el sitio desde el que abres Kana Pad a `webCorsOriginList`, por ejemplo `"https://c0z1.github.io"` o `"http://localhost:3000"`.
+3. Con Anki abierto, en Kana Pad: Ajustes → Importar de Anki y elige un mazo. Chrome puede pedir permiso para conectarse a dispositivos de tu red local: acéptalo.
+
+Los mazos importados se guardan en el navegador (no entran en Exportar ni en la sincronización). Para traer cambios de Anki, vuelve a importar el mazo.
 
 ## Descargas
 

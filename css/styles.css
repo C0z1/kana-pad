@@ -543,8 +543,8 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 /* Soft press on buttons; cards lift 4px under a mouse only (touch would leave them stuck up). */
 .bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) scale(.97); }
 .tab:active, .mode:active, .deck-tag:active, .mrow:active { transform: scale(.97); }
-.mrow, .kpi, .ach, .escore { transition: transform .2s ease-out; }
-@media (hover: hover) { .mrow:hover:not(:active), .kpi:hover, .ach:hover, .escore:hover { transform: translateY(-4px); } }
+.mrow, .kpi, .ach, .escore, .wk { transition: transform .2s ease-out; }
+@media (hover: hover) { .mrow:hover:not(:active), .kpi:hover, .ach:hover, .escore:hover, .wk:hover { transform: translateY(-4px); } }
 /* Logros: unlocked on the blue slab (yellow stays for the focus), locked dark with their progress. */
 .achs { display: grid; gap: 12px; align-content: start; }
 .achhead { display: flex; align-items: baseline; gap: 12px; }
@@ -572,8 +572,11 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .toast .ico { width: 28px; height: 28px; }
 .toast b { font: 400 30px/1 var(--font-display); letter-spacing: .04em; }
 .toast span { font: 800 22px var(--font-ui); }
-.toast:not([hidden]) { animation: stamp-skew .25s ease-out; }
-@keyframes stamp-skew { from { opacity: 0; transform: skewX(var(--skew)) scale(1.3); } }
+/* Opens like an envelope flap: the slab tilts down from its top edge, then its contents fade in without moving. */
+.toast:not([hidden]) { transform-origin: top; animation: flap .2s ease-out; }
+.toast:not([hidden]) > * { animation: fade .12s ease-out .15s backwards; }
+@keyframes flap { from { opacity: 0; transform: perspective(500px) rotateX(-75deg) skewX(var(--skew)); }
+  to { transform: perspective(500px) rotateX(0) skewX(var(--skew)); } }
 @media (max-width: 860px) { .toast { left: 16px; right: 16px; top: auto; bottom: max(16px, env(safe-area-inset-bottom)); } }
 
 /* Empty states in Mi panel: where to go, not a button (the pad can't focus inside the tabs). */
@@ -586,3 +589,15 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 @media (max-width: 400px) { .ptop .tab { font-size: 0; padding-inline: 10px; } .ptop .tab .ico { width: 22px; height: 22px; } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } .strokes path { stroke-dashoffset: 0; opacity: 1; } }
+
+/* Tu semana (Mi panel → Resumen): four small figures with their change against the week before. */
+.weekbox { display: grid; gap: 8px; }
+.weekbox .mgroup { margin: 0; }
+.wgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.wk { display: grid; gap: 2px; align-content: start; background: #17171f; padding: 12px 14px; }
+.wk b { font: 400 36px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.wk span { color: var(--muted); font-weight: 600; font-size: 15px; }
+.wk small { color: var(--muted); font-weight: 700; font-size: 14px; }
+.wk small.up { color: var(--hi); }
+.wbest { margin: 0; color: var(--muted); font-weight: 600; }
+@media (max-width: 860px) { .wgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

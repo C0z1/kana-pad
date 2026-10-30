@@ -4,7 +4,7 @@ import { createPad } from "./gamepad.js";
 import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyDay, dayEnd, pickNext, NEW_PER_DAY, BREATHER_CARDS, BREATHER_MS } from "./scheduler.js";
 import { store } from "./storage.js";
 import { strokePaths, strokeSvg, STROKE_SECONDS } from "./strokes.js";
-import { retention, streakDays, deckStats, forecast, backupDue, daysSince } from "./progress.js";
+import { retention, streakDays, streakRun, deckStats, forecast, backupDue, daysSince } from "./progress.js";
 import { buildExam, scoreExam, clock, SECTIONS, EXAM_SECONDS } from "./exam.js";
 import { READING_N5 } from "./content/reading-n5.js";
 import { STORIES_N5 } from "./content/stories-n5.js";
@@ -13,7 +13,8 @@ import { activeVoices, pickVoice, voiceVariation, buildListening } from "./liste
 import { BUILT_IN, clipUrl, clipPath } from "./voices.js";
 import { readBackup } from "./backup.js";
 import { allTexts } from "./clips.js";
-import { heatmap, levelProgress, kindAccuracy, weakest, eta } from "./dashboard.js";
+import { heatmap, levelProgress, kindAccuracy, weakest, eta, mistakes, weekSummary } from "./dashboard.js";
+import { ankiCall, readDeck } from "./anki.js";
 import { mergeProgress, changed } from "./merge.js";
 import * as cloud from "./cloud.js";
 import { levelQuestions, startLevel, fromLevel, PER_LEVEL } from "./placement.js";
@@ -32,7 +33,11 @@ const $ = id => document.getElementById(id);
 const REVIEW = { id: "review", name: "Repaso de hoy", kind: "review" };
 // Free practice over everything already seen; it never touches the FSRS schedule.
 const PRACTICE = { id: "seen", name: "Práctica de lo visto", kind: "practice" };
-const MODES = [REVIEW, PRACTICE, ...DECKS];
+// The cards missed most, from every deck (Mis errores); it never touches the FSRS schedule either.
+const MISTAKES = { id: "errors", name: "Mis errores", kind: "practice" };
+// Decks imported from Anki go last, so the saved deck index of the built-in ones never moves.
+let ankiDecks = store.getSync("kp-anki", []);
+const MODES = [REVIEW, PRACTICE, ...DECKS, MISTAKES, ...ankiDecks];
 const entriesOf = id => { const deck = DECKS.find(d => d.id === id); return deck.items.map(item => ({ key: deck.id + ":" + item.q, item, deck })); };
 // New cards: all kana first, then per level (N5, N4, N3) 3 words : 1 grammar point : 1 kanji.
 const ENTRIES = [...entriesOf("hira"), ...entriesOf("kata"),
@@ -85,6 +90,8 @@ rollDay();
 const newLimit = () => (day.limit === 0 ? 0 : (day.limit ?? NEW_PER_DAY) + (day.bonus ?? 0));
 const reviewQueue = () => queue(fromLevel(ENTRIES, cards, prefs.level), cards, new Date(), newLimit() - day.fresh, day.d);
 const seenEntries = () => ENTRIES.filter(e => cards[e.key]);
+const allEntries = () => [...DECKS, ...ankiDecks].flatMap(deck => deck.items.map(item => ({ key: keyOf(deck, item), item, deck })));
+const mistakePool = () => mistakes(allEntries(), stats);
 const pending = () => reviewQueue().length;
 
 // Every answer is saved right away; the footer says so (or warns if storage failed).
@@ -106,6 +113,8 @@ function renderTop() {
     $("acc").textContent = `${pending()} pendientes`;
   } else if (m === PRACTICE) {
     $("acc").textContent = `${seenEntries().length} cartas vistas`;
+  } else if (m === MISTAKES) {
+    $("acc").textContent = `${mistakePool().length} con errores`;
   } else {
     let h = 0, mi = 0;
     for (const it of m.items) { const s = stats[keyOf(m, it)]; if (s) { h += s[0]; mi += s[1]; } }
@@ -164,11 +173,11 @@ function nextCard() {
     resting = !e && q.length > 0;
     return e ? { item: e.item, deck: e.deck, teach: !cards[e.key] } : null;
   }
-  if (mode() === PRACTICE) {
-    const seen = seenEntries();
-    if (!seen.length) return null;
-    const prev = seen.find(e => e.key === lastKey);
-    const e = pick(seen, x => stats[x.key], Math.random, prev);
+  if (mode() === PRACTICE || mode() === MISTAKES) {
+    const pool = mode() === PRACTICE ? seenEntries() : mistakePool();
+    if (!pool.length) return null;
+    const prev = pool.find(e => e.key === lastKey);
+    const e = pick(pool, x => stats[x.key], Math.random, prev);
     return { item: e.item, deck: e.deck, teach: false };
   }
   // A single deck teaches each card the first time instead of asking it cold.
@@ -389,7 +398,10 @@ function showSummary() {
   } else {
     $("sumtitle").textContent = "Ronda terminada";
     $("score").textContent = `${hits} / ${done}`;
-    $("sumnote").textContent = isReview() ? `Quedan ${pending()} cartas para hoy.` : "";
+    $("sumnote").textContent = isReview() ? `Quedan ${pending()} cartas para hoy.`
+      : mode() === MISTAKES ? (mistakePool().length ? `Quedan ${mistakePool().length} cartas con errores.` : "No quedan cartas con errores. Cuando falles alguna, vuelve a aparecer aquí.")
+      : "";
+    if (mode() === MISTAKES && !done) { $("sumtitle").textContent = "Sin errores"; $("score").textContent = "0"; }
   }
   const braked = isReview() && day.limit !== undefined && day.limit < NEW_PER_DAY;
   $("brake").hidden = !braked;
@@ -511,8 +523,47 @@ function voiceRows() {
   }));
 }
 
+// Puente con Anki (Ajustes → Anki): AnkiConnect's deck list to import, then the decks already imported.
+let ankiList = null; // { loading } | { names } | { error }
+function openAnki() {
+  menu.sub = "anki"; menu.subRow = menu.sel; menu.sel = 0; ankiList = { loading: true }; renderMenu();
+  ankiCall("deckNames").then(names => { ankiList = { names: names.sort() }; }, e => { ankiList = { error: e.message }; })
+    .finally(() => { if (menu.sub === "anki") renderMenu(); });
+}
+async function importAnki(name) {
+  $("msg").textContent = `Leyendo «${name}» de Anki…`;
+  try {
+    const deck = await readDeck(name);
+    if (new Set(deck.items.map(i => i.a)).size < 4) { $("msg").textContent = `«${name}» necesita al menos 4 cartas con respuestas distintas.`; return; }
+    const at = ankiDecks.findIndex(d => d.id === deck.id);
+    if (at < 0) { ankiDecks.push(deck); MODES.push(deck); } else { MODES[MODES.indexOf(ankiDecks[at])] = deck; ankiDecks[at] = deck; }
+    store.setSync("kp-anki", ankiDecks);
+    // localStorage holds about 5 MB: say so instead of losing the deck on the next start.
+    const kept = store.getSync("kp-anki", []).some(d => d.id === deck.id && d.items.length === deck.items.length);
+    $("msg").textContent = kept ? `«${name}»: ${deck.items.length} cartas. Está en Practicar → Anki.` : `«${name}» es demasiado grande para guardarlo en este navegador; solo dura esta sesión.`;
+  } catch (e) { $("msg").textContent = `No se pudo leer «${name}»: ${e.message}`; }
+  renderMenu();
+}
+function removeAnki(deck) {
+  const i = MODES.indexOf(deck);
+  if (prefs.deck === i) prefs.deck = 0; else if (prefs.deck > i) prefs.deck--;
+  MODES.splice(i, 1); ankiDecks = ankiDecks.filter(d => d !== deck);
+  store.setSync("kp-anki", ankiDecks); savePrefs();
+  $("msg").textContent = `«${deck.name}» quitado. Tu Anki no cambia.`; renderMenu();
+}
+function ankiRows() {
+  const g = "Mazos de tu Anki";
+  const found = ankiList?.loading ? [{ group: g, icon: "download", label: "Conectando con Anki…", disabled: true }]
+    : ankiList?.error ? [{ group: g, icon: "info", label: "Anki no responde", action: openAnki,
+      sub: `Abre Anki con el complemento AnkiConnect (código 2055492159) y agrega ${location.origin} a webCorsOriginList en su configuración · A: reintentar` }]
+    : ankiList.names.map(name => ({ group: g, icon: "download", label: name, action: () => importAnki(name),
+      sub: ankiDecks.some(d => d.name === name) ? "Ya importado · A: actualizar" : "A: importar como práctica libre" }));
+  return [...found, ...ankiDecks.map(d => ({ group: "Importados", icon: "layers", label: d.name, sub: `${d.items.length} cartas · A: quitar de Kana Pad (tus aciertos se guardan)`, action: () => removeAnki(d) }))];
+}
+
 function menuRows() {
   if (menu.sub === "voices") return voiceRows();
+  if (menu.sub === "anki") return ankiRows();
   const id = CATS[menu.cat].id, start = prefs.level ?? "kana";
   if (id === "hoy") {
     const limit = day.limit ?? NEW_PER_DAY;
@@ -529,6 +580,8 @@ function menuRows() {
     const order = [start, ...LEVELS.map(l => l.id).filter(l => l !== start)];
     return [
       { icon: "layers", label: "Todo lo visto", count: String(seenEntries().length), sub: "Sin cartas nuevas · no cambia tu calendario", action: () => startMode(1) },
+      { icon: "undo", label: "Mis errores", count: String(mistakePool().length || ""), action: () => startMode(MODES.indexOf(MISTAKES)),
+        sub: mistakePool().length ? `Las ${mistakePool().length} cartas que más fallas · no cambia tu calendario` : "Aún no hay cartas con errores" },
       { icon: "pen", label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
       ...order.flatMap(lv => DECKS.flatMap((d, i) => {
         if (d.level !== lv) return [];
@@ -536,6 +589,11 @@ function menuRows() {
         return [{ group: levelName(lv) + (lv === start ? " · tu nivel" : ""), label: d.name, count: tried ? acc : "",
           sub: `${d.items.length} cartas` + (tried ? ` · ${acc} de aciertos` : " · sin practicar"), action: () => startMode(i + 2) }];
       })),
+      ...ankiDecks.map(d => {
+        const acc = accuracyOf(d);
+        return { group: "Anki", icon: "layers", label: d.name, count: acc === "–" ? "" : acc, action: () => startMode(MODES.indexOf(d)),
+          sub: `${d.items.length} cartas de Anki` + (acc === "–" ? " · sin practicar" : ` · ${acc} de aciertos`) };
+      }),
     ];
   }
   if (id === "leer") return [
@@ -559,7 +617,7 @@ function menuRows() {
   if (id === "progreso") {
     const u = cloud.user();
     return [
-      { icon: "chart", label: "Ver mi panel", count: String(streakDays(history, day.d)), sub: "Racha y calendario, niveles, precisión y próximos 7 días", action: () => openProgress("resumen") },
+      { icon: "chart", label: "Ver mi panel", count: String(streakDays(history, day.d, true)), sub: "Racha y calendario, niveles, precisión y próximos 7 días", action: () => openProgress("resumen") },
       { icon: "user", label: "Perfil y cuenta", sub: u ? `Sincronizado con ${u.email}` : "Nombre, meta diaria, nivel objetivo y sincronizar entre dispositivos", action: () => openProgress("cuenta") },
     ];
   }
@@ -579,6 +637,7 @@ function menuRows() {
     { group: "Voz", icon: prefs.sfx ? "speaker" : "mute", label: "Efectos de sonido", sub: "Acierto, fallo y récord · volumen bajo", seg: { options: ["SÍ", "NO"], on: prefs.sfx ? 0 : 1 }, action: effects, change: effectsTo },
     { group: "Voz", icon: "headphones", label: "Voces del listening", sub: `${listenVoices().length} activas`, count: "›", action: openVoices },
     ...(tauri ? [] : [{ group: "Voz", id: "voicesdl", icon: "download", label: "Voces sin conexión", sub: voicesDlText(), action: downloadVoices }]),
+    { group: "Anki", icon: "upload", label: "Importar de Anki", sub: ankiDecks.length ? `${ankiDecks.length} mazos importados · necesita Anki abierto con AnkiConnect` : "Practica tus mazos de Anki aquí · necesita Anki abierto con AnkiConnect", count: "›", action: openAnki },
     { group: "Nivel", icon: "stairs", label: "Punto de partida", sub: "Desde dónde entran cartas nuevas al repaso", seg: { options: LEVELS.map(l => l.name.toUpperCase()), on: lv }, action: () => setLevel(lv === LEVELS.length - 1 ? -lv : 1), change: setLevel },
     { group: "Nivel", icon: "exam", label: "Repetir prueba de nivel", sub: "Unas preguntas por nivel", action: startPlacement },
     { group: "Mando y datos", icon: "pad", label: "Usar otro mando", sub: "Después pulsa un botón en el mando nuevo", action: () => { pad.reset(); $("msg").textContent = "Pulsa un botón en el mando que quieras usar."; } },
@@ -596,7 +655,7 @@ function renderMenu() {
   rollDay();
   const rows = menuRows();
   menu.sel = Math.max(0, Math.min(menu.sel, rows.length - 1));
-  const meta = el("span"); const days = streakDays(history, day.d);
+  const meta = el("span"); const days = streakDays(history, day.d, true);
   meta.append("Nivel ", el("b", "", prefs.level ? levelName(prefs.level) : "—"), ` · ${days} ${days === 1 ? "día seguido" : "días seguidos"}`);
   $("menulevel").replaceChildren(meta);
   const atHome = menu.cat === 0 && !menu.sub;
@@ -673,9 +732,9 @@ function activateMenu() {
   if (!it || it.disabled) return;
   it.action();
 }
-function openVoices() { menu.cat = CATS.findIndex(c => c.id === "ajustes"); menu.focus = "panel"; menu.sub = "voices"; menu.sel = 0; renderMenu(); }
+function openVoices() { menu.cat = CATS.findIndex(c => c.id === "ajustes"); menu.focus = "panel"; menu.sub = "voices"; menu.subRow = menu.sel; menu.sel = 0; renderMenu(); }
 function menuBack() {
-  if (menu.sub) { menu.sub = null; menu.sel = 1; renderMenu(); } // back onto "Voces del listening"
+  if (menu.sub) { menu.sub = null; menu.sel = menu.subRow ?? 0; renderMenu(); } // back onto the row that opened it
   else if (menu.focus === "panel") { menu.focus = "rail"; $("credits").hidden = true; renderMenu(); }
   else if (screen === "pause") setPaused(false);
 }
@@ -817,6 +876,30 @@ function scrollProgress(d) {
   $("progress").scrollBy({ top: d * innerHeight * 0.4, behavior: reduce ? "auto" : "smooth" });
 }
 
+// "Tu semana": the last 7 days against the 7 before; nothing until there is something to compare.
+function weekBox() {
+  const { now, prev } = weekSummary(history, day.d);
+  if (!now.answers && !prev.answers) return [];
+  const delta = (a, b, unit = "") => a === b ? "igual que la anterior" : `${a > b ? "▲" : "▼"} ${Math.abs(a - b)}${Math.abs(a - b) === 1 ? unit.replace(/s$/, "") : unit} vs. la anterior`;
+  const pct = r => (r === null ? null : Math.round(r * 100));
+  const cell = (value, label, change, up) => {
+    const c = el("div", "wk"); c.append(el("b", "", value), el("span", "", label));
+    if (change) c.append(el("small", up ? "up" : "", change));
+    return c;
+  };
+  const box = el("div", "weekbox"), grid = el("div", "wgrid");
+  grid.append(
+    cell(String(now.answers), "respuestas", delta(now.answers, prev.answers), now.answers > prev.answers),
+    cell(`${now.days}/7`, "días con estudio", delta(now.days, prev.days), now.days > prev.days),
+    cell(String(now.fresh), "cartas nuevas", delta(now.fresh, prev.fresh), now.fresh > prev.fresh),
+    cell(pct(now.retention) === null ? "—" : `${pct(now.retention)}%`, "retención",
+      pct(now.retention) !== null && pct(prev.retention) !== null ? delta(pct(now.retention), pct(prev.retention), " pts") : "", pct(now.retention) > pct(prev.retention)),
+  );
+  box.append(el("p", "mgroup", "TU SEMANA · ÚLTIMOS 7 DÍAS"), grid);
+  if (now.best) box.append(el("p", "wbest", `Mejor día: ${new Date(now.best.d + "T12:00:00").toLocaleDateString("es", { weekday: "long", day: "numeric" })} · ${now.best.n} respuestas`));
+  return [box];
+}
+
 function renderProgress() {
   rollDay();
   const P = $("progress");
@@ -834,10 +917,10 @@ function renderProgress() {
   } else card.push(el("p", "peta", "Elige un nivel objetivo en Cuenta para ver cuándo llegas."));
   $("pcard").replaceChildren(...card);
 
-  const ret = retention(history, day.d), streakN = streakDays(history, day.d);
+  const ret = retention(history, day.d), { n: streakN, saved } = streakRun(history, day.d, true);
   const kpi = (value, label) => { const d = el("div", "kpi"); d.append(el("b", "", value), el("span", "", label)); return d; };
   $("kpis").replaceChildren(
-    kpi(String(streakN), streakN === 1 ? "día seguido" : "días seguidos"),
+    kpi(String(streakN), (streakN === 1 ? "día seguido" : "días seguidos") + (saved ? " · salvada con tu día libre" : " · 1 día libre por semana")),
     kpi(ret === null ? "—" : `${Math.round(ret * 100)}%`, "retención de cartas maduras (3 días)"),
     kpi(`${day.fresh}/${day.limit ?? NEW_PER_DAY}`, "cartas nuevas hoy"),
     kpi(String(Object.keys(cards).length), "cartas en repaso"),
@@ -866,7 +949,7 @@ function renderProgress() {
         : `Hoy entran ${limit} cartas nuevas en vez de ${NEW_PER_DAY}: aciertas menos del 70% de las cartas maduras. Unos días repasando sin prisa lo corrigen.`);
     notes.push(why);
   }
-  $("notices").replaceChildren(...notes);
+  $("notices").replaceChildren(...weekBox(), ...notes);
 
   // No history yet: an empty state takes the calendar's band.
   P.querySelector(".heatbox").hidden = !Object.keys(history).length;
@@ -1744,7 +1827,7 @@ const pad = createPad(i => {
     else if (i === 0) activateMenu();
     else if (i === 14) menuSide(-1);
     else if (i === 15) menuSide(1);
-    else if (i === 2 && menu.sub === "voices") menuRows()[menu.sel]?.test?.();
+    else if (i === 2 && menu.sub) menuRows()[menu.sel]?.test?.(); // X: try a voice
     else if (i === 9 && screen === "pause") setPaused(false);
     else if (i === 1 || i === 9) menuBack();
     else if (i === 8) { toggle("voice"); renderMenu(); }
@@ -1833,7 +1916,7 @@ document.addEventListener("keydown", e => {
     else if (e.key === "Escape" && screen === "pause") setPaused(false);
     else if (e.key === "Escape" || key === "b" || e.key === "Backspace") menuBack();
     else if (key === "p") openProgress();
-    else if (key === "x" && menu.sub === "voices") menuRows()[menu.sel]?.test?.();
+    else if (key === "x" && menu.sub) menuRows()[menu.sel]?.test?.();
     return;
   }
   if (arrows[e.key] && screen === "play") { e.preventDefault(); answer(arrows[e.key]); }

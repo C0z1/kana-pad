@@ -74,3 +74,28 @@ export function eta(entries, cards, history, today, target, fallback = 15) {
   const need = Math.ceil(remaining / pace);
   return { remaining, pace, days: need, date: shift(today, need) };
 }
+
+// "Mis errores": the cards missed at least once with a miss rate of 25% or more, worst first. Practicing
+// them adds hits, so a card leaves the list by itself once it's under control. `entries` are { key, item, deck }.
+export const MISS_RATE = 0.25;
+export function mistakes(entries, stats, n = 20) {
+  const rate = s => s[1] / (s[0] + s[1]);
+  return entries.filter(e => stats[e.key]?.[1] > 0 && rate(stats[e.key]) >= MISS_RATE)
+    .sort((x, y) => rate(stats[y.key]) - rate(stats[x.key]) || stats[y.key][1] - stats[x.key][1])
+    .slice(0, n);
+}
+
+// "Tu semana": the last 7 days (today included) against the 7 before. Per week: answers, days studied,
+// new cards, retention of mature reviews (null without any) and the best day ({ d, n } or null).
+export function weekSummary(history, today) {
+  const week = from => {
+    let answers = 0, days = 0, fresh = 0, reviews = 0, correct = 0, best = null;
+    for (let i = from; i < from + 7; i++) {
+      const d = shift(today, -i), h = history[d] ?? {};
+      answers += h.answers ?? 0; fresh += h.fresh ?? 0; reviews += h.reviews ?? 0; correct += h.correct ?? 0;
+      if (h.answers) { days++; if (!best || h.answers > best.n) best = { d, n: h.answers }; }
+    }
+    return { answers, days, fresh, retention: reviews ? correct / reviews : null, best };
+  };
+  return { now: week(0), prev: week(7) };
+}
