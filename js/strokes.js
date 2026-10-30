@@ -23,7 +23,7 @@ export function strokeData(ch) {
 export const strokePaths = ch => strokeData(ch).then(d => d.paths);
 
 const NS = "http://www.w3.org/2000/svg";
-export const STROKE_SECONDS = 0.35;
+export const STROKE_SECONDS = 0.22; // a stroke starts every 0.22 s (each draws in 0.2 s, css .strokes path)
 
 // The strokes drawn one after another. With `nums`, each stroke's number appears at its start as the stroke begins,
 // like a calligraphy stroke-order chart.

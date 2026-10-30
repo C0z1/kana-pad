@@ -49,7 +49,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .glyph.sentence { font: 400 clamp(30px, 3.6vw, 52px)/1.35 var(--font-jp); white-space: normal; text-align: center; text-shadow: 4px 4px 0 var(--bg); max-width: 90%; }
 .strokes { width: min(42vh, 28vw, 340px); height: auto; }
 .strokes path { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .3s ease-out both; filter: drop-shadow(4px 4px 0 var(--bg)); }
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .2s ease-out both; filter: drop-shadow(4px 4px 0 var(--bg)); }
 /* Hidden until its turn: round caps would otherwise show a dot at each stroke's start. */
 @keyframes draw { 0% { stroke-dashoffset: 1; opacity: 0; } 1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
 /* Stroke-order numbers at KanjiVG's positions (where each stroke starts); each appears as its stroke begins. */
@@ -60,7 +60,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .mnemo svg { width: min(36vh, 24vw, 300px); height: auto; aspect-ratio: 1; background: var(--mbg); box-shadow: 10px 10px 0 var(--bg); }
 .mnemo .mshape { fill: var(--mfg); color: var(--mfg); }
 .mnemo .mstrokes path { fill: none; stroke: var(--bar-ink); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .3s ease-out both; }
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .2s ease-out both; }
 .mnemo figcaption { position: relative; margin-top: -18px; background: var(--hi); color: var(--bar-ink); font: 400 clamp(24px, 2.4vw, 34px)/1.15 var(--font-display);
   letter-spacing: .04em; text-transform: lowercase; white-space: nowrap; padding: 2px 14px; transform: rotate(-3deg); box-shadow: 6px 6px 0 var(--bg); }
 .glyph.ear { font: 800 26px var(--font-ui); letter-spacing: .1em; display: grid; justify-items: center; gap: 12px; text-shadow: none; }
@@ -621,3 +621,42 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .newtag { font: 400 18px var(--font-display); letter-spacing: .04em; padding: 2px 8px; background: var(--hi); color: var(--bar-ink); }
 .mrow.sel .newtag { background: var(--bar-ink); color: var(--hi); }
 @media (max-width: 860px) { .mnemo svg { width: min(26vh, 52vw); } }
+
+/* Guía de trazos: a grid of characters and the selected one's numbered stroke order on the blue slab, with its reading,
+   meaning, stroke count and rank. The panel stays in view (sticky) while the grid scrolls; beside the grid on wide screens. */
+#guide { grid-template-rows: auto auto minmax(0, 1fr); align-content: start; }
+.ggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px; align-content: start; }
+.gcell { aspect-ratio: 1; border: 0; background: #17171f; color: var(--ink); font: 700 38px/1 var(--font-jp-text); cursor: pointer;
+  display: grid; place-items: center; transition: background-color .12s, transform .15s ease-out; }
+.gcell:hover { background: #2c2c3a; }
+.gcell.sel { background: var(--hi); color: var(--bar-ink); }
+.gcell:active { transform: scale(.97); }
+.gview { position: sticky; top: 0; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 32px; align-items: center;
+  background: #17171f; border-top: 6px solid var(--slab); padding: 22px 28px; box-shadow: 0 12px 0 var(--bg); }
+.gchart { position: relative; z-index: 0; border: 0; padding: 18px 44px; background: none; color: var(--ink); cursor: pointer; display: grid; place-items: center; }
+.gchart::before { content: ""; position: absolute; inset: 0; background: var(--slab); transform: skewX(var(--skew)); z-index: -1; }
+.gchart .strokes { width: min(28vh, 220px); }
+.gglyph { font: 400 160px/1 var(--font-jp); }
+.ginfo { display: grid; gap: 8px; min-width: 0; }
+.gmean { margin: 0; font: 400 clamp(36px, 4vw, 60px)/1.05 var(--font-display); letter-spacing: .02em; overflow-wrap: anywhere; }
+.gread { margin: 0; font: 500 28px/1.3 var(--font-jp-text); color: var(--dim-ink); }
+.gview .mnemo { grid-column: 1 / -1; justify-self: start; }
+.gview .mnemo svg { width: 150px; }
+.gview .mfoot { grid-column: 1 / -1; margin: 0; }
+@media (min-width: 1100px) {
+  #guide { grid-template-columns: minmax(0, 1fr) minmax(0, 520px); grid-template-rows: auto minmax(0, 1fr); column-gap: 40px; }
+  #guide > .etop { grid-column: 1 / -1; }
+  #guide > .ggrid { grid-column: 1; grid-row: 2; }
+  /* chart across the top, then the reading and the picture side by side, so the panel fits a 800 px screen */
+  #guide > .gview { grid-column: 2; grid-row: 2; align-self: start; grid-template-columns: minmax(0, 1fr) auto; justify-items: start; box-shadow: none; }
+  .gview .gchart { grid-column: 1 / -1; justify-self: stretch; margin-inline: 30px; } /* the slab's skew stays inside the panel */
+  .gview .mnemo { grid-column: 2; grid-row: 2; align-self: start; }
+  .gchart .strokes { width: min(36vh, 300px); }
+}
+@media (max-width: 560px) {
+  .gview { grid-template-columns: minmax(0, 1fr); justify-items: start; padding: 16px 18px; gap: 10px; }
+  .gchart .strokes { width: min(24vh, 170px); }
+  .gview .mnemo { display: none; } /* the phone keeps the grid in view; the picture shows in the round */
+  .ggrid { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 8px; }
+  .gcell { font-size: 30px; }
+}

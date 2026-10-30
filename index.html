@@ -219,6 +219,22 @@
   </div>
 </section>
 
+<section class="exam" id="guide" hidden aria-label="Guía de trazos">
+  <header class="etop">
+    <span class="nav"><button type="button" class="navbtn" data-nav="back" aria-label="Volver" title="Volver"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg></button><button type="button" class="navbtn" data-nav="home" aria-label="Inicio" title="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg></button></span>
+    <span class="deck-tag">GUÍA DE TRAZOS</span>
+    <div class="tabs" id="gtabs" role="tablist" aria-label="Escritura">
+      <kbd>LB</kbd>
+      <button type="button" role="tab" class="tab" data-tab="kanji" aria-selected="true">100 más usados</button>
+      <button type="button" role="tab" class="tab" data-tab="hira" aria-selected="false">Hiragana</button>
+      <button type="button" role="tab" class="tab" data-tab="kata" aria-selected="false">Katakana</button>
+      <kbd>RB</kbd>
+    </div>
+  </header>
+  <aside class="gview" id="gview" aria-live="polite"></aside>
+  <div class="ggrid" id="ggrid" role="listbox" aria-label="Caracteres"></div>
+</section>
+
 <div class="overlay" id="progress" hidden>
   <div class="panel">
     <header class="ptop">

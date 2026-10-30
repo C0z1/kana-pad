@@ -5,6 +5,7 @@ import { grade, queue, nextDue, interleave, sanitizeCards, newCardsToday, studyD
 import { store } from "./storage.js";
 import { strokePaths, strokeData, strokeSvg, STROKE_SECONDS } from "./strokes.js";
 import { MNEMONICS, mnemonicSvg } from "./mnemonics.js";
+import { KANJI_TOP100 } from "./content/kanji-top100.js";
 import { retention, streakDays, streakRun, deckStats, forecast, backupDue, daysSince } from "./progress.js";
 import { buildExam, scoreExam, clock, SECTIONS, EXAM_SECONDS } from "./exam.js";
 import { READING_N5 } from "./content/reading-n5.js";
@@ -247,15 +248,18 @@ async function showStrokes(ch) {
   return paths.length;
 }
 // Mnemonic card: a flat picture of what the kanji depicts, its strokes in black on top, the meaning below.
-async function showMnemonic(item) {
-  const paths = await strokePaths(item.q);
-  if (!paths.length || cur?.item.q !== item.q) return;
+function mnemonicFigure(item, paths) {
   const fig = el("figure", "mnemo");
   fig.style.setProperty("--mfg", `var(${MNEMONICS[item.q][1]})`);
   fig.innerHTML = mnemonicSvg(item.q, paths); // KanjiVG paths from our own content folder
   fig.append(el("figcaption", "", item.a.toLowerCase()));
+  return fig;
+}
+async function showMnemonic(item) {
+  const paths = await strokePaths(item.q);
+  if (!paths.length || cur?.item.q !== item.q) return;
   $("q").className = "glyph";
-  $("q").replaceChildren(fig);
+  $("q").replaceChildren(mnemonicFigure(item, paths));
 }
 
 function countAnswer() {
@@ -598,6 +602,7 @@ function menuRows() {
       { icon: "undo", label: "Mis errores", fresh: "errors", count: String(mistakePool().length || ""), action: () => startMode(MODES.indexOf(MISTAKES)),
         sub: mistakePool().length ? `Las ${mistakePool().length} cartas que más fallas · no cambia tu calendario` : "Aún no hay cartas con errores" },
       { icon: "pen", label: "Dibujar", sub: "Kana y kanji con el dedo o el ratón, con calificación", action: startDraw },
+      { icon: "grid", label: "Guía de trazos", fresh: "guide", sub: "Los 100 kanji más usados, hiragana y katakana, con el orden de cada trazo", action: openGuide },
       ...order.flatMap(lv => DECKS.flatMap((d, i) => {
         if (d.level !== lv) return [];
         const acc = accuracyOf(d), tried = acc !== "–";
@@ -1777,6 +1782,68 @@ $("sline").addEventListener("click", () => story && sayLine());
 $("squizbtn").addEventListener("click", () => story && startStoryQuiz());
 for (const b of $("stabs").querySelectorAll(".tab")) b.addEventListener("click", () => { storyTab = b.dataset.tab; storySel = 0; renderStoryList(); });
 
+// ---------- Guía de trazos: the 100 most used kanji (KANJIDIC2 rank), hiragana and katakana, each with its
+// numbered stroke order (and its picture, for the pictographic kanji). ↑↓←→ move, LB/RB change script, A replays. ----------
+const GUIDE_TABS = ["kanji", "hira", "kata"];
+const guideItems = tab => (tab === "kanji" ? KANJI_TOP100 : DECKS.find(d => d.id === tab).items);
+let guideTab = "kanji", guideSel = 0, guideFrom = "start", guideShown = null;
+function openGuide() {
+  guideFrom = screen; screen = "guide";
+  $("overlay").hidden = true; $("guide").hidden = false;
+  renderGuide();
+}
+function closeGuide() {
+  guideShown = null; screen = guideFrom;
+  $("guide").hidden = true; $("overlay").hidden = false;
+  renderMenu();
+}
+function renderGuide() {
+  for (const b of $("gtabs").querySelectorAll(".tab")) b.setAttribute("aria-selected", b.dataset.tab === guideTab);
+  const list = guideItems(guideTab);
+  guideSel = Math.max(0, Math.min(guideSel, list.length - 1));
+  $("ggrid").replaceChildren(...list.map((it, i) => {
+    const b = el("button", "gcell" + (i === guideSel ? " sel" : ""), it.q);
+    b.type = "button"; b.lang = "ja"; b.setAttribute("role", "option"); b.setAttribute("aria-selected", i === guideSel);
+    b.setAttribute("aria-label", `${it.q}: ${it.a}`);
+    b.addEventListener("click", () => { guideSel = i; renderGuide(); });
+    return b;
+  }));
+  $("ggrid").children[guideSel]?.scrollIntoView({ block: "nearest" });
+  showGuideChar(list[guideSel]);
+}
+// The selected character: its numbered stroke order on the blue slab (click or A replays it), reading and meaning,
+// stroke count, its rank among the most used kanji, and its picture when it has one.
+async function showGuideChar(it) {
+  guideShown = it;
+  const { paths, nums } = await strokeData(it.q);
+  if (guideShown !== it || screen !== "guide") return;
+  const kanji = guideTab === "kanji";
+  const chart = el("button", "gchart"); chart.type = "button"; chart.setAttribute("aria-label", `Repetir el orden de trazos de ${it.q}`);
+  chart.append(paths.length ? strokeSvg(paths, nums) : el("span", "gglyph", it.q));
+  chart.addEventListener("click", () => showGuideChar(it));
+  const info = el("div", "ginfo");
+  const big = el("p", "gmean", kanji ? it.a : it.a.toUpperCase());
+  const read = el("p", "gread", kanji ? it.r : it.q); read.lang = "ja";
+  const meta = el("p", "spmeta");
+  meta.append(el("b", "", String(paths.length || it.strokes || "–")), paths.length === 1 ? " trazo" : " trazos");
+  if (kanji) meta.append(" · nº ", el("b", "", String(it.rank)), " de los más usados");
+  info.append(big, read, meta);
+  const extra = kanji && MNEMONICS[it.q] && paths.length ? [mnemonicFigure(it, paths)] : [];
+  $("gview").replaceChildren(chart, info, ...extra, el("p", "mfoot pad-only", "A repetir · LB/RB escritura"));
+}
+function moveGuide(dx, dy) {
+  const n = guideItems(guideTab).length, cols = getComputedStyle($("ggrid")).gridTemplateColumns.split(" ").length || 1;
+  guideSel = Math.max(0, Math.min(n - 1, guideSel + dx + dy * cols));
+  renderGuide();
+}
+function guideTabBy(d) { guideTab = GUIDE_TABS[(GUIDE_TABS.indexOf(guideTab) + d + GUIDE_TABS.length) % GUIDE_TABS.length]; guideSel = 0; renderGuide(); }
+function guideInput(i) {
+  if (i === 12) moveGuide(0, -1); else if (i === 13) moveGuide(0, 1); else if (i === 14) moveGuide(-1, 0); else if (i === 15) moveGuide(1, 0);
+  else if (i === 4) guideTabBy(-1); else if (i === 5) guideTabBy(1);
+  else if (i === 0) showGuideChar(guideItems(guideTab)[guideSel]); else if (i === 1 || i === 9) closeGuide();
+}
+for (const b of $("gtabs").querySelectorAll(".tab")) b.addEventListener("click", () => { guideTab = b.dataset.tab; guideSel = 0; renderGuide(); });
+
 // ---------- back arrow and home (every screen) ----------
 // Back does what B / Esc do on that screen; home goes to the main menu (from a round, the pause menu,
 // so "Continuar" is still there; from a running exam, its pause, which has "Salir").
@@ -1791,6 +1858,7 @@ function goBack() {
   else if (screen === "exam") { if (!$("eresult").hidden || exam?.paused) closeExam(); else setExamPaused(true); }
   else if (screen === "listen") closeListening();
   else if (screen === "stories") storyBack();
+  else if (screen === "guide") closeGuide();
   else if (screen === "progress") closeProgress();
   else if (screen === "draw") closeDraw();
 }
@@ -1800,6 +1868,7 @@ function goHome() {
   else if (screen === "exam") closeExam();
   else if (screen === "listen") closeListening();
   else if (screen === "stories") closeStories();
+  else if (screen === "guide") closeGuide();
   else if (screen === "progress") closeProgress();
   else if (screen === "draw") closeDraw();
   Object.assign(menu, { cat: 0, sel: 0, focus: "panel", sub: null }); $("credits").hidden = true; pulsed.clear();
@@ -1829,6 +1898,7 @@ const pad = createPad(i => {
     return;
   }
   if (screen === "stories") { storyInput(i); return; }
+  if (screen === "guide") { guideInput(i); return; }
   if (screen === "draw") {
     if (i === 0) checkDrawing(); else if (i === 4) drawAction.clear(); else if (i === 2) drawAction.undo();
     else if (i === 3) drawAction.show(); else if (i === 1 || i === 9) closeDraw();
@@ -1862,7 +1932,7 @@ const pad = createPad(i => {
   if (i === 6) return toggle("ear");
   if (i === 7) return toggle("reverse");
   if (ANSWER_BUTTONS[i]) answer(ANSWER_BUTTONS[i]);
-}, () => screen === "start" || screen === "pause" || (screen === "stories" && ($("squiz").hidden)));
+}, () => screen === "start" || screen === "pause" || screen === "guide" || (screen === "stories" && ($("squiz").hidden)));
 
 function storyInput(i) {
   if (!$("slist").hidden) {
@@ -1883,7 +1953,7 @@ function storyInput(i) {
 document.addEventListener("keydown", e => {
   if (e.target.closest?.("input, select, textarea")) return;
   // A held key repeats; that may scroll a menu but must never answer cards on its own.
-  const answering = !(screen === "start" || screen === "pause" || (screen === "stories" && $("squiz").hidden));
+  const answering = !(screen === "start" || screen === "pause" || screen === "guide" || (screen === "stories" && $("squiz").hidden));
   if (e.repeat && answering) return;
   const arrows = { ArrowUp: "y", ArrowLeft: "x", ArrowRight: "b", ArrowDown: "a" };
   const key = e.key.toLowerCase();
@@ -1919,6 +1989,11 @@ document.addEventListener("keydown", e => {
     if (quiz) { if (arrows[e.key]) { e.preventDefault(); storyAnswer(arrows[e.key]); } else if (e.key === "Escape") storyBack(); return; }
     const i = map[e.key] ?? map[key];
     if (i !== undefined) { e.preventDefault(); storyInput(i); }
+    return;
+  }
+  if (screen === "guide") {
+    const i = { ArrowUp: 12, ArrowDown: 13, ArrowLeft: 14, ArrowRight: 15, Enter: 0, Escape: 1 }[e.key] ?? { q: 4, e: 5, b: 1 }[key];
+    if (i !== undefined) { e.preventDefault(); guideInput(i); }
     return;
   }
   if (screen === "progress") {

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { DECKS } from "../js/data.js";
 import { MNEMONICS, SHAPES, mnemonicSvg } from "../js/mnemonics.js";
-import { parsePaths, parseNumbers, hexOf } from "../js/strokes.js";
+import { parsePaths, parseNumbers, hexOf, STROKE_SECONDS } from "../js/strokes.js";
 
 const kvg = ch => readFileSync(`content/kanjivg/${hexOf(ch)}.svg`, "utf8");
 
@@ -21,7 +21,7 @@ test("the card draws the shape first, then every stroke of the character on top"
   const paths = parsePaths(kvg("火")), svg = mnemonicSvg("火", paths);
   assert.equal(paths.length, 4);
   assert.ok(svg.indexOf('class="mshape"') < svg.indexOf('class="mstrokes"'));
-  paths.forEach((d, i) => assert.ok(svg.includes(`<path d="${d}" pathLength="1" style="animation-delay:${(i * 0.35).toFixed(2)}s"/>`), `trazo ${i + 1}`));
+  paths.forEach((d, i) => assert.ok(svg.includes(`<path d="${d}" pathLength="1" style="animation-delay:${(i * STROKE_SECONDS).toFixed(2)}s"/>`), `trazo ${i + 1}`));
 });
 
 test("stroke numbers come from KanjiVG: one per stroke, 1..n, inside the 109 grid", () => {

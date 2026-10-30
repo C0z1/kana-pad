@@ -10,6 +10,11 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
+## Novedades de 0.12.0
+
+- **Guía de trazos** (Practicar): los 100 kanji más usados (ranking de frecuencia de KANJIDIC2), los 46 hiragana y los 46 katakana. Eliges un carácter y ves su orden de trazos numerado y animado, su lectura, su significado, cuántos trazos tiene y, en los kanji, su lugar entre los más usados; los que tienen tarjeta mnemotécnica la muestran también. Con el mando: cruceta para moverte, LB/RB para cambiar de escritura, A para repetir.
+- Los trazos se dibujan más rápido en toda la app (un trazo cada 0.22 s).
+
 ## Novedades de 0.11.0
 
 - **Tarjetas mnemotécnicas**: los 17 kanji de N5 que son dibujos (火 fuego, 木 árbol, 日 sol, 水 agua, 山 montaña, 川 río, 月 luna, 雨 lluvia, 空 cielo, 電 electricidad, 人 persona, 口 boca, 目 ojo, 金 oro, 花 flor, 魚 pez, 本 libro) se enseñan con una ilustración de lo que representan: la figura en el centro, los trazos del kanji en negro encima, dibujándose en orden, y el significado debajo.

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { DECKS } from "../js/data.js";
 import { parsePaths, hexOf } from "../js/strokes.js";
+import { KANJI_TOP100 } from "../js/content/kanji-top100.js";
 
 test("grammar items: one blank, answer not among distractors, 3 distinct distractors", () => {
   const g = DECKS.find(d => d.kind === "grammar");
@@ -36,8 +37,18 @@ test("service worker precaches files that exist", () => {
   for (const f of list) if (f !== "./") assert.ok(existsSync(f), f);
 });
 
-test("every kanji and kana stroke file is listed for offline precache", () => {
+test("every kanji and kana stroke file is listed for offline precache (decks and the 100 most used kanji)", () => {
   const list = JSON.parse(readFileSync("content/kanjivg/strokes.json", "utf8"));
-  assert.equal(list.length, DECKS.filter(d => d.kind === "kanji" || d.kind === "kana").reduce((n, d) => n + d.items.length, 0));
+  const chars = new Set([...DECKS.filter(d => d.kind === "kanji" || d.kind === "kana").flatMap(d => d.items.map(i => i.q)), ...KANJI_TOP100.map(k => k.q)]);
+  assert.equal(list.length, chars.size);
+  for (const ch of chars) assert.ok(list.includes(`content/kanjivg/${hexOf(ch)}.svg`), ch);
   for (const f of list) assert.ok(existsSync(f), f);
+});
+
+test("the 100 most used kanji: ranks 1–100 in order, no repeats, a reading and a meaning each", () => {
+  assert.equal(KANJI_TOP100.length, 100);
+  assert.deepEqual(KANJI_TOP100.map(k => k.rank), Array.from({ length: 100 }, (_, i) => i + 1));
+  assert.equal(new Set(KANJI_TOP100.map(k => k.q)).size, 100);
+  for (const k of KANJI_TOP100) assert.ok(k.r && k.a && k.strokes > 0, k.q);
+  assert.deepEqual(KANJI_TOP100.slice(0, 5).map(k => k.q), ["日", "一", "国", "会", "人"]);
 });
