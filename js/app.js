@@ -933,6 +933,20 @@ function openProgress(start = "resumen") {
   renderProgress(); setTab(start);
   $("overlay").hidden = true; $("progress").hidden = false;
   $("progress").querySelector(".tab").focus();
+  if (start === "resumen" && !kpisCounted) { kpisCounted = true; for (const b of $("kpis").querySelectorAll("b")) countUp(b); }
+}
+// The KPI figures count up the first time the panel opens in a session; afterwards they just show.
+let kpisCounted = false;
+function countUp(b) {
+  const m = /^(\d+)(.*)$/.exec(b.textContent); // "12", "87%", "3/15"; "—" is left alone
+  if (!m || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const end = Number(m[1]), t0 = performance.now();
+  const step = t => {
+    const k = Math.min(1, (t - t0) / 700);
+    b.textContent = Math.round(end * (1 - (1 - k) ** 3)) + m[2]; // ease-out cubic
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 let progressFrom = "start";
 function closeProgress() {

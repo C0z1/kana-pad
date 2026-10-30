@@ -17,7 +17,8 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 500 18px/1.35 var(--font-ui); overflow: auto; }
 button { font: inherit; color: inherit; }
 kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; }
-:focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; animation: ring .15s ease-out; }
+@keyframes ring { from { outline-color: transparent; outline-offset: 0; } } /* an animation, not a transition: buttons keep their own transition lists */
 [hidden] { display: none !important; }
 /* Stroke icons (js/icons.js): same weight as the back/home arrows, always next to their text. */
 .ico { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -60,7 +61,7 @@ kbd { font: 600 13px var(--font-ui); letter-spacing: .08em; color: var(--muted);
 .opts { width: 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .bar { display: flex; align-items: center; gap: 18px; width: min(100%, 420px); box-sizing: border-box; padding: 10px 22px; border: 0;
   background: var(--bar); color: var(--bar-ink); font: 800 clamp(28px, 3.2vw, 42px)/1.1 var(--font-ui); text-align: left; cursor: pointer;
-  transform: skewX(var(--skew)); transition: width .15s ease-out, background-color .15s, box-shadow .15s, opacity .15s; }
+  transform: skewX(var(--skew)); transition: width .15s ease-out, background-color .15s, box-shadow .15s, opacity .15s, transform .15s ease-out; }
 .bar > * { transform: skewX(calc(var(--skew) * -1)); }
 .bar .label { min-width: 0; overflow-wrap: anywhere; }
 .bar .label.jp { font: 400 clamp(28px, 3vw, 40px)/1.15 var(--font-jp); }
@@ -298,7 +299,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 .menu-list .menu-item.sel { width: min(100%, 520px); }
 .menu-item { display: flex; align-items: center; gap: 14px; width: min(100%, 340px); min-height: 60px; box-sizing: border-box; padding: 8px 22px;
   border: 0; background: var(--dim-bg); color: var(--dim-ink); font: 800 32px/1.1 var(--font-ui); text-align: left; cursor: pointer;
-  transform: skewX(var(--skew)); transition: width .12s ease-out, background-color .12s; }
+  transform: skewX(var(--skew)); transition: width .12s ease-out, background-color .12s, transform .15s ease-out; }
 .menu-item > * { transform: skewX(calc(var(--skew) * -1)); }
 .menu-item .mlabel { flex: 1; min-width: 0; display: grid; }
 .menu-item .msub { display: none; font: 600 16px var(--font-ui); color: var(--muted); }
@@ -509,11 +510,11 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 @keyframes pip { from { transform: skewX(var(--skew)) scaleY(2.2); } }
 .overlay, .exam { animation: fade .18s ease-out; }
 .app:not([inert]) > .stage, .summary, [data-panel], .ebody, .eresult, .reader, #slist, .mbody { animation: enter .22s ease-out; }
-/* Cards of the panel and results come in one after another. */
-.dsum > *, .account > *, .precision > *, .escore, .kpi { animation: rise .25s ease-out backwards; }
-.dsum > :nth-child(2), .account > :nth-child(2), .precision > :nth-child(2) { animation-delay: .05s; }
-.dsum > :nth-child(3) { animation-delay: .1s; } .dsum > :nth-child(4) { animation-delay: .15s; }
-.kpi:nth-child(2) { animation-delay: .1s; } .kpi:nth-child(3) { animation-delay: .13s; } .kpi:nth-child(4) { animation-delay: .16s; }
+/* Cards of the panel and results come in one after another, 40 ms apart (the KPI row staggers its own cards). */
+.dsum > :not(.kpis), .account > *, .precision > *, .escore, .kpi { animation: rise .15s ease-out backwards; }
+.account > :nth-child(2), .precision > :nth-child(2), .escore:nth-child(2), .kpi:nth-child(1) { animation-delay: .04s; }
+.kpi:nth-child(2) { animation-delay: .08s; } .kpi:nth-child(3) { animation-delay: .12s; } .kpi:nth-child(4) { animation-delay: .16s; }
+.dsum > .heatbox { animation-delay: .2s; } .dsum > #notices { animation-delay: .24s; }
 .drow .meter i, .frow .meter i, .pcard .meter i { transform-origin: left; animation: grow .35s ease-out backwards; }
 @keyframes grow { from { transform: scaleX(0); } }
 .score, .epass { animation: stamp .25s ease-out backwards .05s; }
@@ -528,19 +529,22 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
 @keyframes rise-skew { from { opacity: 0; transform: skewX(var(--skew)) translateY(12px); } }
 .intro .menu-item { animation: rise-skew .25s ease-out backwards; }
 .intro .mrow, .intro .mhero { animation: rise .25s ease-out backwards; }
-.intro .menu-item:nth-child(2), .intro .mrow:nth-child(2) { animation-delay: .03s; }
-.intro .menu-item:nth-child(3), .intro .mrow:nth-child(3) { animation-delay: .06s; }
-.intro .menu-item:nth-child(4), .intro .mrow:nth-child(4) { animation-delay: .09s; }
-.intro .menu-item:nth-child(5), .intro .mrow:nth-child(n+5) { animation-delay: .12s; }
-.intro .menu-item:nth-child(6), .intro .mhero { animation-delay: .15s; }
+.intro .menu-item:nth-child(2), .intro .mrow:nth-child(2) { animation-delay: .04s; }
+.intro .menu-item:nth-child(3), .intro .mrow:nth-child(3) { animation-delay: .08s; }
+.intro .menu-item:nth-child(4), .intro .mrow:nth-child(4) { animation-delay: .12s; }
+.intro .menu-item:nth-child(5), .intro .mrow:nth-child(n+5), .intro .mhero { animation-delay: .16s; }
+.intro .menu-item:nth-child(6) { animation-delay: .2s; }
 .intro .mweek i { animation: rise-skew .2s ease-out backwards .18s; }
 .intro .mweek i:nth-child(n+3) { animation-delay: .22s; } .intro .mweek i:nth-child(n+5) { animation-delay: .26s; }
 #spreview, .wordpanel { animation: rise .2s ease-out backwards; } /* not the list cards: they are rebuilt on every move */
 .mpanel.swap { animation: enter .18s ease-out; }
 .mhero .meter i { animation: none; } .intro .mhero .meter i { animation: grow .35s ease-out backwards .15s; }
-.tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .12s; }
-.bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) translateY(2px); }
-.tab:active, .mode:active { transform: translateY(2px); }
+.tab, .mode, .navbtn, .deck-tag { transition: background-color .12s, border-color .12s, color .12s, transform .15s ease-out; }
+/* Soft press on buttons; cards lift 4px under a mouse only (touch would leave them stuck up). */
+.bar:active, .navbtn:active, .menu-item:active { transform: skewX(var(--skew)) scale(.97); }
+.tab:active, .mode:active, .deck-tag:active, .mrow:active { transform: scale(.97); }
+.mrow, .kpi, .ach, .escore { transition: transform .2s ease-out; }
+@media (hover: hover) { .mrow:hover:not(:active), .kpi:hover, .ach:hover, .escore:hover { transform: translateY(-4px); } }
 /* Logros: unlocked on the blue slab (yellow stays for the focus), locked dark with their progress. */
 .achs { display: grid; gap: 12px; align-content: start; }
 .achhead { display: flex; align-items: baseline; gap: 12px; }
