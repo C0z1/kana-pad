@@ -28,7 +28,8 @@ kbd { font: 500 13px var(--font-body); letter-spacing: .08em; color: var(--muted
   padding-block: 20px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
   max-width: 1400px; margin: 0 auto; }
 
-.top { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.top { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: space-between; align-items: start; gap: 12px; }
+.top .round { grid-column: 1 / -1; } /* round progress sits under the deck bar and combo, first thing you see */
 .deckbar { display: flex; align-items: center; gap: 10px; }
 .deck-tag { white-space: nowrap; border: 0; background: var(--hi); color: var(--bar-ink); font: 400 24px var(--font-head); letter-spacing: .06em; padding: 4px 14px; transform: rotate(-3deg); cursor: pointer; }
 .combo { display: grid; justify-items: end; line-height: 1; text-align: right; }
@@ -426,7 +427,7 @@ body:not(.pad) kbd, body:not(.pad) .pad-only, body:not(.pad) .help { display: no
   body { overflow: auto; }
   .app { height: auto; min-height: 100%; grid-template-columns: minmax(0, 1fr); } /* the column never grows past the screen */
   .stage { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  .top { flex-wrap: nowrap; }
+  .top { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } /* the deck name keeps two thirds of the row, as before */
   .combo b { font-size: 40px; }
   .combo span { font-size: 12px; letter-spacing: .02em; }
   .prompt { min-height: 34vh; }

@@ -27,6 +27,7 @@
       <b id="streak">×0</b>
       <span><span class="combo-label">COMBO · </span><span id="acc">–</span> · hoy <span id="today">0</span></span>
     </div>
+    <div class="round" aria-label="Progreso de la ronda"><div class="pips" id="pips"></div><span id="roundtxt"></span></div>
   </header>
 
   <main class="stage" id="stage">
@@ -40,10 +41,10 @@
       <div class="opts" id="opts"></div>
       <p class="verdict" id="verdict" aria-live="polite"></p>
       <p class="note" id="note"></p>
-      <div class="round"><div class="pips" id="pips"></div><span id="roundtxt"></span></div>
       <div class="modes">
         <button type="button" class="mode" id="ear" aria-pressed="false" data-icon="headphones"><kbd>LT</kbd>Modo oído</button>
         <button type="button" class="mode" id="reverse" aria-pressed="false"><kbd>RT</kbd>Inverso</button>
+        <button type="button" class="mode" id="dunno" data-icon="info"><kbd>LS</kbd>No lo sé</button>
       </div>
     </section>
   </main>

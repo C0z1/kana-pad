@@ -166,7 +166,7 @@ function hintFor(deck) {
   if (deck.kind === "grammar") return `Completa: ${cur.item.t}`;
   if (earOn(deck)) return "¿Qué escuchaste?";
   if (answerField(deck) === "q") return "¿Cómo se escribe?";
-  return deck.kind === "kana" ? "¿Cómo se lee?" : "¿Qué significa?";
+  return deck.kind === "kana" ? "¿Cómo se lee? Elige el romaji" : "¿Qué significa?";
 }
 
 function nextCard() {
@@ -1953,6 +1953,7 @@ const pad = createPad(i => {
   if (i === 9) return setPaused(true);
   if (i === 6) return toggle("ear");
   if (i === 7) return toggle("reverse");
+  if (i === 10) return answer("?"); // LS: "No lo sé"
   if (ANSWER_BUTTONS[i]) answer(ANSWER_BUTTONS[i]);
 }, () => screen === "start" || screen === "pause" || screen === "guide" || (screen === "stories" && ($("squiz").hidden)));
 
@@ -2043,6 +2044,7 @@ document.addEventListener("keydown", e => {
   else if (key === "s") toggle("voice");
   else if (key === "o") toggle("ear");
   else if (key === "i") toggle("reverse");
+  else if (key === "h" && screen === "play") answer("?");
   else if (e.key === "Escape" && (screen === "play" || screen === "summary")) setPaused(true);
   else if (e.key === "Enter" && screen === "summary") { e.preventDefault(); continueStudy(); }
   else if (key === "n" && screen === "summary" && !$("morenew").hidden) moreNew();
@@ -2053,6 +2055,8 @@ $("morenew").addEventListener("click", moreNew);
 $("decktag").addEventListener("click", () => setDeck(prefs.deck + 1));
 $("ear").addEventListener("click", () => toggle("ear"));
 $("reverse").addEventListener("click", () => toggle("reverse"));
+// "?" matches no option, so answer() grades it as a miss and reveals ERA: <answer>; the card comes back soon.
+$("dunno").addEventListener("click", () => answer("?"));
 
 // ---------- progress backup ----------
 const backupData = () => ({ app: "kana-pad", v: 5, stats, cards, day, prefs, history, exams, stories: storyScores, kinds,

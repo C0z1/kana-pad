@@ -10,6 +10,12 @@ Una **prueba de nivel** (unas preguntas de kana, N5, N4 y N3) decide desde dónd
 
 [Política de privacidad](https://c0z1.github.io/kana-pad/privacidad.html)
 
+## Novedades de 0.14.0
+
+- **Progreso de la ronda arriba**: las bolitas y el contador (3 / 10) pasan al encabezado, debajo del mazo y el combo, para verlos primero.
+- **No lo sé**: un botón nuevo (H en el teclado, LS en el mando) que muestra la respuesta correcta cuando no la sabes. Cuenta como fallo, así la carta vuelve pronto.
+- En los kana, la pregunta dice "¿Cómo se lee? Elige el romaji".
+
 ## Novedades de 0.13.0
 
 - **Vibración del mando**: un toque ligero al acertar, un doble golpe al fallar, un pulso más fuerte cada 5 seguidas y una vibración larga en una ronda perfecta. Se apaga en Ajustes → Mando y datos → Vibración del mando.
